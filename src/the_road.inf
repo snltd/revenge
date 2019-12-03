@@ -1,0 +1,59 @@
+Place lev_1 "Levinson Crescent - Outside Your House"
+with name "path" "pavement" "sidewalk" "road" "crescent" "grass"
+	"pointing" "window" "windows"
+		"weeds" "slab",
+	locname "the part of Levinson Crescent outside your house",
+	description
+	[;	if (daytime() == 1)
+			print "It might just be the damp, silvery-grey
+				melancholy of the weather, but your house is
+				looking rather grim. The monochromatic slab of
+				the south facing front, is punctured by windows
+				whose frames, once white, are now as yellow as
+				the light they surround, and also by a dirty red
+				door with a stiffly ajar, rusting letter box.^^
+				Between the wall and the pavement, encroaching in
+				on a rough concrete path, is a narrow strip of
+				grass and weeds. Compared to Savage's house,
+				which joins it to the east, your abode, the
+				mortgage for which is as crippling as your
+				injuries, looks almost derelict.";
+		else print "When you come to sell this house, you must
+				remember to invite prospective buyers only after
+				dark. Silhouetted against the night sky, it looks
+				every bit as well-maintained as Savage's.";
+		"^^Your drive cuts through the curb to the northwest; going
+		east will move you to the front of Savage's house, and your
+		sorry looking front door is north. (Not that you ever use
+		it.)";
+	],
+	s_to "Stick to the pavement - remember what happened last time.",
+	n_to front_door,
+	nw_to drive, ne_to "There isn't a gap between the houses.",
+	e_to lev_2,
+	cant_go "There's enough to do in the two houses.",
+	underfoot actual_drive,
+	overhead sky,
+has	outside;
+
+Place lev_2 "Levinson Crescent - Outside Savage's House"
+with name "path" "pavement" "sidewalk" "road" "crescent" "grass"
+	"pointing" "window" "windows" "upvc",
+	locname "the part of Levinson Crescent outside Savage's house",
+	description "The front of Savage's house is in much better
+			condition than that of yours. The pointing is intact
+			and fresh, the double-glazed UPVC windows and front
+			door look clean and secure, and the small strip of
+			grass between the house and the pavement is not full
+			of weeds.^^
+			A couple of paving stones lead north to the door, and
+			the end of Savage's drive is northeast.",
+	s_to "Look what happened last time.",
+	n_to k_front_door,
+	nw_to "There isn't a gap between the houses.",
+	ne_to k_drive,
+	w_to lev_1,
+	cant_go "There's enough to do in the two houses.",
+	underfoot actual_drive,
+	overhead sky,
+has	outside;

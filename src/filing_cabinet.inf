@@ -1,0 +1,514 @@
+Object file_cab "filing cabinet" spare_room with
+  !  if it HAS GENERAL it's leaning
+  !  if it HAS FLAGGED it's been turned
+  !  if it HAS BROKEN it's been pulled
+  name "filing" "grey" "gunmetal" "cabinet",
+  description [i j;
+    print "A particularly dull piece of office furniture, this model has three
+          large drawers. ";
+    if (location == spare_room) {
+      if (self has flagged) {
+        print "It is currently facing the wall. ";
+      }
+      if (self has broken) {
+        print "There is a two foot gap between it and
+          the skirting board. ";
+      }
+    }
+
+    i = 0;
+
+    objectloop(j ofclass FilingCabinetDrawer) {
+      if (j has open) {
+        i = i + j.number;
+      }
+    }
+
+    switch(i) {
+      0: "All the drawers are currently closed.";
+      1: print "The top drawer is";
+      2: print "The middle drawer is";
+      3: print "The top two drawers are";
+      4: print "The bottom drawer is";
+      5: print "The top and bottom drawers are";
+      6: print "The bottom and middle drawers are";
+      7: print "All three drawers are";
+    }
+
+    " open.";
+  ],
+  describe [;
+    if (self notin spare_room) {
+      "A ", (name) self, " stands here, looking rather out of place.";
+    }
+    rtrue;
+  ],
+  before [ i j;
+    Open:
+      "You can try opening any (or all) of the three drawers.";
+    Climb:
+      if (player in middle_top) {
+        print "Very carefully, you step up onto the top of ", (the) self,
+              ".^";
+        move player to self;
+        rtrue;
+      }
+
+      if (self has general) {
+        "While you're holding it?";
+      }
+
+      "It's too high.";
+    Pull:
+      if (children(player) ~= 0) {
+        "You'll need both hands free to do that.";
+      }
+
+      if (self has general) {
+        "You already are.";
+      }
+
+      if (self hasnt flagged) {
+        "As you pull the top of the cabinet towards you, the drawers slide
+        open and smack into your still tender ribs. You let go of the top of
+        the cabinet and it rattles back to the vertical.";
+      }
+      else {
+        print "You stretch your arms around the front of ", (the) self, " and
+              pull it towards you";
+
+        i = 0;
+
+        objectloop(j ofclass FilingCabinetDrawer) {
+          if (j has open) {
+            give j ~open;
+            give j.top ~open;
+            i = i + j.number;
+          }
+        }
+
+        if (i > 1) {
+          print ", (the open drawer";
+
+          if (i ~= 4 or 2) {
+            print "s";
+          }
+
+          print " slamming shut)";
+        }
+
+        print " until it makes an angle of about forty-five degrees with the
+              floor";
+
+        if (self hasnt broken) {
+          print ". With all your strength, you manage to drag the cabinet a
+                foot or so towards the centre of the room";
+        }
+
+        give self general broken;
+        move dummy_cab to player;
+        ".";
+      }
+    Take:
+      if (self in player) {
+        "You are already carrying it.";
+      }
+
+      if (simone in location && simone.state == 5 && self has general) {
+        print "You pull the top of ", (the) self, " backwards until you are
+              supporting its weight. You lower the top end to waist height,
+              and Simone lifts up the bottom end until the cabinet is parallel
+              to the floor. Balancing it on your knees, you get a better grip.
+              Holding the cabinet up purely with the strength in her arms,
+              Simone shuffles sideways, towards the middle of the room until
+              she faces the door.  ~Come on,~ she says , ~What are we going to
+              do with it now?~^";
+        StartTimer(top_drawer, 3);
+        remove dummy_cab;
+        move self to player;
+        give self ~general ~flagged;
+        rtrue;
+      }
+
+      "It's way too heavy to move alone.";
+    Turn:
+      i = 0;
+
+      objectloop(j ofclass FilingCabinetDrawer) {
+        if (j has open) {
+          i = i + j.number;
+        }
+      }
+
+      if (i > 0) {
+        "Not with open drawers you can't.";
+      }
+
+      if (location ~= spare_room || self has moved) {
+        "I don't see the point now.";
+      }
+      else {
+        if (self hasnt flagged) {
+          give self flagged;
+        }
+        else {
+          give self ~flagged;
+        }
+
+        print "With some difficulty, you manage to ~walk~ ", (the) self, "
+              round in a half-circle, so that the front is facing the ";
+
+        if (self has flagged) {
+          "wall.";
+        }
+        else {
+          " centre of the room.";
+        }
+      }
+    Push:
+      "It doesn't budge.";
+  ],
+  after [;
+    Drop:
+      StopTimer(top_drawer);
+      move self to location;
+      simone.state = 1;
+      "Carefully, Simone and you lower the cabinet to the floor. You are glad
+      to put it down.";
+  ],
+  react_before [i j k;
+    Climb:
+      i = noun;
+      j = parent(noun);
+
+      if (j ofclass OpenDrawer) {
+        if (j.number == 1 or 2 && player notin file_cab or chair) {
+          "That's too high for you to climb onto.";
+        }
+
+        if (j.number == 1 && player in file_cab) {
+          "The whole thing would tip over if you tried that.";
+        }
+
+        objectloop(k ofclass FilingCabinetDrawer) {
+          if (k.number == (i.number/2) && k has open) {
+            print "You'd have to close ", (the) k, " before you tried that.^";
+            rtrue;
+          }
+        }
+
+        if (j.number == 4) {
+          print "Slowly, you apply your weight to ", (the) i, ". It seems to
+                distribute your weight evenly enough, and the sides of the
+                drawer support you.^";
+          move j to location;
+          move player to j;
+          rtrue;
+        }
+
+        if (j.number == 2) {
+          if (player in file_cab) {
+            print "You carefully step down onto ", (the) i, ".";
+          }
+
+          if (player notin chair) {
+            "That's too high.";
+          }
+
+          if ((WeightCarried(bottom_drawer) < 15) || (bottom_drawer has open)) {
+            "Slowly, you apply your weight to ", (the) i, ". As you begin to
+            place the second of your feet on ", (the) i, "," , (the) self, "
+            tips forward. You are lucky to get back onto ", (the) chair, "
+            before the whole lot ends up in a heap.";
+          }
+          else {
+            print "Slowly, you apply your weight to ", (the) i, ". It seems to
+            distribute your weight evenly enough, and the sides of the drawer
+            support you.^";
+            move j to location;
+            move player to j;
+            rtrue;
+          }
+        }
+      }
+    Exit:
+      if (parent(player) ofclass OpenDrawer) {
+        print "You jump down to the floor. Pain burns through your knee.^";
+        remove parent(player);
+        move player to location;
+        rtrue;
+      }
+
+      if (player in file_cab) {
+        "With your bad leg, jumping to the floor from here is out of the
+        question.";
+      }
+    Go:
+      if (self has general) {
+        give self ~general;
+        print "(first returning ", (the) self, " to the vertical)^";
+        remove dummy_cab;
+      }
+
+      if (self in player) {
+        if (simone notin location) {
+          "** ERROR: Simone is not helping you **";
+        }
+
+        if (noun == d_obj) {
+          "Trying to carry ",(the) self, " downstairs could well prove fatal
+          for whoever went down first.";
+        }
+
+        if (ZRegion(location.noun) == 1) {
+          MoveActor(simone, noun);
+        }
+      }
+    Take:
+      if (parent(noun) == parent(player) && parent(noun) ofclass OpenDrawer) {
+        "But you are standing on ", (the) noun, "!";
+      }
+    Drop:
+      if (noun == self && self has general) {
+        <<drop dummy_cab>>;
+      }
+  ],
+  time_left 0,
+  time_out [;
+    if (simone.state == 5) {
+      simone.state = 3;
+      "Simone drops ", (the) self, " and exhales loudly.  Rubbing her marked
+      fingers, she exclaims ~That damn thing weighs a ton.~";
+    }
+  ],
+  size 35,
+  weight 0,
+  has supporter;
+
+Object dummy_cab with
+  name "cabinet" "top" "end" "filing" "holding",
+  invent "the top end of the filing cabinet. (The bottom is still on the
+         floor.)",
+  before [;
+    Drop:
+      remove self;
+      give file_cab ~general;
+      "You push the cabinet back into a vertical position.";
+  ];
+
+Class FilingCabinetDrawer with
+  name "drawer" "drawers//p",
+  max_space 8,
+  max_weight 16,
+  size 7,
+  weight 10,
+  add_to_scope [;
+    AddToScope(self.top);
+  ],
+  invent [;
+    rtrue;
+  ],
+  description [;
+    print "An ordinary filing cabinet drawer. ";
+
+    if (children(self) ~= 0 && self has open) {
+      print "Inside ";
+      WriteListFrom(child(self), ENGLISH_BIT + RECURSE_BIT + PARTINV_BIT +
+                                 TERSE_BIT + CONCEAL_BIT + ISARE_BIT);
+      print ". ";
+    }
+
+    if (children(self.top) ~= 0 && self has open) {
+      "Balanced on top is ", (a) child(self.top), ".";
+    }
+    else {
+      new_line;
+    }
+  ],
+  before [i j;
+    i = self.number;
+
+    if (self hasnt open &&
+        action == ##Receive or ##Climb or ##Enter or ##PutOn) {
+      "You'll have to open it first.";
+    }
+
+    Enter:
+      "Standing in open drawers will get you nowhere.  (Although you might
+      drop through the bottom of one.)";
+    Take:
+      "The drawer won't come out of the cabinet.";
+    Receive:
+      objectloop(j ofclass FilingCabinetDrawer) {
+        if (j.number == (i/2) && j has open) {
+          print "You'd have to close ", (the) j, " before you tried that.^";
+          rtrue;
+        }
+      }
+
+      if (receive_action == ##PutOn) {
+        if (noun has container) {
+          "Suddenly, you feel unable to put a container on the drawer.";
+        }
+        <<PutOn noun self.top>>;
+      }
+    Climb:
+      objectloop(j ofclass FilingCabinetDrawer) {
+        if (j.number < i && j has open) {
+          print "You'd have to close ", (the) j, " before you tried that.^";
+          rtrue;
+        }
+      }
+
+      if ((i < 4 && player notin chair) || (i < 2 && player in chair)) {
+        print_ret (The) self, " is too high for you to stand on.";
+      }
+
+      if (i == 1 && player in file_cab) {
+        "The whole thing would tip over if you tried that.";
+      }
+
+      "As you step onto the top edge of the drawer, you feel the thin metal
+      sides of the drawer begin to bend inwards, and you step back off
+      hastily.";
+    Close:
+      if (player in self.top) {
+        "Yeah, right.";
+      }
+
+      if (parent(player) ofclass OpenDrawer) {
+        "You can't reach ", (the) noun, " from here.";
+      }
+    Open:
+      if (file_cab has general) {
+        "With the cabinet as it is, you can't.";
+      }
+
+      if (location == spare_room && self has flagged) {
+        "But they face the wall.";
+      }
+
+      if (parent(player) ofclass OpenDrawer) {
+        if (noun.number < parent(player).number) {
+          "You're in the way.";
+        }
+
+        "You can't reach ", (the) noun, " from here.";
+      }
+  ],
+  after [i j k;
+    i = child(self.top);
+
+    Open:
+      give self.top open;
+      objectloop(j ofclass FilingCabinetDrawer) {
+        if (j.number == (2*self.number) && children(j.top) == 1) {
+          k=child(j.top);
+          print (The) self, " pushes ", (the) k, " off onto the floor.^";
+          move k to location;
+
+          if (k hasnt flagged) {
+            give k ~supporter;
+          }
+
+          rtrue;
+        }
+      }
+    Close:
+      give self.top ~open;
+      if (children(self.top) == 1) {
+        print "As you close ", (the) self, ", ", (the) i, " pushes against the
+              frame of ", (the) file_cab, " and falls to the floor.^";
+        move i to location;
+        if (i hasnt flagged) {
+          give i ~supporter;
+        }
+        rtrue;
+      }
+  ],
+  has concealed openable container metallic;
+
+FilingCabinetDrawer top_drawer "top drawer" file_cab with
+  name "top",
+  number 1,
+  time_left 0,
+  time_out [;
+    print "You can support ", (the) file_cab, " no longer. You inform Simone
+          of this, and between you, you put it down.^";
+    move file_cab to location;
+    simone.state = 1;
+    give file_cab ~general;
+  ],
+  top top_top;
+
+FilingCabinetDrawer middle_drawer "middle drawer" file_cab with
+  name "middle",
+  number 2,
+  time_left 0,
+  time_out [;
+    print "~I'm fed up of waiting.~ says Simone, standing up again. ";
+    simone.state = 3;
+    if (file_cab in player) {
+      " ** some kind of bizarre error in the middle_drawer timer **";
+    }
+  ],
+  top middle_top;
+
+FilingCabinetDrawer bottom_drawer "bottom drawer" file_cab with
+  name "bottom",
+  number 4,
+  top bottom_top;
+
+Class OpenDrawer with
+  article "the",
+  max_space 50,
+  max_weight 50,
+  size 7,
+  weight 1,
+  invent [;
+    rtrue;
+  ],
+  before [;
+    Receive:
+      if (children(self) == 1) {
+        "You can only put one thing across the drawer at a time.";
+      }
+
+      if (noun.size < 10) {
+        print_ret (The) noun, " will fit in the drawer.";
+      }
+
+      if (noun has flimsy && noun.size < 10) {
+        print "You lay ", (the) noun, " across the drawer, but it slumps and
+              falls inside.";
+        <insert noun self>;
+      }
+  ],
+  after [;
+    Receive:
+      print "You place ", (the) noun, " on top of the sides of the drawer,
+            spanning it.^";
+
+      if (noun has supporter) {
+        give noun flagged;
+      }
+
+      rtrue;
+    LetGo:
+      if (noun hasnt flagged) {
+        give noun ~supporter;
+      }
+  ],
+  has supporter;
+
+OpenDrawer top_top "top of the top drawer" with
+  number 1,
+  belongs_to top_drawer;
+
+OpenDrawer middle_top "top of the middle drawer" with
+  number 2,
+  belongs_to middle_drawer;
+
+OpenDrawer bottom_top "top of the bottom drawer" with
+  number 4,
+  belongs_to bottom_drawer;

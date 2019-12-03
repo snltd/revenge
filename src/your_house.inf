@@ -1,0 +1,1215 @@
+Place kitchen "Your Kitchen" with
+  name "greasy" "papers" "paper" "foil" "silver" "tray" "trays" "discoloured"
+       "fetid" "ketchup" "encrusted" "poster" "spice" "girls" "emma" "geri"
+       "mel" "b" "c" "sporty" "baby" "ginger" "posh" "victoria"
+       "arch""archway" "formica" "finish",
+  locname "the kitchen",
+  description [;
+    print "Perhaps the main reason why your kitchen is generally fairly clean
+          and tidy is that you hardly ever do any cooking it. With Indian,
+          Chinese and English take-aways all within five minutes walk, the
+          need to cook anything more than beans on toast or a tin of soup
+          rarely arises.
+          ^^
+          Even so, you've managed to more than fill the sink with dirty plates
+          and pans, and the bin, spilling silver foil trays and greasy paper
+          onto the floor cries out ~I belong to a grown man who can't really
+          look after himself~.  Every single man's kitchen should have
+          something which makes this proclamation.
+          ^^
+          The kitchen is fitted out with cupboards whose style and condition
+          show they are at least as old as you are.
+          ^^
+          An archway to the south leads to the sparse order of the hall, and ";
+
+    if (daytime() == 1) {
+      if (raining() == 1) {
+        print "rain taps gently";
+      }
+      else {
+        print "rays of yellow sunlight squeeze in through dried rain-streaks";
+      }
+
+      print " on the window across the room from it. ^^T";
+    }
+    else {
+      print "t";
+    }
+
+    "he door in the west will take you out onto your drive.";
+  ],
+  onwalls "A few pictures clipped from newspapers and a large damp-wrinkled
+          Spice Girls poster adorn the walls.",
+  s_to hall,
+  w_to back_door,
+  cant_go "The only exits are west and south.";
+
+Floor carpet "carpet" with
+  name "cheap" "carpet" "matted",
+  before [;
+    Examine:
+      if (location == k_landing) {
+        "There are two small, rectangular indentations in
+        the carpet.";
+      }
+
+      if (location has sav) {
+        "The carpet is a dark plum colour.";
+      }
+
+      "The carpet is worn and gaudily patterned.";
+    Take:
+      "You'd have to move all the furniture out of the room, lift up the edges
+      of the carpet and roll it up first.  And it wouldn't get you a single
+      point.";
+    LookUnder:
+      "The fitted carpet goes right up to the walls, where grippers firmly
+      hold it down.";
+    Dig:
+      "You can't dig indoors!";
+  ];
+
+Object scissors "pair of scissors" with
+  name "pair" "of" "scissors",
+  description "Kitchen scissors. Very sharp.",
+  initial "Scissors gleam devilishly from the sink.",
+  before [;
+    Open, Close:
+      "Snip snip!";
+  ],
+  has cutter;
+
+Object kitchen_sink "kitchen sink" kitchen with
+  name "sink" "kitchen" "pots" "plates" "pans" "washing-up",
+  before [;
+    Take:
+      "In this game you can take everything but the kitchen sink.";
+    Receive:
+      "You are unable to balance ", (the) noun, " on top of the pile of
+      washing up.";
+    Examine:
+      if (self hasnt general) {
+        move scissors to self;
+        give self general;
+        "Just the usual iceberg of washing up. If you think what you can see
+        above the tepid, grease-scummed sea is bad, remember that nine tenths
+        of the horror is hidden below. You don't want to touch anything, but
+        poke around a little with a reasonably clean pair of scissors. There's
+        nothing in there to warrant further investigation though.";
+      } else {
+        "Just leave it alone.";
+      }
+  ],
+  has scenery container open;
+
+Object bin kitchen with
+  ! if it HAS BROKEN then you've found the tray
+  name "bin" "dustbin" "trash" "trashcan" "rubbish" "waste",
+  description [;
+    if (self has broken) {
+      "Overflowing.";
+    }
+    else {
+      give self broken;
+      move tray to parent(self);
+      "As you touch the edge of the bin, a silver foil tray falls to the floor
+      and splatters your shoe with black bean sauce, which you instinctively
+      wipe off on the back of your jeans.";
+    }
+  ],
+  before [;
+    Take:
+      if (self has broken) {
+        "Why start putting the rubbish out now?";
+      }
+      else {
+        <<examine self>>;
+      }
+    Insert:
+      "You couldn't possibly cram anything else in.";
+    Empty:
+      <<take self>>;
+    Smell:
+      "Nasty. There's definitely something organic in there.";
+    Search:
+      "I don't think so.";
+    Enter:
+      "You piece of trash.";
+  ],
+  has scenery;
+
+Object tray with
+  ! if it HAS BROKEN it's crumpled up
+  name "silver" "foil" "tray" "sauce",
+  short_name [;
+    if (self has broken) {
+      print "squashed foil tray";
+    }
+    else {
+      print "silver foil tray";
+    }
+
+    rtrue;
+  ],
+  description [;
+    if (self has broken) {
+      "All squashed into a tiny ball.";
+    }
+
+    "Some kind of dark coloured sauce has dried in the bottom.";
+  ],
+  before [;
+    Crush, Squeeze, Bend:
+      if (children(self) ~= 0) {
+        "Not with something in it!";
+      }
+
+      if (self has broken) {
+        "You can't compress it further.";
+      }
+
+      give self broken ~container;
+      self.size = 0;
+      "You crunch the tray up into a very small ball.";
+    Eat:
+      "It'd play bloody hell with your fillings.";
+  ],
+  after [;
+    Take:
+      give self ~concealed;
+  ],
+  initial "A silver tray which one contained take away food now lies upside
+          down on the floor",
+  size 2,
+  weight 1,
+  max_space 2,
+  max_weight 50,
+  has metallic container open;
+
+Object cupboards "kitchen cupboard" kitchen class adnc with
+  name "cupboard" "cupboards",
+  adname 'kitchen',
+  before [;
+    Examine:
+      print "A rather cheap blue formica finish, chipped and dirty brown at
+            the corners. One of the cupboards is full of old tins of paint or
+            some such rubbish, and the one under the sink is empty but usually
+            soaking wet inside. The remaining cupboard, which you have
+            actually used, is ";
+
+      if (self has open) {
+        print "open and ";
+      }
+      else {
+        "currently closed.";
+      }
+
+      if (child(self) == 0) {
+        "is presently empty.";
+      }
+      else {
+        print "inside";
+        WriteListFrom(child(self), ENGLISH_BIT + RECURSE_BIT + PARTINV_BIT +
+                                   TERSE_BIT + CONCEAL_BIT + ISARE_BIT);
+        ".";
+      }
+  ],
+  has openable container scenery;
+
+Object tuna_tin "tin of tuna" cupboards class adnc with
+  name "tin" "can" "of" "food//p" "tuna",
+  description "The tin has that poorly printed  air of seventies design about
+              it. No matter how low you might be on food, you have never
+              considered opening this tin. Many times it has contained the
+              only food in the house. In fact, on the day you moved in, it was
+              the only food in the house.",
+  before [;
+    Smell:
+      if (self hasnt open) {
+        "Given the age of the fish inside, it is a minor miracle you can't
+        smell it through the tin.";
+      }
+      else {
+        if (tuna in self) {
+          <<smell tuna>>;
+        }
+
+        "The particles of fish left in the corners of the tin still pack quite
+        an olfactory punch.";
+      }
+    Close:
+      if (self has open) {
+        "There's no going back now.";
+      }
+    Eat:
+      "That's a little hard to swallow.";
+  ],
+  after [;
+    Open:
+      "You disconnect the little key from the side of the tin and use it to
+      roll back the top of the tin.  The smell of the fish inside is
+      remarkable.";
+  ],
+  size 1,
+  weight 0,
+  max_space 1,
+  has openable metallic container;
+
+Object tuna "rotten tuna" tuna_tin with
+  parse_name [w1 w2 w3;
+    w1 = NextWord();
+    w2 = NextWord();
+    w3 = NextWord();
+
+    if (w1 == 'tuna' or 'fish' or 'rotten') {
+      return 1;
+    }
+
+    if (w1 == 'rotten' || w2 == 'fish' or 'tuna') {
+      return 2;
+    }
+
+    if ((w1 == 'fish' or 'tuna') && (w2 == 'in') && (w3 == 'can' or 'tin')) {
+      return 3;
+    }
+
+    return 0;
+  ],
+  description "Guaranteed less that 60% dolphin.",
+  article "some",
+  react_before [;
+    Smell:
+      if (noun == self) {
+        "Unbelievable.";
+      }
+
+      "All you can smell is bad tuna.";
+  ],
+  before [;
+    Eat:
+      "That's not even funny.";
+  ],
+  size 1,
+  weight 1;
+
+Object cordial "bottle of blackcurrant cordial" cupboards with
+  name "bottle" "of" "blackcurrant" "cordial" "ribena" "concentrate",
+  description "Thick and syrupy. You add water to make a cold, still drink.",
+  before [;
+    Open:
+      "The bottle top has been lost: it's already open.";
+    Drink:
+      "Too thick and syrupy.";
+    Pour:
+      switch(second) {
+      k_bedroom_carpet:
+        if (second has broken)  {
+          "It's ruined already.";
+        }
+
+        give second broken;
+        print "Beautiful. A thick purple stain creeps out over the expensive
+        cream shagpile.  Blackcurrant cordial is perhaps the most durable and
+        unmovable dye known to humankind.^";
+        Achieved(11);
+        rtrue;
+      carpet:
+        "You drip a little cordial onto",  (the) second, ", but it doesn't
+        show up.";
+      water_in_bucket, pond, water_in_can, bathwater, bath:
+        "No one could drink that much.";
+    }
+    Rub:
+      if (verb_word == 'rub') {
+        "You were expecting the genie of the Ribena perhaps?";
+      }
+  ],
+  size 2,
+  weight 2;
+
+Object worktops "worktops" kitchen with
+  name "worktop" "worktops" "work" "surface" "surfaces",
+  description "Covered with grease, breadcrumbs and dried curry sauce.",
+  article "scummy",
+  before [;
+    Take:
+      "Charles Atlas are we?";
+
+    "It would get covered in grease.";
+  ],
+  has scenery;
+
+Portal back_door "back door" with
+  name "back",
+  description "It's rather thin and tatty. You get terrible condensation
+              problems in this house, and as a result the wooden frame around
+              the heavily textured glass is black and beginning to rot.",
+  before [;
+    Attack:
+      "It probably wouldn't take much to knock this off its hinges, but I
+      don't think it's a great idea to try.";
+  ],
+  with_key back_door_key,
+  InLoc kitchen,
+  OutLoc drive,
+  InDir e_to,
+  OutDir w_to,
+  found_in drive kitchen,
+  has lockable open;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place lounge "Your Lounge" with
+  name "parked" "cars" "dust",
+  locname "the lounge",
+  description [;
+    print "This room takes up half of the ground floor of your house. A window
+          in the south wall affords a";
+
+    if (raining() == 1) {
+      ", rain-soaked";
+    }
+
+    if (daytime() == 3) {
+      "orange-pink lit";
+    }
+
+  print " view of cars parked on both sides of the road, and a large
+        french window in the north wall opens out onto the dreary back garden.
+        ^^
+        Turning our attention to the interior of the room, we see a large low
+        table at its focus. This table's glass is mostly buried under old
+        magazines, out of date newspapers and empty pizza boxes stained dark
+        by grease. Huddled around it are a couple of threadbare armchairs, all
+        crouching in deference to the mighty television, which surveys the
+        room imperiously from a stand in the corner.
+        ^^
+        Going west from here will return you to the entrance hall.";
+  ],
+  w_to lounge_door, n_to french_window;
+
+Object stand "television stand" lounge class adnc with
+  name "stand" "small" "table" "tables//p",
+  adname 'tv' 'televsion' 'telly',
+  description [;
+    "Really just a small table. On top of it is ", (the) your_tv, ".";
+  ],
+  max_weight 25,
+  max_size 30,
+  has scenery supporter;
+
+Object your_tv "television set" stand with
+  name "mighty" "telly" "television" "tv" "set",
+  description "You bought this set second hand from a shop in town. It seemed
+              like a bargain at the time, but you've had nothing but trouble
+              with it. You have already spent more on having it repaired than
+              a brand new model would have cost, and it's on the fritz at the
+              moment.",
+  before [;
+    SwitchOn:
+      "Pointless. It doesn't work.";
+    SwitchOff, Unplug:
+      "Pointless. It isn't on.";
+    Take:
+      "The repair man is supposed to be coming to collect it. You ought to
+      leave it where it is.";
+    Attack:
+      "It probably won't cost much to fix. It would be stupid to cause more
+      damage.";
+  ],
+  size 30,
+  weight 20,
+  has scenery;
+
+Object table "coffee table" lounge with
+  name "coffee" "table" "glass" "topped" "top" "tables//p",
+  description [;
+    if (mess in self) {
+      "As described, the table is buried under rubbish.";
+    }
+  ],
+  before [;
+    Push:
+      if (verb_word == 'clear') {
+        <<push mess>>;
+      }
+    Search:
+      <<examine self>>;
+    Receive:
+      if (mess in self) {
+        print_ret "You can't find any free space to put ", (the) noun, " on.";
+      }
+    LookUnder:
+      "There's nothing there but dust. (Although there is plenty of that.)";
+    Take:
+      "It's too big and clumsy to comfortably carry around.";
+  ],
+  weight 25,
+  size 30,
+  has concealed supporter;
+
+Object mess "mess" table with
+  name "mess" "pizza" "boxes" "old" "magazine" "magazines" "newspapers"
+       "papers" "clutter" "mag" "mags" "rubbish" "crap",
+  article "lots of",
+  describe [;
+    if (self notin table)
+      " The table in the centre of the room is surrounded by rubbish";
+  ],
+  before [;
+    Examine:
+      if (self in table) {
+        "There could be anything in amongst that lot.";
+      }
+
+      "You've made a real mess haven't you?";
+    Push:
+      if (self in table) {
+        move self to parent(table);
+        give self ~concealed;
+        "Deciding that things couldn't get much more untidy in here, you sweep
+        everything on the table onto the floor.";
+      }
+
+      "I think you have moved that lot far enough.";
+    Search:
+      if (self in table) {
+        "You have a quick look around the surface of the mountain of rubbish,
+        but there isn't enough room on the table to move it all around and do
+        a thorough search.";
+      }
+
+      if (curry_menu hasnt general) {
+        give curry_menu general;
+        move curry_menu to parent(self);
+        "Scanning through the debris, you happen across a menu from the indian
+        takeaway nearby. You feel very hot and an image of your bathroom wall
+        swims before your eyes.";
+      }
+
+      "Poking through the mess with your foot, you find nothing of interest.";
+    Take:
+      "There is too much rubbish for you to carry.";
+  ],
+  size 5,
+  weight 5,
+  has concealed;
+
+Object curry_menu "menu from Ali^s Indian Takeaway" with
+  ! if it HAS GENERAL you've found it
+  name "menu" "from" "ali^s" "indian" "takeaway" "grotty" "looking",
+  initial "A grotty looking takeaway menu sits on top of the pile of rubbish.",
+  description "A single shabby piece of coloured paper with a meagre selection
+              of anglicised curries. You can take your pick from mutton,
+              chicken or beef, its flavour obliterated to any one of three
+              varying degrees: namely madras, vindaloo, and the semi-mythical
+              tindaloo. At the top of the page is a stylised plate of steaming
+              curry with ~We Deliver~ written below it, and at the foot of the
+              menu is the telephone number: 951524.",
+  size 0,
+  weight 0;
+
+Portal lounge_door "lounge door" with
+  name "lounge",
+  InLoc lounge,
+  OutLoc hall,
+  InDir e_to,
+  OutDir w_to,
+  found_in hall lounge,
+  has open;
+
+Portal French_Window "French window" with
+  name "tall" "glass" "window" "french" "window",
+  describe [;
+    if (self has open) {
+
+      if (location == lounge) {
+        if (raining() == 1) {
+          print "^^Rain";
+        }
+        else {
+          print "^^A cold draught";
+        }
+
+        " blows in through ", (the) self, ".";
+      }
+      else {
+        print_ret (The) self, " is open.";
+      }
+    }
+    rtrue;
+  ],
+  before [;
+    Examine:
+      print "The window provides ";
+
+       if (location == lounge) {
+        print "access to the small paved area between the house and the
+              garden. It is currently ";
+
+        if (self has open) {
+          "open.";
+        }
+
+        "closed.";
+      }
+      else {
+        print "a link between the house and the garden. It will be ideal if
+              you ever (God forbid) have a barbecue. The window is presently ";
+
+        if (self has open) {
+          "open.";
+        }
+
+        "closed.";
+      }
+    Open:
+      if (location == patio) {
+        "There is no way to open the window from this side.";
+      }
+    Attack:
+      "Great idea. Those things cost a fortune.";
+  ],
+  inloc patio,
+  outloc lounge,
+  indir n_to,
+  outdir s_to,
+  found_in patio lounge,
+  has open flagged;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place hall "Your Hall" with
+  name "arch" "archway" "ledge" "small" "button" "buttons" "corner" "lock"
+       "keyhole",
+  locname "the hall",
+  description "The age of the carpet is betrayed not only by its beige and
+              orange styling, but also by the pathway of matted, paler
+              material between the entrances to the kitchen (in the north
+              wall) and the lounge (in the east wall). In the corner between
+              the two doors is a small ledge with a telephone on it.^^The too
+              steep and too narrow staircase runs up the west wall, and the
+              dankness of the hallway increases all the way down to the
+              leaking and draughty front door in the south wall.",
+  s_to front_door,
+  u_to your_stairs,
+  n_to kitchen,
+  e_to lounge_door;
+
+Object hall_carpet hall with
+  name "carpet" "orange" "beige",
+  description "Pure 1970s in design, its light colours show up the dirt all
+              too plainly.",
+  has scenery;
+
+Object letterbox "letterbox" with
+  name "letterbox" "letter-box" "flap",
+  description "Rusty. It is slightly ajar. Probably just enough for rainwater
+              and the odd bill to slip through.",
+  before [;
+    Close:
+      "You can't. It's stuck fast.";
+    Search:
+      if (location == hall) {
+        "You can see a thin stip of concrete path.";
+      }
+
+      "Even bending down and craning your neck, you can't make anything out.";
+  ],
+  found_in hall lev_1,
+  has scenery open;
+
+Object door_lock "lock" class adnc, with
+  name "lock" "keyhole",
+  adname 'door' 'metal',
+  description [;
+    print "For a fairly large, traditionally shaped key.  It is surrounded by
+          metal";
+
+    if (f_door_key hasnt moved && location == hall) {
+      move f_door_key to hall;
+      print ", and a key pokes out of it";
+    }
+
+    ".";
+  ],
+  before [;
+    Receive, Unlock, Open:
+      "Just try ~unlock door~.";
+    Take:
+      if (verb_word == 'pick') {
+        "Yeah, right.";
+      }
+
+      "It's an integral part of the door. You'd be struggling.";
+    Search:
+      if (f_door_key hasnt moved) {
+        switch(location) {
+          hall:
+            move f_door_key to hall;
+            "You can't, as there is a key in it.";
+          lev_1:
+            "The keyhole appears to be blocked.";
+        }
+      }
+  ],
+  found_in hall k_hall lev_1 lev_2,
+  has scenery;
+
+Object mat "doormat" hall with
+  ! if it HASN'T CONCEALED you've looked under it
+  name "welcome" "mat" "woven" "damp",
+  description "Clammy. Damp and unpleasant. It has a faintly musty odour.",
+  before [;
+    Smell:
+      "It smells of damp.";
+    LookUnder:
+      if (self hasnt concealed) {
+        give self ~concealed;
+        "Lifting up the corner of the mat reveals a glistening, dark, wet
+        stain on the carpet. Obviously more water gets in through the door
+        than you thought.";
+      }
+
+      if (self hasnt moved) {
+        "You're not daft enough to hide anything under the mat.";
+      }
+  ],
+  size 3,
+  weight 2,
+  has flimsy concealed;
+
+Object phone_book "telephone directory" hall class adnc with
+  name "book" "directory" "books//p" "white" "pages",
+  adname 'telephone' 'phone',
+  initial "A telephone directory is on the floor under the ledge.",
+  description "Fairly slim for a telephone directory. If you want, you can
+              look people's numbers up in it.",
+  before [;
+    NewConsult:
+      switch(second) {
+        QKev:
+          "Savage's number is 1743.";
+        QBronson:
+          "I don't think he has his own line. Just ring Savage and ask for
+          him.";
+        QSimone, QPartner:
+          "No need: you know Simone's number off by heart. It's 2856.";
+        QKen, QFrancis:
+          "You don't know his surname.";
+        QWork:
+          "Your long term hospitalisation lead to you losing your job.";
+        QDonna:
+          "You don't know Donna's surname. If you desperately need to contact
+          her you should try waiting for her to come and visit Savage.";
+        default:
+          "You expect to find that in a fictional region's telephone
+          directory?";
+      }
+  ],
+  size 4,
+  weight 2;
+
+Portal front_door "front door" with
+  name "front",
+  description [;
+    if (location == hall) {
+      print "The door has never fitted its frame very well, as testified by
+            the missing paint and damage to the latter's top corner. Given the
+            trouble involved in opening and closing it, along with the
+            depressing vista of the hall, you never come in through it";
+
+      if (f_door_key hasnt moved) {
+        move f_door_key to hall;
+        print ". The key pokes out of the lock";
+      }
+
+      ".";
+    }
+
+    "When the red paint was fresh, this door probably looked quite cheerful.
+    Now the paint flakes in long vertical strips which curl across their
+    width. There is a letterbox at waist height, rusty and jammed slightly
+    open in a metallic rictus. The absence of a house number might be one
+    reason why you get so little mail.";
+  ],
+  before [;
+    Open:
+      print "It's stuck fast and won't open, no matter how hard you ";
+
+      if (location == hall) {
+        print "pull on";
+      }
+      else {
+        print " push and kick";
+      }
+
+      "it";
+  ],
+  InLoc hall,
+  OutLoc lev_1,
+  InDir n_to,
+  OutDir s_to,
+  found_in hall lev_1,
+  with_key f_door_key,
+  has lockable locked;
+
+Stairs your_stairs "staircase" with
+  ! put a cupboard under these one day
+  description "Just an everyday staircase. The newell post has a vulgar
+              carved acorn on top and the bannister is loose, but apart from
+              that it's fine.
+              ^^
+              There is an accumulation of dirt and fluff at the back of each
+              step.",
+  inloc landing,
+  outloc Hall,
+  indir u_to,
+  outdir d_to,
+  found_in landing hall;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place landing "Your Landing" with
+  description "Nothing more than an unadorned corridor which leads east to the
+              spare room, north to the bathroom and south to your bedroom.
+              High above your head is a trapdoor.",
+  locname "the landing",
+  before [;
+    Go:
+      if (noun == u_obj && player in file_cab) {
+        if (trapdoor has open) {
+          print "Using all the strength in your arms, you haul yourself up
+                through ", (the) trapdoor, ".^";
+          PlayerTo(loft, 2);
+          rtrue;
+        }
+
+        print_ret (The) trapdoor, " is in the way.";
+      }
+  ],
+  d_to your_stairs,
+  n_to bathroom_door,
+  s_to bedroom_door,
+  e_to spare_room_door,
+  u_to [;
+    if (player notin file_cab) {
+      "The trapdoor is in the ceiling.";
+    }
+  ],
+  overhead land_ceiling,
+  has upstairs;
+
+Object trapdoor "trapdoor" class portal with
+  name "trap" "trapdoor" "plastic" "handle" "wooden" "frame",
+  when_open [;
+    if (location == loft) {
+      "Most of the light in the room comes through the open trapdoor.";
+    }
+
+    "There is an open trapdoor in the ceiling.";
+  ],
+  before [;
+    give self ~concealed;
+
+    Examine:
+      if (location == landing) {
+        if (self has open) {
+          "The open trapdoor hangs from a wooden frame.";
+        }
+
+        "The trapdoor has a u-shaped handle.";
+      }
+
+      if (self has open) {
+        "You can't really see it from in here.";
+      }
+
+      Open:
+        if (self has open) {
+          "It is open already.";
+        }
+
+        if (player notin file_cab) {
+          "You can't reach the handle.";
+        }
+      Close:
+        if (self hasnt open) {
+          "It's closed already.";
+        }
+
+        if (location == loft) {
+          "You are a little worried about shutting yourself in, so elect not
+          to.";
+        }
+
+        if (player notin file_cab) {
+          "You can't reach it.";
+        }
+      Pull:
+        if (location == landing) {
+          <<Open self>>;
+        }
+      PullWith:
+        if (player in file_cab) {
+          "There's no point: you can reach the handle.";
+        }
+
+        if (location == loft) {
+          <<Close self>>;
+        }
+        else {
+          if (self has open) {
+            "The trapdoor is already open. Pulling it now would be
+            pointless.";
+          }
+          else {
+            if (second == umbrella) {
+              if (umbrella has open) {
+                "You try to hook the handle of ", (the) second, " through that
+                of ", (the) self, ", but holding ", (the) second, " by the
+                fabric and open ribs it is too difficult a task and you
+                desist.";
+              }
+              else {
+                "You stand on tiptoes, but can't quite reach the trapdoor
+                handle.";
+              }
+            }
+            if (second == tied_umbrella) {
+              if (tied_umbrella has open) {
+                print "Stretching up, you are just able to hook the handle of
+                      ", (the) second, " around that of ", (the) self, ". One
+                      sharp tug and ", (the) self, " pops open.";
+                give self open ~concealed;
+                rtrue;
+              }
+
+              "You stand on tiptoes, but can't quite reach the
+              trapdoor handle.";
+            }
+          }
+        }
+      Take:
+        "Don't be silly.";
+      Enter:
+        if (location == loft && self hasnt open) {
+          "Just think about that for a moment.";
+        }
+      Search:
+        if (self hasnt open) {
+          "But ", (the) self, " is closed.";
+        }
+
+        if (location == loft) {
+          "You can't see through it from here.";
+        }
+
+        "You can see up into the loft, but can't make much out.";
+    ],
+    inloc loft,
+    outloc landing,
+    indir u_to,
+    outdir d_to,
+    door_to [;
+      if (location == loft) {
+        if (file_cab in landing) {
+          return file_cab;
+        }
+        else {
+          "You can't risk falling all that way. You are trapped.^^ ** This
+          should not have happened **";
+        }
+      }
+      else {
+        return loft;
+      }
+    ],
+    door_dir [;
+      if (location == loft) {
+        return u_obj;
+      }
+      else {
+        return d_obj;
+      }
+    ],
+    found_in loft landing,
+    has open concealed;
+
+Roof land_ceiling "ceiling" with
+  description [;
+    print "There is a trapdoor set in the ceiling";
+
+    if (trapdoor has open) {
+      ". The trapdoor is currently open.";
+    }
+
+    ".";
+  ],
+  before [;
+    LookUnder:
+      "Under the ceiling is...the room! (The loft should be above it.)";
+    Search:
+      if (trapdoor has open) {
+        <<search trapdoor>>;
+    }
+  ];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place spare_room "Your Spare Room" with
+  name "imprints" "of" "desks" "wheeled" "cupboard" "cupboards" "white"
+       "patches",
+  description [;
+    print "It was from this room that Mr. Morris ran his business into the
+          ground, and a few office relics still remain";
+
+    if (file_cab in self && file_cab hasnt moved) {
+      print ", not least of all a filing cabinet ";
+
+      if (file_cab hasnt flagged) {
+        print "in the corner ";
+      }
+
+      print "which was so heavy you were unable to throw it out";
+    }
+
+    ". You don't use this room, so there has never been a good reason
+      to properly clear it out.
+    ^^
+    The carpet still retains the imprints of desks and wheeled cupboards, and
+    there are small patches of white wall where sellotaped or blu-tacked notes
+    have been removed, stripping off the top layer of yellow paint with their
+    adhesive.";
+  ],
+  locname "the spare room",
+  w_to spare_room_door,
+  cant_go "The only exit is west.",
+  has upstairs;
+
+Portal spare_room_door "spare room door" with
+  name "spare" "room",
+  InLoc spare_room,
+  OutLoc landing,
+  InDir e_to,
+  OutDir w_to,
+  found_in landing spare_room,
+  has open;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place bedroom "Your Bedroom" with
+  name "bare" "bulb" "lightbulb",
+  description "Clothes all over the floor, bed, wardrobe, bare light bulb.
+              Functional.",
+  locname "your bedroom",
+  cant_go "Try ~go north~.",
+  before [;
+    Sleep:
+      if (player notin bed) {
+        "You might as well get in bed first.";
+      }
+      else {
+        Go_To_Sleep(the_time);
+      }
+  ],
+  n_to bedroom_door,
+  has upstairs;
+
+Object wardrobe "wardrobe" bedroom with
+  name "wardrobe" "cupboard",
+  description "Tatty, scratched, and the door won't stay closed because of the
+              slope of the floorboards. And when you touch it, it rocks rather
+              alarmingly.",
+  before [;
+    Close:
+      "The door closes, but the catch has long since disappeared, and gravity
+      makes the door swing open again.";
+    Take:
+      "Yeah, right.";
+  ],
+  has container open;
+
+Object clothes "clothes" wardrobe with
+  name "clothes", article "some",
+  description "A rather small selection of rather old clothes.",
+  before
+  [; if (action ~= ##Examine)
+    "Leave them where they are.";
+  ],
+has  scenery;
+
+Object umbrella "umbrella" wardrobe with
+  name "umbrella" "curved" "short" "black" "businessman^s",
+  article "an",
+  description [;
+    print "It is a black businessman's-umbrella: quite short and compact, with
+          a curved handle. It is currently ";
+
+    if (self has open) {
+      print "open";
+    }
+    else {
+      print "closed";
+    }
+
+    ".";
+  ],
+  after [;
+    Open:
+      "The umbrella smoothly extends and opens.";
+    Close:
+      "You push both ends of the extended umbrella inwards and it clicks
+      shut.";
+  ],
+  size 4,
+  weight 2,
+  has openable;
+
+Object tied_Umbrella "umbrella (around which is tied a length of cord)" with
+  name "umbrella" "curved" "cheery" "short" "cord" "length" "crook" "string",
+  article "an",
+  description [;
+    if (self has open) {
+      "The umbrella is extended, the cord holding the ribs together.";
+    }
+
+    "The umbrella has a length of lightswitch cord tied around it.";
+  ],
+  before [;
+    Tie:
+      "The cord is already tied around the umbrella";
+    Untie:
+      print "You pick at the knot and soon have the umbrella untied.";
+      move umbrella to player;
+      move cord to player;
+      remove self;
+
+      if (self has open) {
+        print " With nothing to restrain them, the ribs of the umbrella pop
+              out, almost removing your eye in the process";
+      }
+
+      ".";
+    Push:
+      if (self has open) {
+        <<open self>>;
+      }
+  ],
+  after [;
+    Open:
+      "You press a small button on the side of the handle and the umbrella
+      extends as usual, but with the cord around them, the ribs are unable to
+      open out.";
+    Close:
+      "You push both ends of the extended umbrella inwards and it clicks
+      shut.";
+  ],
+  has openable;
+
+Object radio "transistor radio" bedroom with
+  name "radio" "transistor" "tranny",
+  state 1, ! the volume, from 1 to 3
+  initial "A transistor radio sits on the floor by the bed.",
+  before [;
+    Examine:
+      print "The small portable radio is currently ";
+
+      if (self hasnt on) {
+        "switched off.";
+      }
+
+      switch(self.state) {
+        1: "playing quietly.";
+        2: "playing at medium volume.";
+        3: "blaring loudly.";
+      }
+    Listen:
+      if (self hasnt on) {
+        "The radio is switched off and hence is silent.";
+      }
+
+      if (self.state == 3) {
+        "You don't have much choice at that volume.";
+      }
+
+      if (random(3) < 2) {
+        "A DJ is currently claiming to be bonkers.";
+      }
+
+      "The radio plays inane pop music.";
+    Attack, ThrowAt:
+      "No. That radio was a gift from your parents.";
+    Open:
+      "The battery compartment is practically impossible to open.  Fortunately
+      it's only a small radio and the batteries last a long time.";
+    TurnUp:
+      if (self.state == 3) {
+        "The radio is already at full volume.";
+      }
+      else {
+        self.state++;
+        print "You turn the volume dial. ";
+
+        if (self has on) {
+          <<Examine self>>;
+        }
+
+        rtrue;
+      }
+    TurnDown:
+      if (self.state == 1) {
+        "The radio is already turned down as far as it will go.";
+      }
+      else {
+        self.state--;
+        print "You turn the volume dial. ";
+
+        if (self has on) {
+          <<Examine self>>;
+        }
+
+        new_line;
+        rtrue;
+      }
+  ],
+  after [;
+    SwitchOff:
+      "The radio is abruptly silent.";
+    SwitchOn:
+      print "You turn the radio on and ";
+
+      switch(self.state) {
+        1: "it begins playing quietly.";
+        2: "it crackles into life, playing inane pop music.";
+        3: "a distorted blast of music almost blows your head off.";
+      }
+  ],
+  size 2,
+  weight 2,
+  has switchable;
+
+Object bed "bed" bedroom with
+  name "bed" "matress" "duvet",
+  has scenery;
+
+Portal bedroom_door "bedroom door" with
+  name "bedroom",
+  InLoc bedroom,
+  OutLoc landing,
+  InDir s_to,
+  OutDir n_to,
+  found_in landing bedroom,
+  has open;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Portal bathroom_door "bathroom door" with
+  name "bathroom",
+  InLoc bathroom,
+  OutLoc landing,
+  InDir n_to,
+  OutDir s_to,
+  found_in landing bathroom,
+  has lockable open;
+

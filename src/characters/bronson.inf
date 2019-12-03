@@ -1,0 +1,342 @@
+! Bronson, his collar, and the routines he needs to make him work.
+
+Person Bronson "Bronson" lounge with ! okay, so strictly speaking he's a dog...
+  !  if Bronson has: GENERAL, the key is removed
+  !  self.state == 1, he is awake and loose
+  !  self.state == 3, he is trapped
+  !  self.state == 4, he is asleep
+  state 1,
+  parse_name [;
+    if (NextWord() == 'dog' or 'bronson' or 'mongrel') {
+      return 2;
+    }
+
+    return 0;
+  ],
+  short_name [;
+    print "Bronson";
+
+    if (self.state == 4)  {
+      print " (who is sleeping)";
+    }
+
+    rtrue;
+  ],
+  when_open [;
+    print (The) self, " is here";
+
+    if (self.state == 4)  {
+      print ". He is fast asleep.";
+    }
+
+    ".";
+  ],
+  description [;
+    print (The) self, " is some kind of horrific pit-bull/mongrel
+          bastardization. Around his fat neck is a black studded collar";
+
+    if (self hasnt general) {
+      print ", from which hangs a small silver key";
+    }
+
+    print  ".";
+  ],
+  before [;
+    Take:
+      if (self.state == 4) {
+        move self to player;
+        print_ret (The) self, " is rather heavy, but you can carry him.";
+      }
+    Search:
+      print "He is wearing a collar";
+
+      if (box_key in self) {
+        print " from which hangs a  key";
+      }
+
+      ".";
+    Receive:
+      print_ret (The) self, " has no hands with which to hold ", (the) noun,
+      ".";
+    Catch:
+      if (self.state == 4) {
+        "Just pick him up!";
+      }
+
+      "As you advance towards ", (the) self, ", he snarls menacingly enough to
+      make you reconsider.";
+    Stroke, Comfort:
+      if (self.state ~= 4) {
+        "He'll have your hand off.";
+      }
+      "Awww.";
+    Insult:
+      if (self.state == 4) {
+        "He's asleep: he can't hear you.";
+      }
+
+      "He's a dog: he won't understand you.";
+    Kiss:
+      "We're not talking about the Andrex puppy you know.";
+  ],
+  peekdesc "is looking for something to destroy",
+  whatsit "Bronson is Kev Savage's dog. He is not so much a pet, more a
+          canine extension of Kev's masculinity. Bronson's violence and
+          stupidity are legendary. Some time ago, for example, he became
+          immensely fat. A short while later he was emaciated. In an
+          uncharacteristic rush of concern, Savage took Bronson to the vet.
+          X-rays and examinations revealed Bronson had eaten a rubber dustbin
+          lid.",
+  walkdesc "trots off",
+  life [i;
+    i = self.state;
+
+    Kiss:
+      "Get real.";
+    Attack:
+      if (i == 4) {
+        "With Bronson sound asleep, the temptation to cave his face in and
+        make everyone on the estate safer and happier is almost overwhelming.
+        But in the end, you just don't have the heart.";
+      }
+
+      "Better not. You might well come off worse.";
+    WakeOther:
+      if (i == 4) {
+        "I'm sure I don't need to remind you of the old clich@'e.";
+      }
+    ThrownAt:
+      if (i == 4) {
+        "If you hit him and wake him up, Bronson will probably make one hell
+        of a mess of some part of your anatomy.";
+      }
+
+      "That's a sure way to get your throat torn out.";
+    Give, Show:
+      if (noun == steak) {
+        "He'd probably have your arm off.";
+      }
+
+      "Unsurprisingly, Bronson is not impressed.";
+    Ask, Answer:
+      print "You wish to open intellectual debate with a ";
+
+      if (i == 4)  {
+        print "sleeping ";
+      }
+
+      "pit-bull terrier?";
+    Tell:
+      if (i == 4) {
+        "Bronson does not look very receptive.";
+      }
+
+      "Bronson, being a dangerous dog, has no idea what you are talking
+      about.";
+  ],
+  orders [;
+    if (self.state == 4) {
+      "Bronson does not stir.";
+    }
+
+    Attack:
+      if (verb_word == 'attack' or 'kill') {
+        "Now you're talking Bronson's language. He pricks up his ears and
+        salivates a little more than usual, but surprisingly takes no further
+        action.";
+      }
+    Enter:
+      "Bronson completely ignores this seemingly reasonable request.";
+    Eat:
+      if (noun ~= steak) {
+        "Don't encourage him.";
+      }
+    default:
+      "Bronson takes orders from no-one.";
+  ],
+  each_turn [;
+    if (self.state == 3 && random(4) < 2) {
+      "Bronson snaps and snarls and scrapes at the edges of the hole.";
+    }
+
+    if (self.state == 2 && random(7) < 2) {
+      "Bronson twitches.";
+    }
+
+    if (steak in parent(self) && self.state ~= 3 && player in parent(self)) {
+      "Amazingly, ", (the) self, " ignores ", (the) steak, ".";
+    }
+  ],
+  daemon
+  [i j k a;
+    if (self.state == 1) {
+      a = random(10);
+
+      if (parent(self) == k_grass && a < 8 && self.just_visited ~= grass) {
+        Bronson_Hole();
+        rtrue;
+      }
+
+      if (parent(self) == grass && a < 6 && self.just_visited ~= k_grass) {
+        self.just_visited = grass;
+        self.follow_dir = e_obj;
+        move self to k_grass;
+
+        if (player in grass) {
+          if (hole.number > 1) {
+            print (The) self, " dodges round ", (the) hole, " and";
+          }
+          else {
+            print (the) self;
+          }
+
+          " disappears through ", (the) gap, ".";
+        }
+
+        if (player in k_grass) {
+          "Bronson bursts through ", (the) gap, ".";
+        }
+      }
+
+      objectloop(i in compass) {
+        if (ZRegion(parent(self).(i.door_dir)) == 1) {
+          k++;
+        }
+      }
+
+      if (k == 0) {
+        rtrue;
+      }
+
+      j = random(k);
+      k = 0;
+
+      objectloop(i in compass) {
+        if (ZRegion(parent(self).(i.door_dir)) == 1) {
+          k++;
+
+          if (k == j) {
+            if (ZRegion(parent(self).i == 2) ||
+               ((parent(self).i has door && parent(self).i hasnt open) ||
+               i == d_obj or u_obj)) {
+              rtrue;
+            }
+
+            MoveActor(self, i);
+            rtrue;
+          }
+        }
+      }
+    }
+
+    if (self.state == 3 && steak in hole) {
+      Bronson_Steak();
+    }
+  ],
+  size 10,
+  weight 8,
+  has container open sav;
+
+Object collar "studded dog collar" bronson class adnc with
+  name "studded" "collar",
+  adname 'dog',
+  description [;
+    print "Made of studded black leather";
+
+    if (box_key in bronson)  {
+      ", a small silver key hangs from it.";
+    }
+
+    ". Very camp.";
+  ],
+  before [;
+    Take:
+      if (bronson.state == 4) {
+        "You can't unfasten it.";
+      }
+
+      "As you advance towards him, Bronson growls menacingly.  You decide to
+      leave it.";
+  ],
+  time_left 0,
+  time_out [;
+    if (bronson in hole)  {
+      bronson.state = 3;
+    }
+    else  {
+      bronson.state = 1;
+    }
+
+    if (bronson in player) {
+      move bronson to parent(player);
+      "Bronson stirs. Your immediate reflex action is, of course to drop him
+      to the floor, where he lands with a jolt that could not fail to wake
+      him. He looks up at you and growls.";
+    }
+    if (player in location) {
+      "With a groggy shake of his head, Bronson gets to his feet and growls
+      at you.";
+    }
+  ],
+  size 3,
+  weight 2,
+  has concealed;
+
+[ Bronson_Hole;
+  bronson.just_visited = k_grass;
+  bronson.follow_dir = w_obj;
+
+  if (player in k_grass) {
+    print (name) bronson, " disappears through ", (the) gap, ".^";
+  }
+
+  move bronson to grass;
+
+  if (player in grass) {
+    print (name) bronson, " bursts through ", (the) gap;
+
+    if (hole.number > 1) {
+      print " straight into ", (the) hole;
+    }
+
+    if (hole.number < 4 && hole.number > 1) {
+      ". He scrambles his way out and growls at you.";
+    }
+
+    if (hole.number < 4)  {
+      ".";
+    }
+  }
+
+  if (hole.number == 4) {
+    bronson.state = 3;
+    move bronson to hole;
+    give hole general;
+
+    if (player in grass) {
+      print ". Growling and yapping, he tries to haul himself out, but his
+            stubby legs cannot reach ground level and he can only scratch
+            frantically but somewhat pathetically at the soft earth.^";
+    }
+  }
+];
+
+[ Bronson_steak;
+  if (player in grass) {
+    print "^Realising he cannot escape, " , (the) bronson, " turns his
+          attention to ", (the) steak, ". After a cursory sniff, he wolfs it
+          down.";
+  }
+  remove steak;
+
+  if (steak has general) {
+    bronson.state = 4;
+    StartTimer(collar, 60);
+    if (player in grass) {
+      print " Within a minute he is fast asleep at the bottom of the hole.^";
+    }
+
+    Achieved(7);
+  }
+];
+

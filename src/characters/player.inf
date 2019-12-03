@@ -1,0 +1,22 @@
+Object newself "(self object)" with
+  short_name [;
+    return L__M(##Miscellany, 18);
+	],
+	description "Six-foot-ish white male. Unremarkable.",
+	before NULL,
+	after NULL,
+	life NULL,
+	each_turn NULL,
+	time_out NULL,
+	describe NULL,
+	capacity 100,
+	parse_name 0,
+	orders 0,
+	number 0,
+	add_to_scope [;
+    AddToScope(parent(self).underfoot);
+		AddToScope(parent(self).overhead);
+		AddToScope(parent(self).wall);
+	],
+	max_space 50,   ! check this
+  has	concealed animate proper transparent;

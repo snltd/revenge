@@ -1,0 +1,66 @@
+! Play the prologue on its own
+
+Switches v8;
+Constant DEBUG;
+Constant Story "Revenge - The Prologue";
+Constant Headline "^Wrapper to test the prologue";
+Replace DigSub;
+Replace CutSub;
+Replace RTakeSub;
+Replace InsertSub;
+Replace PutOnSub;
+Replace LMode2Sub;
+Replace DrawStatusLine;
+Replace WaitSub;
+Replace WaitMovesSub;
+
+Include "Parser";
+Include "../include/globals";
+Include "../include/constants";
+Include "../include/scores";
+Include "../include/attributes";
+Include "../../lib/adnames";
+Include "../../lib/physics";
+Include "../include/house";
+Include "../include/weather";
+Include "Verblib";
+Include "../include/new_verblib";
+Include "../include/statusline";
+Include "../characters/player.inf";
+
+! This is copied from ../Revenge.inf
+[	Initialise;
+	ChangePlayer(newself);
+	location = pub;
+	print "^^It was a bad idea to come out after all. You've been living
+	round here for three months now and you still don't know anyone.
+	Pathetic.  ^^So, you made the effort to go out on your own, somehow
+	convincing yourself that you'll hook up with someone somewhere along the
+	line. But of course everyone who has come out tonight has come out with
+	friends, and you haven't made so much as a token effort to infiltrate
+	any of these cliques, and still stand in the corner you took when you
+	arrived.  ^^Moving to a new part of the country to do an uninteresting
+	job for an unwelcoming corporation has often seemed like the wrong
+	decision, but never more so than it does now.  It's past midnight so you
+	won't get served any more vodka - not that you can take much more vodka.
+	It seems like a good time to leave.^^";
+  Settime(10, 1);
+  StartDaemon(pub_daemon);
+	move vodka_glass to player;
+];
+
+Include "../include/death_message";
+Include "../include/menu";
+Include "Grammar";
+Include "../../lib/timesys";
+Include "../characters/topics.inf";
+Include "../characters/person.inf";
+Include "../include/new_grammar";
+Include ">01_in_the_pub.inf";
+Include ">02_on_the_street.inf";
+Include "../characters/young_woman.inf";
+
+Stub LMode2Sub 1;
+Stub print_box 1;
+Stub setup_main_game 0;
+end;

@@ -1,0 +1,1582 @@
+Place k_patio "Savage's Patio"
+with name "patio" "paving" "slabs",
+	locname "Savage's patio",
+	description	"This patio was presumably once the same as yours.  Unlike
+	yours it now sports a brick built barbecue, a handful of plastic chairs
+	and a white plastic table complete with (presumably stolen) Carlsberg
+	umbrella/parasol.^^The garden extends to the north and entry to the
+	house is provided by a french window to the south. The garden gate is
+	southeast.",
+	se_to k_garden_gate, nw_to k_grass,
+	n_to k_garden, s_to k_french_window,
+	w_to "The patio extends right up to the fence, which blocks
+		further progress west.",
+	underfoot paving,
+	overhead sky,
+has	sav outside scored;
+
+Object bbq "barbecue" k_patio
+with name "bbq" "barbie" "barbecue",
+	description
+	[;	print "Three brick walls with a kind of grate for charcoal";
+		if (grille in self)
+			print " and a metal grille on top. ";
+		else print ". ";
+		print_ret (The) self, " is full of ", (name) charcoal, ".";
+	],
+has	sav scenery container open;
+
+Object grille "metal grille" bbq
+class adnc
+with name "metal" "grille",
+	adname 'barbecue' 'bbq',
+	description
+	[;	if (self in bbq)
+			"It sits across the top of ", (the) bbq, " and you put
+			your steaks and sausages
+			on top of it.";
+		if (self.state > 0) {
+			print "It has been bent ";
+			if (self.state == 1)
+				"double.";
+			if (self.state == 2)
+				"almost double twice; its cross section
+				now describing a ~V~ shape.";
+		}
+		"The thin metal rods which make it up have been stained
+		black in the middle.";
+	],
+	before
+	[;	Bend:	if (self notin player)
+				"You'll have to be holding it first.";
+			switch(self.state) {
+				0:	self.state++;
+					self.size=4;
+					give self ~supporter;
+					"You easily bend ", (the) self, " double.";
+				1:	self.state++;
+					self.size=2;
+					"With some difficulty, you bend ", (the)
+					self, " again, this time at right angles
+					to the previous fold. You can't bend it
+					all the way, but the two sides are now at
+					about thirty degrees to one another.";
+				2:	"You can bend it no further.";
+			}
+	],
+	after
+	[;	Take:	if (self has concealed) {
+				give self ~concealed;
+				"With some difficulty, you slide ", (the) self,
+				" off its mountings.";
+			}
+	],
+	size 8,
+	weight 1,
+	state 0,
+	max_space 3,
+	max_weight 6,
+has	sav supporter concealed metallic;
+
+Object charcoal "charcoal" bbq
+with name "lumps" "of" "charcoal" "lump",
+	before
+	[;	Examine:
+			if (rocket in self)
+				"The very tip of a firework pokes out from ",
+				(the) self, ".";
+			"Round black lumps.";
+		Take:	"You'd get filthy.";
+	],
+	after
+	[;	Receive:
+			print "You secrete ", (the) noun, " in the charcoal";
+			if (second == rocket)
+				", the end of it pointing out at you.";
+			".";
+	],
+	article "some",
+has	sav container scenery open;
+
+Object rocket "rocket" k_patio
+!	if it HAS GENERAL it's pointed at the french window
+with name "firework" "rocket" "fireworks//p",
+	before
+	[;	Hide:	if (second == charcoal or bbq)
+				<<insert self charcoal>>;
+		Point:	if (self in charcoal) {
+				switch(second) {
+				k_french_window:
+					print "You point the exposed end of ",
+						(the) noun, " at the closed part of
+						", (the) second, ".^";
+					give self general;
+					rtrue;
+				default:
+					"The open side of the barbecue doesn't
+					face ", (the) second, ".";
+				}
+			}
+	],
+	weight 2,
+	size 2;
+
+Object spent_rocket "spent rocket"
+with name "used" "spent" "rocket" "firework" "fireworks//p",
+	description "Just a hollow shell.",
+	weight 1,
+	size 2;
+
+Object banger "banger" k_patio	! if it HAS BROKEN it's gone off
+with name "firework" "banger" "firecracker" "fireworks//p",
+	description
+	[;	if (self has broken)
+			"It has been lit and gone off.";
+		"A small firework.";
+	],
+	before
+	[;	Eat:	"It's not that sort of banger.";
+	],
+	whatsit	"You light and it goes *bang*. A firecracker if you
+			prefer.",
+	weight 2,
+	size 2;
+
+Portal k_garden_gate "garden gate"
+with name "wrought" "iron" "garden" "gate",
+	before
+	[;	Open:	if (location == k_drive && self hasnt open)
+				"The catch is on the other side of the gate and
+				the black bars and curlicues are too close
+				together for you to reach through and open it.";
+		Climb:	"You haven't a chance.";
+	],
+	InLoc k_drive, OutLoc k_patio,
+	InDir se_to, OutDir sw_to,
+	found_in k_patio k_drive;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_garden "Savage's Garden Path"
+with name "timbers" "bent" "doorframe" "frame" "wood" "twee" "little" "spike",
+	locname "Savage's garden",
+	description
+	[;	print "Whatever you might say about Savage, he has at least kept his
+		garden nice. It always seems peculiar to see such a violent philistine
+		pruning, weeding, erecting a trellis or spoiling his ferocious dog
+		with chocolate treats: perhaps he isn't quite as bad as you would like
+		to think.^^";
+		print "To the west sparsely populated flower beds mark
+			the edge of the lawn, which itself surrounds a rather
+			ornate pond, whilst to the south is the tarted up
+			patio. ";
+		"Although the details could hardly be more different, the
+		basic plan of Savage's garden is a mirror image of your own,
+		with a garden shed to the north and a further area of lawn
+		to the northwest.";
+	],
+	e_to "No point.", w_to k_grass, s_to k_patio, nw_to k_orchard,
+	n_to k_shed_door,
+	underfoot path,
+	overhead sky,
+has	sav outside;
+
+Floor path "garden path"
+with name "path" "garden" "paved" "paving" "square" "concrete" "slab"
+	"slabs",
+	description	"The path is made up of square concrete slabs.",
+	found_in garden patio k_patio k_garden;
+
+Object k_shed "garden shed"	!	if self HAS GENERAL it is smashed up
+with name "garden" "shed" "wooden" "beam" "beams" "roof" "overhang",
+	description
+	[;	if (self has general)
+			"The shed is damaged beyond repair. The whole of its western wall
+			has been pushed in by the tree, and a section of the roof has
+			collapsed inwards.";
+
+		print "Very much like that in your garden";
+
+		if (location == k_orchard)
+			print ". Here, the roof overhangs the wall by a few inches, the
+			sturdy beams which support it clearly visible";
+		".";
+	],
+	before
+	[;	Open:
+			<<open k_shed_door>>;
+
+		Take, Push, Turn:
+			"You are not the viking.";
+
+		Enter:
+			if (location == k_garden)
+				<<go n_obj>>;
+
+			if (location == k_orchard && self has general) {
+				print "You are just able to squeeze through the gap.";
+				PlayerTo(k_in_shed,2);
+			}
+
+			"There is no way into the shed from here.";
+
+		Unlock:
+			<<unlock k_shed_door>>;
+	],
+	found_in k_garden k_orchard,
+has	sav scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_orchard	"The Bottom of Savage's Garden"
+with name "nimmo",
+	locname "Savage's garden",
+	description
+	[;	if (tree in self)
+			"The scene here is dominated by a beautiful ash tree
+			which must have been here when they built the house
+			and laid out the garden. (It is too tall to have
+			grown in the interim.) Savage's lawn extends to the
+			south, and is clipped neatly right up to the edges
+			where it meets the garden fence, (west); and the
+			garden shed, (east); and circles the tree.";
+		"This, the northwest corner of the garden, used to be
+		dominated by an ash tree, but now it is just an extension of
+		the lawn. You can only go south or southeast from here.";
+	],
+	after
+	[;	Go:	if (noun == d_obj)
+				print "Carefully and shakily, you descend through
+					the tree. Lowering yourself onto the ground
+					as gently as possible, pain darts through
+					your leg.^";
+	],
+	s_to k_grass, se_to k_garden,
+	e_to
+	[;	if (k_shed has general)
+			return k_in_shed;
+		"The shed's in the way.";
+	],
+	u_to
+	[;	if (tree in location)
+			return up_tree;
+		"Not any more.";
+	],
+	underfoot k_lawn,
+	overhead sky,
+has	sav outside;
+
+Floor k_lawn "neatly trimmed lawn"
+with name "grass" "lawn" "ground" "neatly" "trimmed",
+	description	"Neatly trimmed, and much healthier than your own.",
+	before
+	[;	Cut:	"You're never so keen to cut your own.";
+		Take:	"Talk silly Dave.";
+		Dig:	if (spade notin player)
+				"You don't have a suitable implement.";
+			"The ground's a little too hard.";
+	];
+
+Object tree "tree" k_orchard
+!	if it HAS GENERAL you've tried cutting it with the saw
+with name "tree" "trunk" "ash",
+	description	"Only last week you watched the young ash bend in
+			subservience to a brutal storm which threatened to
+			uproot it and send it sprawling across the rain-
+			lashed grass. Having survived that assault it now
+			stands serene; the highest leaves rustling
+			peacefully.",
+	before
+	[;	Climb:	<<Go u_obj>>;
+		Cut:	switch(second) {
+			0:	"You'll need to specify what you want to cut
+				it with.";
+			scissors:
+				"Ever tried cutting ", (a) self, " down
+				with ", (a) second, "?";
+			saw:	if (self hasnt general) {
+					give self general;
+					"The saw was never intended for work of
+					this kind. You cut an inch or so in, but
+					it is obvious you could never hope to cut
+					the tree down like this.";
+				}
+				"You've already tried: it was a naff effort.";
+			axe:	print "You rather like Savage's tree. It lends a
+					slightly rustic air to the dry suburban
+					artifice of the estate.^^Are you sure you
+					want to try to chop it down?  >";
+				if (YesOrNo() == 1) {
+					print "^The first couple of wild swings
+						send chips of bark out like shrapnel.
+						Squinting and turning your face away
+						from the trunk you hack away,
+						enjoying the fresh smell of sap
+						and the warm physical glow of hard
+						work. Before long you have chopped a
+						wedge out of the near side of the
+						tree. ";
+					remove self;
+					move stump to k_orchard;
+					if (rope.state == 4) {
+						move cut_tree to k_orchard;
+						give k_shed general;
+						rope.state = 1;
+						remove rope;
+						print "The tree begins to totter. At
+							first it seems it might fall
+							in any direction, but the small
+							pull from ", (the) rope, " is
+							enough to make it fall towards
+							", (the) shed, ". In imagined
+							slow motion the tree crashes
+							down on and through the roof of
+							Savage's garden shed, which
+							offers scant resistance to its
+							broken assailant. You can't
+							quite believe what you've
+							done.^";
+						Achieved(2);
+						rtrue;
+					}
+					move cut_tree to k_grass;
+					print "The tree keels over, tracing a locus
+						of descent which for a moment seems
+						will intercept your current position.
+						Running out of the way, you wince as
+						its crown smashes into the ground;
+						branches splintering and bark
+						cracking.^";
+					Achieved(1);
+					rtrue;
+				}
+				"It's probably for the best.";
+			}
+		Take:	"I once saw Terry ~Hulk~ Hogan do that in ~Thunder In
+			Paradise~. Roots and all, clean out of the ground.
+			You're not quite up to it though.";
+		Dig:	"Like yeah man, I dig the tree, I dig the flowers, I
+			dig like, the whole Gaian experience.";
+	],
+has	scenery;
+
+Object cut_tree "fallen tree"
+with name "fallen" "tree" "leaves" "branches" "branch" "twig" "twigs"
+	"ash",
+	describe
+	[;	if (location == k_orchard)
+			"The fallen tree is leaning on what remains of the
+			shed roof.";
+		"The trunk and crown of a fallen tree lie forlornly
+		across the grass.";
+	],
+	description
+	[;	if (location == k_orchard)
+			"The tree has been amateurishly hacked through
+			about two feet from the ground, and expertly directed
+			onto the shed roof, where it has made a hell of a
+			mess.";
+		"The crown of the tree covers a surprisingly large area,
+		reaching almost to the edges of the pond. Broken branches and
+		twigs are scattered all around. You wonder how long the tree
+		took to grow.";
+	],
+	before
+	[;	Cut:	"Quite the little lumberjack aren't we?";
+		Take, Push, Pull:
+			"Come off it.";
+		Burn:	"Was all Sting did really in vain?";
+	],
+has	static;
+
+Object stump "tree stump"
+with name "stump" "rings" "cut" "tree" "ash",
+	describe
+	[;	"A tree stump juts up from the grass here.";
+	],
+	description	"You don't have time to count the rings",
+	before
+	[;	Climb:	"A little pointless now.";
+		Take:	"Not much to carry above the ground perhaps,
+			but plenty holding it firm below.";
+		Cut:	"I think you've already cut it quite enough.";
+	],
+has	static;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place up_tree "Balanced Precariously Up the Tree In Savage's Garden"
+with name "leaves" "leaf" "twig" "twigs" "branch" "branches",
+	locname "the top of the tree",
+	description	"Maybe climbing up here wasn't such a good idea after all.
+		Your feet are on one sturdy feeling branch and your left arm is
+		hooked around another. (None of the branches look too strong, even
+		the trunk is fairly thin here.) Although you hardly dare to move,
+		your legs tremble a little and it is difficult to see how you are
+		going to get back down. You certainly aren't going any further up.",
+	before
+	[;	Jump:
+		"I don't think so.";
+	],
+	after
+	[;	Go:	if (noun == u_obj)
+				print "With some difficulty and a great deal of pain, you haul
+				yourself up through the clinging, scratching branches.^";
+	],
+	u_to "You already regret climbing this high. You certainly aren't going
+		any further.",
+	cant_go "You are rooted (no pun intended) to this particular spot.",
+	d_to k_orchard,
+	underfoot branch,
+	overhead sky,
+has	sav outside;
+
+Floor branch "branch"
+with name "branch" "support" "supporting",
+	description "Thick and holding well. (For the moment.)";
+
+Object trunk "tree trunk" up_tree
+with name "tree" "trunk" "ash" "bark",
+	description	"Surprisingly slender.",
+	before
+	[;	Take:	"Talk silly Dave!";
+		Cut, Push, Pull, Turn:
+			"You don't have a firm enough footing to try anything
+			that adventurous.";
+	],
+has	scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_grass "By the Pond"
+with name "weeds" "aquatic" "pale",
+	locname "Savage's garden",
+	description	"Savage's lawn is short, free from faecal matter and a
+			whole lot healthier than your own. Its focal point is
+			a large pond, by which you now stand. There is a tree
+			to the north.",
+	before
+	[;	Swim:	if (pond has general)
+				"I think you'll find the water a little hard.";
+			"The pond is too small and the weather is too cold.";
+		GoFishin:
+			if (fish in pond && pond hasnt broken)
+				<<catch fish>>;
+	],
+	e_to k_garden, se_to k_patio, s_to k_patio, n_to k_orchard,
+	w_to "The fence is in the way.",
+	underfoot k_lawn,
+	overhead sky,
+has	sav outside;
+
+Object pond_stones "grey faced stones" k_grass
+! if this HAS BROKEN you've removed a stone
+class adnc
+with name "grey" "gray" "faced" "stones" "stone",
+	adname 'around' 'pond',
+	description
+	[;	if (self has broken)
+			"One of the stones is missing, leaving a gap like a
+			missing tooth.";
+		"The stones surround the pond.";
+	],
+	before
+	[;	Take:	if (self has broken)
+				"None of the remaining stones want to budge.";
+			"They seem solidly fastened into the ground.";
+	],
+has	sav concealed static;
+
+Object stone
+with short_name
+	[;	if (self has concealed) print "loose";
+		else print "large";
+		print " stone";
+		rtrue;
+	],
+	parse_name
+	[ w1 w2;
+		w1 = NextWord(); w2 = Nextword();
+		if (w1 == 'stone') return 2;
+		if (self has concealed) {
+			if (w1 == 'loose' && w2 == 'stone') return 2;
+		}
+		else {	if (w1 == 'large' && w2 == 'stone')
+					return 2;
+			}
+	],
+	initial "A large stone sits in the grass",
+	description
+	[;	if (self has moved)
+			"Roughly wedge shaped and dirty on its longest face";
+		"Just like all the others.";
+	],
+	before
+	[;	Take:	if (pond_stones hasnt broken) {
+				give pond_stones broken;
+				give self ~concealed;
+				move self to k_grass;
+				"Kneeling down (although this hurts your knee),
+				you work the stone loose and prise it out onto
+				the grass.";
+			}
+	],
+	weight 15,
+	size 7,
+has	concealed;
+
+
+Object pond "garden pond" k_grass
+!	if it HAS BROKEN it's full of cement
+with parse_name
+	[ w1 w2;
+		w1 = NextWord(); w2 = NextWord();
+		if (w1 == 'pond' or 'pool' or 'water' && self hasnt broken)
+			return 1;
+		if (w1 == 'garden' && w2 == 'pond')
+			return 2;
+		if (((w1 == 'concrete' or 'cement') || (w1 == 'concreted' &&
+		w2 == 'area')) && self has broken)
+			return 2;
+	],
+	short_name
+	[;	if (self hasnt broken) print "garden pond";
+		else print "concreted area";
+		rtrue;
+	],
+	before
+	[;	Drink:	if (self has broken)
+				"I don't think so.";
+			"The water could be very unhygienic.";
+		Examine:
+			if (cement in self) {
+				if (gravel_in_bucket in self)
+					"The pond is filled with setting
+					concrete.";
+				"The pond is full of wet, sloppy cement.";
+			}
+			if (self has broken) {
+				print "Remarkably, the pond is full not with
+					water, but with rock-hard concrete.^";
+				if (task_done->3 == 0) {
+					Achieved(3);
+					rtrue;
+				}
+			}
+			else {	print "The pond seems to be a plastic shell
+						set in a hole. It is circled with
+						pale grey faced stones and is host
+						to ";
+					if (fish in self && fish hasnt broken)
+						print "a fat koi carp and ";
+					"a variety of aquatic weeds.";
+				}
+		Receive:
+			if (self has broken)
+				"Without a pneumatic drill, that could prove
+				difficult.";
+			if (noun == fish && fish has broken)
+				"That seems a little bit pointless now.";
+			if (noun ~= gravel_in_bucket or cement or fish) {
+				remove noun;
+				print_ret (The) noun, " sinks without trace.
+						The pond must be deeper than you
+						thought.";
+			}
+			if (noun == football)
+				print_ret (The) self, " floats back to you, and
+						you retrieve it.";
+		Touch:	if (self has broken)
+				"The concrete is rock hard.";
+			"The water is wet.";
+		LetGo:	if (noun == gravel_in_bucket or cement && noun in self)
+				"Lost without trace I'm afraid.";
+		Take:	if (self has broken)
+				"Not without a JCB.";
+			"At room temperature, water exists in liquid form, and
+			you have great difficulty in picking it up. It keeps
+			running away through your fingers.";
+		Dig:	if (spade notin player)
+				"You don't have a suitable implement.";
+			if (self has broken)
+				<<Take self>>;
+			"As Derek Jameson once said: ~Do they have to dig
+			holes in the actual water?~";
+	],
+	after
+	[;	Receive:
+			switch(noun) {
+				cement:
+					if (gravel_in_bucket in self)
+						StartTimer(self, 10);
+					"You throw in all the cement and give the
+					thick grey mess a stir.";
+				gravel_in_bucket:
+					if (cement in self) {
+						StartTimer(self, 10);
+						"You throw the gravel into the
+						water/cement mix.";
+					}
+					"The gravel splashes into the pond.";
+				fish:	"The fish seems happy to be back in the
+					pond.";
+			}
+	],
+	time_left 0,
+	time_out
+	[;	give self broken;
+		remove gravel_in_bucket;
+		remove cement;
+		give self ~container;
+		if (player in k_grass) {
+			print "The concrete looks as if it has set. You give
+				it a prod with your foot and find this is indeed
+				the case.^";
+			Achieved(3);
+			rtrue;
+		}
+	],
+has	sav scenery container open;
+
+Object k_flower_bed "flower bed" k_grass
+!	if it HAS GENERAL it has been dug
+with name "beds" "bed" "soil" "earth" "flower",
+	description
+	[;	if (shoots in k_grass)
+			"The tips of green shoots poke thruogh the newly
+			tilled soil.";
+		if (pot_plant in k_grass)
+			"The beds are full of marijuana plants.";
+		if (self has general)
+			"The earth is soft and dark.";
+		"The suface of the beds is hard and flecked with grass
+		and small weeds.";
+	],
+	before
+	[;	Dig:	if (spade notin player)
+				"You don't have a suitable implement.";
+			if (second == 0 or spade) {
+				if (second == 0)
+					print "(with the spade)^";
+				if (seeds has general)
+					"No. That would just mean digging up what
+					you planted earlier.";
+				if (self has general)
+					print_ret (The) self, " has already been
+							dug enough.";
+				else {	give self general;
+						"Phew! This is why you never dig your
+						own garden. It's hard work. Anyway,
+						the top foot or so of soil is now
+						soft and loose.";
+					}
+			}
+		Water:	if (watering_can notin self || water_in_can
+			notin watering_can)
+				"With what?";
+			<<Pour water_in_can self>>;
+	],
+	time_left 0,
+	time_out
+	[;	move shoots to k_grass;
+		StartTimer(shoots, 10);
+		if (player in k_grass)
+			"Before your very eyes, the tips of green shoots break
+			the surface of the flower bed.^";
+	],
+has	scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_in_shed "Inside the remains of Savage's Garden Shed"
+with name "hardboard" "real" "wall" "other" "things" "odds" "and"
+	"ends" "label",
+	locname "Savage's shed",
+	description "The largely undisturbed contents of shelving on the
+			east wall suggest that before the intrusion of the
+			young ash this was a neatly organised and well stocked
+			garden shed. Now packets, potions, tools and splintered
+			debris from the roof and west wall litter the floor.",
+	before
+	[;	if (action == ##Examine) {
+			switch(noun) {
+				s_obj, e_obj, w_obj, n_obj:
+					"Like all the other walls, it has been
+					panelled with large slabs of hardboard,
+					screwed on with large brass screws.";
+				ne_obj, se_obj, nw_obj, sw_obj:
+					"That is only really a corner.";
+				n_obj:
+					<<Examine false_wall>>;
+			}
+		}
+	],
+	after
+	[;	Go:	if (noun == e_obj && self hasnt visited) {
+				move rope to player;
+				print "On your way through the gap you notice the
+					rope hanging from the tree trunk, so you
+					untie and retrieve it.^";
+			}
+	],
+	s_to k_shed_door, w_to k_orchard,
+	underfoot boards,
+	overhead shed_roof,
+has	sav;
+
+Object false_wall
+with parse_name
+	[ w1 w2;
+		w1=NextWord(); w2=NextWord();
+		if (w1 == 'n' or 'north' or 'false' && w2 == 'wall')
+			return 2;
+		return 0;
+	],
+	description
+	[;	if (brass_screws in k_in_shed) <<examine e_obj>>;
+		"One of the panels has been removed. There is a fair
+		amount of space between the false wall and the real one.";
+	],
+has	scenery;
+
+Object screwdriver "screwdriver" k_in_shed
+with name "screwdriver" "flat" "standard" "tools//p",
+	description	"A large, standard ended screwdriver.",
+	size 2,
+	weight 2,
+has	metallic;
+
+Object brass_screws "brass screws" k_in_shed
+with name "brass" "screw" "screws",
+	description	"One of the screws in the north wall glints, as
+			if the head has been sheared a little.",
+	article "three",
+	before
+	[;	Turn, Unscrew:
+			if (verb_word ~= 'unscrew')
+				"You are unable to.";
+			if (second == screwdriver) {
+				remove self;
+				move panel to k_in_shed;
+				move secret to k_in_shed;
+				print "The screws are a little tight, and one
+					in particular is very difficult to remove.
+					They do all come out however, and you toss
+					them away into the detritus on the floor.
+					The panel of hardboard which the screws
+					secured falls away from the wall.You catch
+					it and lean it against the wall.^^You have
+					uncovered a rather deep gap between what
+					was obviously a false wall and the real
+					north wall of the shed.^";
+				Achieved(10);
+				rtrue;
+			}
+			if (second == scissors)
+				"The end of ", (the) second, " just spins round
+				in the screw head.";
+			if (second == 0)
+				"You'll need a screwdriver.";
+			print_ret (The) second, "doesn't make an adequate
+					screwdriver.";
+		Take:	"They are firmly screwed into the wall.";
+	],
+has	scenery;
+
+Object panel "hardboard panel"
+	with name "hardboard" "panel",
+		description	"A large flat slab originally screwed onto the north
+				wall.",
+		describe
+		[;	"A large panel of hardboard leans against the north wall."; ],
+		before
+		[;	Take:	"It's too big and cumbersome."; ],
+		size 30,
+		weight 15;
+
+Object secret "secret compartment"
+	with name "gap" "secret" "compartment",
+		max_space 6,
+		max_weight 100,
+		describe
+		[;	if (torch notin self || torch hasnt on)
+				"There is a dark gap in the north wall.";
+			"One of the panels has been removed from the north wall.";
+		],
+		before
+		[;	Search, Examine, LetGo:
+				if (torch notin self || torch hasnt on)
+					"It's too dark to find anything in ", (the)
+					self, ".";
+			Enter:	"It's not really deep enough to get into.";
+		],
+	has	scenery container open;
+
+Object shoe_box "shoe box" secret
+	with name "shoe" "box" "boxes//p",
+		size 4,
+		weight 1,
+	has	container openable scored;
+
+Object money "money" shoe_box
+	with name "money",
+		article "a great deal of",
+		description	"You have never seen so much cash. There must
+				be thousands of pounds (mostly in twenties) in here.",
+		before
+		[;	Burn:	"You can't bring yourself to do it.";
+		],
+		size 3,
+		weight 3;
+
+Object shelving "shelving" k_in_shed
+with name "shelf" "shelves" "shelving",
+	adname 'east' 'on' 'the' 'wall',
+	description
+	[;	if (children(self) == 0)
+			"The shelves are cluttered with all manner of odds and
+			ends, none of which merit further description.";
+		print "Made of a strong coarse wood, the shelves contain,
+			among other things, ";
+		WriteListFrom(child(self), ENGLISH_BIT + RECURSE_BIT +
+		PARTINV_BIT + TERSE_BIT + CONCEAL_BIT);
+		print ".^";
+	],
+	max_space 80,
+	max_weight 80,
+has	supporter scenery concealed;
+
+Object watering_can "watering can" shelving
+with name "watering" "can" "containers//p",
+	before
+	[ i;	i = water_in_can;
+		Examine:
+			if (i in self) {
+				if (i has general) print "Cloudy w";
+				else print "W";
+				"ater swirls around in ", (the) self, ".";
+			}
+			print_ret (The) self, " is made of battered green
+					plastic, and is currently empty.";
+		Receive:
+			if (noun == plant_food && i in self) {
+				move noun to i;
+				move empty_plant_food to player;
+				"You tip the contents of the carton into ",
+				(the) self;
+			}
+			if (noun == bathwater || (noun == pond && pond
+			hasnt general))
+				<<fill self>>;
+			"It won't fit.";
+		Fill:	if (water_in_can in self)
+				print_ret (The) self, " is full already.";
+			if (pond in location) {
+				move i to self;
+				print_ret "You dip ", (the) self, " in the
+						pond and withdraw it full of water.";
+			}
+			if (bath in location) {
+				switch (bath.state) {
+					2:	"There isn't really enough water in
+						the bath to fill ", (the) self, ".";
+					3 to 5:
+						move i to self;
+						"Temporarily immersing the can in the
+						bath water you fill it up.";
+				}
+			}
+		Empty:	if (children(self) == 0)
+				"It's empty already.";
+	],
+	size 6,
+	weight 2,
+has	container open;
+
+Object bucket "bucket" shelving
+with name "bucket" "containers//p",
+	before
+	[ i j;
+		i = water_in_bucket;
+		j = gravel_in_bucket;
+		Examine:
+			if (i in self) {
+				if (i has general) print "Cloudy w";
+				else print "W";
+				"ater swirls around in ", (the) self, ".";
+			}
+			if (j in self)
+				print_ret (The) self, " is full of gravel.";
+			"A dented and dirty metal bucket. It is empty.";
+		Receive:
+			if (j in self) "There's no more room.";
+			if (noun == plant_food && i in self) {
+				move noun to i;
+				move empty_plant_food to player;
+				"You tip the contents of the carton into ",
+				(the) self;
+			}
+			if (noun == bathwater || (noun == pond && pond
+			hasnt general))
+				<<fill self>>;
+		Fill:	if (i in self || j in self)
+				print_ret (The) self, " is full already.";
+			if (pond in location) {
+				move i to self;
+				print_ret "You dip ", (the) self, " in the
+						pond and withdraw it full of water.";
+			}
+			if (bath in location) {
+				switch (bath.state) {
+					2:	"There isn't really enough water in
+						the bath to fill ", (the) self, ".";
+					3 to 5:
+						move i to self;
+						"Temporarily immersing the can in the
+						bath water you fill it up.";
+				}
+			}
+		FillWith:
+			if (second == bathwater || (second == pond &&
+			pond hasnt general))
+				<<fill self>>;
+			if (i in self || j in self)
+				"It's already full.";
+			if (second == gravel) {
+				if (spade in player) {
+					move j to self;
+					"You shovel ", (the) gravel, " into ",
+					(the) self, ".";
+				}
+				"Not with your hands.";
+			}
+		Empty:	if (children(self) == 0)
+				"It's empty already.";
+		Attack:
+			if (verb_word == 'kick')
+				"It's not for you to decide when you kick the
+				bucket.";
+	],
+	size 6,
+	weight 3,
+has	container open metallic;
+
+Object plant_food "miracle-gro plant food" shelving
+class adnc
+with name "miracle" "miracle-gro" "grow" "gro" "food" "green" "powder" "carton"
+	"paper",
+	adname 'plant',
+	description	"A paper carton about half full of green powder.",
+	before
+	[;	Eat:
+			"It's probably extremely poisonous.";
+
+		Insert:
+			if (second == k_lawn)
+				"It seems to be growing adequately enough already.";
+
+			if (second == lawn)
+				"You'd only have to mow it afterwards...";
+
+		Open:
+			"The top of the packet is already open.";
+	],
+	article "some",
+	size 2,
+	weight 2;
+
+Object empty_plant_food "empty plant food carton",
+with name "empty" "carton" "miracle" "miracle-gro" "grow" "gro" "food" "paper",
+	description	"Useless.",
+	article "an",
+	size 2,
+	weight 0;
+
+Portal k_shed_door "shed door"
+with name "shed",
+	description "The shed door is securely padlocked.",
+	before
+	[;	unlock:	<<unlock sav_shed_padlock>>; ],
+	InLoc k_in_shed, OutLoc k_garden,
+	InDir n_to, OutDir s_to,
+	found_in k_in_shed k_garden,
+has	sav locked;
+
+Object sav_shed_padlock "padlock" k_garden
+with name "padlock" "lock" "squire",
+	description "An extremely sturdy padlock.",
+	before
+	[;	Attack, Cut:
+			"Forget it. You'll never damage that.";
+		Take:	"Not until you've unlocked and opened it.";
+		Open:	"Not util you've unlocked it.";
+	],
+	with_key 0,
+has	scenery openable;
+
+Roof shed_roof "beams of the shed roof"
+!	if it HAS GENERAL you've found the rope
+with name "beams" "shadows" "shadow" "beam" "roof" "eaves"
+	"plank" "planks",
+	description
+	[;	if (self has general)
+			"Craning your neck, you can't see anything else
+			hidden up in the roof.";
+
+		move rope to in_shed;
+		"A couple of planks are somehow fastened across the roof,
+		forming a kind of shelf just above head height. You reach up,
+		and dislodge a coiled up rope, which smacks onto the floor
+		just in front of you, kicking up dust.";
+	],
+	before
+	[;	Climb:	"Too high.";
+		Take:	"Firmly affixed. The whole shed is very well built.";
+	];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_drive
+with name "tinted" "windows" "tarmac" "drive" "rear" "view" "rear-view"
+	"mirror",
+	locname "Savage's drive",
+	short_name
+	[;	if (escort has general)
+			print "Standing By the Wreckage of Savage's Carport";
+		else print "Under the Carport on Savage's Drive";
+		rtrue;
+	],
+	description
+	[;	if (carport has broken)
+			print "A superb piece of vandalism. The wrecked carport
+				has been dragged forward before collapsing: the
+				back end of it now rests somewhere over the
+				Escort's back window. One of the poles which used
+				to support the carport roof stayed connected to
+				it, and has buckled and been bent almost double;
+				the other  rear) pole was just ripped away from
+				the roof and stands awkwardly alone.^^";
+			else print "Savage, of course, has a car, and you now
+					stand in the unsubstantial shelter of the
+					carport he has erected as a temple in which
+					to worship at the altar of the Ford Escort.
+					The car, (which he cannot yet legally
+					drive) is parked here, its sleek paint
+					waxed and deep, crouching at the start of
+					the drive like a malevolent panther lining
+					up a gazelle.^^";
+			"The drive extends south onto Levinson Crescent, and
+			Savage's back door is west of here. To the northwest,
+			a yellow wall and black gate like those by your own
+			house divide this area from Savage's garden.";
+	],
+	w_to k_back_door, s_to lev_2, nw_to k_garden_gate,
+	underfoot actual_drive,
+	overhead sky,
+has	outside;
+
+Object rope "tow rope"
+with name "tow" "rope" "towrope",
+!  if SELF.state == 0 still in shed roof
+!			1 not tied
+!			2 tied to tree (up tree)
+!			3 tied to shed
+!			4 tied to shed and tree
+!			5 tied to d_car
+!			6 tied to carport
+!			7 tied to d_car and carport
+	describe
+	[;	switch(self.state) {
+			0:	rtrue;
+			2:	"A ", (name) self, " is here, tied to the tree
+				trunk.";
+			3:	"A length of ", (name) self, " is tied to the
+				shed.";
+			4:	"A length of taut ", (name) self, " disappears
+				through the branches at an angle.";
+			5:	"There is ", (a) self, " tied to the
+				back of ", (name) d_car, ".";
+			6:	"A ", (name) self, " hangs from the roof here.";
+			7:	"Up in the shadows of the roof, you can
+				just make out a length of ", (name) self,
+				" tied between ", (the) carport, " and ",
+				(the) d_car, ".";
+		}
+	],
+	state 0,
+	description
+	[;	switch(self.state) {
+			0:	"You can only see a bit of it hanging over the
+				edge of the girder.";
+			1:	"A length of strong rope.";
+			2:	"A length of ", (name) self, " hangs down from
+				here.";
+			3:	"One end of ", (the) self, " is tied to the shed
+				roof.";
+			4:	"You pluck the rope with your index finger. It
+				produces a staccato bass note.";
+			5:	"The ", (name) self, " is tied to the strange
+				bar on the back of ", (the) d_car, ".";
+			6:	"It hangs down from a beam in the roof of the
+				carport.";
+			7:	"Tied between ", (the) d_car, " and ",
+				(the) carport, ".";
+		}
+	],
+	invent
+	[;	print "a length of rope";
+		switch(self.state) {
+			2:	print " (which is tied around the tree trunk)";
+			3:	print " (which is tied to the shed roof)";
+			5:	print " (one end of which is tied to ",
+					(the) d_car, ")";
+			6:	print " (one end of which is tied to a girder
+					in ", (the) carport, " roof)";
+		}
+		rtrue;
+	],
+	before
+	[;	TieRound, TieTo:
+			if (self.state == 4 or 7)
+				"You can almost hear ", (the) self, " say,
+				~Sorry, I'm all tied up right now.~.";
+			switch(second) {
+			tree:	switch(self.state) {
+				1:	"The trunk is fairly thick, and the knot
+					you make doesn't leave much rope left to
+					tie to anything else. You undo the rope
+					again.";
+				3:	"The trunk is fairly thick here, and ",
+					(the) self, "'s not quite long enough to
+					securely tie around it.";
+			}
+			k_shed:
+				if (self.state == 3 or 4)
+					"It already is.";
+				print "You tie one end of ", (the) self, " to a
+					thick piece of wood in the overhang of the shed
+					roof.^";
+				self.state = 3;
+				move self to k_orchard;
+				rtrue;
+			trunk:
+				if (self.state == 2 or 4)
+					"It already is.";
+				print "You tie one end of ", (the) self,
+					" around ", (the) trunk, " and let the free
+					end fall down through the branches.^";
+				self.state = 2;
+				move other_rope to k_orchard;
+				move self to up_tree;
+				rtrue;
+			d_car:
+				<<tie self bar>>;
+			bar:	if (self.state == 5 or 7) "It already is.";
+				print "You tie ";
+				if (self.state == 6) {
+					self.state = 7;
+					move self to k_drive;
+					print "the free end of ";
+				}
+				else self.state = 5;
+				print (the) self, " to the bar.";
+			girder:
+				if (self.state == 6 or 7)
+					"It already is.";
+				if (player notin chair)
+					"You can't reach ", (the) second, ".";
+				print "Stretching up, you are able to secure ";
+				if (self.state == 5) {
+					self.state = 7;
+					move self to k_drive;
+					print "the free end of ";
+				}
+				else self.state = 6;
+				print (the) self, " around ", (the) second;
+				move self to k_drive;
+				if (self.state == 7)
+					print ". ", (The) d_car, " is now tied
+					to ", (the) carport;
+				".";
+			Simone:
+				"~There's a time and a place for that kind of
+				thing.~ says Simone.";
+			}
+		Untie:	switch(self.state) {
+				1:	"It's not tied to anything.";
+				2:	print "You unpick the knot, and the rope
+						slithers away down through the
+						branches like a frightened snake.^";
+					self.state = 1;
+					move self to k_orchard;
+					rtrue;
+				3:	print "You've never been able to untie
+						knots, but eventually you manage to
+						pick this one loose.";
+					self.state = 1;
+					move self to k_orchard;
+					<<Take self>>;
+				4:	if (location == up_tree) {
+						print "You untie this end of ", (the)
+							self, " and hear it fall away
+							through the branches.^";
+						self.state = 3;
+						move self to k_orchard;
+						remove other_rope;
+						rtrue;
+					}
+					self.state = 2;
+					"With some difficulty you untie the rope.
+					It now hangs freely from the tree.";
+				5:	print "That's easily done: you made sure
+						the knot wasn't going to be too hard
+						to undo.^";
+					self.state = 1;
+					move self to k_drive;
+					<<take self>>;
+				6:	if (player notin chair)
+						"You can't reach the knot.";
+					print "Stretching up, it is hard to undo
+						the knot, but you eventually manage
+						it, and ", (the) self, " falls to the
+						concrete floor with a slap.^";
+					move self to k_drive;
+					self.state = 1;
+					rtrue;
+				7:	if (player in chair) {
+						print "(Since you're on the chair, I
+							assmue you mean untie the end
+							fastened to the carport.)^^
+							Reaching up, you pick the knot
+							and untie the rope. This end
+							falls to the floor. (The other
+							end is still tied to ", (the)
+							d_car, ".^";
+						self.state = 5;
+						rtrue;
+					}
+					else {	print "(Given that it's the
+								only end of ", (the)
+								self, " you can currently
+								reach, I assume you mean
+								the end tied to ", (the)
+								d_car, ".)^^You untie ",
+								(the) self, " so that
+								this end is free, whilst
+								the other end is still
+								tied in the roof.^";
+							self.state = 6;
+							rtrue;
+						}
+				}
+			Take:	if (self.state == 4 or 7)
+					<<TieTo self player>>;
+				if (self.state > 1)
+					"There's no point: you can't go anywhere
+					with it.";
+			Climb:
+				if (self in player || self.state == 1)
+					"You stupid fakir.";
+	],
+	after
+	[;	Take:	if (self.state == 0) {
+				self.state = 1;
+				"You jump up and grab the rope. It slithers down
+				onto the floor. You coil it up collect it.";
+			}
+			"You coil the rope up before taking it.";
+	],
+	react_before
+	[;	Go:	if (self in player && self.state > 1)
+				"You'll have to let go of ", (the) self,
+				" first.";
+	],
+	weight 8,
+	size 9,
+has	flimsy stringy;
+
+Object other_rope "rope"
+with name "rope",
+	description
+	[;	switch(rope.state) {
+			3:	print_ret (The) self, " is attached to
+						the overhang of the shed roof.";
+			4:	"You pluck the rope with your index finger. It
+				produces a twangy bass note.";
+		}
+	],
+	describe
+	[;	switch(rope.state) {
+			2:	"A length of ", (name) rope, " hangs down from
+				high up in the tree.";
+			4:	"Your eyes follow the line made by a length of
+				taut ", (name) rope, " which stretches up into ",
+				(the) tree, ".";
+			default:
+				"** ERROR: other_rope should not be present **";
+		}
+	],
+	before
+	[;	Untie:	if (rope.state == 4) {
+				print "With some difficulty, you untie ", (the)
+					self, " from the shed. It now hangs loose
+					by the tree trunk.^";
+				rope.state=2;
+				rtrue;
+			}
+			"It's not tied to anything down here.";
+		TieTo, TieRound:
+			if (rope.state == 4)
+				"It's already tied at both ends.";
+			if (second == tree)
+				"It's already tied to ", (the) tree, " higher up.
+				There doesn't seem much point.";
+			if (second == k_shed) {
+				print "Stretching the rope as tight as possible,
+					you tie it to a thick beam in the
+					overhang of the shed roof.^";
+				rope.state=4;
+				rtrue;
+			}
+		Take:	if (rope.state == 4)
+				"But it is tied between ", (the) k_shed, " and ",
+				(the) trunk, ".";
+		Pull:	print_ret (The) self, " seems very securely tied.";
+		Climb:	"You can't. Perhaps you shouldn't have missed all
+			those PE lessons at school.";
+	],
+	after
+	[;	Take:	if (rope.state == 2)
+				"You are now holding the loose end of the rope.";
+	],
+	react_before
+	[;	Go:	if (self in player && rope.state>1)
+				"You'll have to let go of ", (the) self,
+				" first.";
+	],
+	weight 4,
+	size 1,
+has	flimsy stringy;
+
+
+Object d_car "Donna^s car"
+with name "donna^s" "car" "4" "by" "x" "d_car" "jeep" "suziuki"
+		"suzuki" "turnover",
+	description	"This is the car that Savage was driving when he ran
+			over you. It is a rather small example of the
+			bafflingly popular ~off-road~ vehicle. (If you actually
+			took this far off the road, it's debatable whether
+			you'd ever get it back on again.) Predominantly white,
+			the vehicle is trimmed up with a number of utterly
+			pointless accessories. Of course there are black
+			tubular steel ~bull bars~ on the front, but a similar
+			rod runs across the back of its roof.";
+
+Object bar "pointless metal bar",
+with description	"Pointless.";
+
+
+Object car_trim "car trimmings" k_drive
+with number 2,
+	article "ridiculous",
+	parse_name
+	[ w1 w2;
+		w1=NextWord(); w2=NextWord();
+		if (w1 == 'spoiler') {
+			self.number = 1;
+			return 1;
+		}
+		if ((w1 == 'lights') || (w1 == 'fog' && w2 == 'lights')) {
+			 self.number = 2;
+			return 2;
+		}
+		if ((w1 == 'dice') || (w1 == 'furry' or 'fluffy' &&
+		w2 == 'dice')) {
+			self.number = 3;
+			return 2;
+		}
+		if ((w1 == 'license' or 'registration' or 'private' or
+		'number') && (w2 == 'plate')) {
+			self.number = 4;
+			return 2;
+		}
+		if (w1 == 'sticker') {
+			self.number = 5;
+			return 1;
+		}
+		if ((w1 == 'exhaust' or 'chrome') && (w2 == 'pipe' or
+		'pipes')) {
+			self.number = 6;
+			return 2;
+		}
+		if ((w1 == 'go-faster' && w2 == 'stripe') || (w1 == 'stripe' or
+		'stripes')) {
+			self.number = 7;
+			return 2;
+		}
+		if (w1 == 'tyre' or 'tyres') {
+			self.number = 8;
+			return 1;
+		}
+		return 0;
+	],
+	before
+	[;	Examine:
+			switch(self.number) {
+				1:	"A totally unnecessary whale-tail of flared
+					red plastic. It keeps the back wheels on the
+					floor in the early morning rush hour.
+					Strange, but you have never noticed it
+					before: it must be a recent addition.";
+				2:	"A host of plastic capped rally style lights
+					cling like barnacles to the front grille. It
+					is very possible that they are actually
+					empty cases with no practical function at
+					all.";
+				3:	"Hopefully ironic.";
+				4:	"The number, written in an italic typeface,
+					is ~C414 SAV~. Underneath, in smaller
+					writing, it says ~Kev Savage~. Pathetic.";
+				5:	"~This vehicle is alarmed!~ What's alarmed
+					it you can't think. [ sorry! ]";
+				6:	"Two pipes, each with a two inch bore,
+					seem rather excessive for a 1.6 litre car.";
+				7:	"They don't really make the car go faster
+					of course.";
+				8:	"The front tyres are slightly worn, the
+					back ones like new.";
+			}
+		Burst:	if (self.number == 8)
+				"There doesn't seem much point: after all, the
+				car shouldn't be going anywhere.";
+		Take:	"Attached to the car.";
+	],
+has	scenery;
+
+Object carport "carport" k_drive ! if it HAS BROKEN you've caved it in
+with name "carport",
+	before
+	[;	Examine:
+			if (escort has broken)
+				"What's left of the carport covers what's left
+				of the car.";
+			"One long edge of the corrugated metal roof is fixed
+			to the wall of the house, the corners of the opposite
+			one are supported by two vertical metal poles, between
+			which is a slim joist. A large metal girder runs across
+			the middle of the roof, apparently keeping the
+			structure rigid.";
+	],
+has	scenery;
+
+[	Trash_Port;
+	if (donna notin d_car)
+		"** ERROR: Donna's not in her car [Trash_Port] **";
+	if (rope.state == 7) {
+		give carport broken;
+		if (escort in k_drive)
+			give escort broken;
+		if (player in k_drive) {
+			print "Donna starts her car's engine and draws forward.
+				You see the rope connecting it to the carport roof
+				tighten and stretch. Nothing happens. Donna puts her
+				foot down further, and everything happens. The
+				whole carport roof is pulled forwards, the bolts
+				fastening it to the supporting pole nearest you strain,
+				scrape, and ping out, with the result that the
+				whole structure comes ";
+			if (escort in k_drive)
+				print "down on top of Savage's escort";
+			else
+	print "crashing down onto the drive";
+			print ". You see Donna jump out of her car ";
+			if (escort in k_drive)
+				print "just as Savage bursts out through his back
+					door. Y";
+			else
+	print " and y";
+			print "ou realise this could be very difficult to explain
+				away and it would be most sensible to leave
+				immediately.";
+			<go s_obj>;
+			Achieved(14);
+			rtrue;
+		}
+		if (player in k_patio)
+			"From the south you hear a car start, followed by a
+			sickening crash.";
+		if (player in lev_2)
+			"Donna's car pulls out of the end of Savage's drive.
+			Suddenly, there is a loud crashing sound, the car stops, and
+			Donna leaps out of it, running back to Savage's
+			drive.";
+	}
+];
+
+Object girder "metal girder" k_drive
+with description
+	[;	print "It holds rigid the back end of the carport roof, and
+			seems a vital part of the structure";
+		if (rope.state == 0) {
+				move rope to k_drive;
+				print ". One end of a length of sturdy looking
+					rope hangs over the side";
+			}
+		".";
+	],
+	before
+	[;	Take:	"Yeah, right.";
+	],
+	size 30,
+	weight 50,
+has	scenery metallic;
+
+Object sav_wall "yellow brick wall"
+with name "yellow" "brick" "wall",
+	description	"About four feet high and largely ornamental.",
+	describe
+	[;	rtrue; ],
+	before
+	[;	Climb: if (football has general) {
+				if (simone in k_drive) {
+					print "You rather pathetically try to
+						climb over the wall, exaggerating
+						both the difficulty and the pain
+						which the effort causes you, purely
+						for Simone's benefit. This seems to
+						make her more angry. ~Get out of the
+						way!~ she says, and vaults over the
+						wall.^";
+					give simone ~following;
+					move Simone to k_patio;
+					StartTimer(self, 2);
+					move football to simone;
+					rtrue;
+				}
+				print_ret "You know you ought to retrieve ",
+						(the) football, " but can't get over
+						the wall. There is no foothold, and
+						your knee is too stiff to get over
+						it.";
+			}
+			if (location == k_drive)
+				"Before the accident this wall would have posed
+				no obstacle at all, but now your joints are not
+				flexible enough and still too tender. Simone
+				hates you giving up easily, but on this
+				occassion, you do.";
+			"It would be simpler to use the gate.";
+	],
+	time_left 0,
+	time_out
+	[;	MoveActor(simone, se_obj);
+		print (The) simone, " tosses you ", (the) football, ". ~Don't
+			lose it.~ she says.^";
+		move football to player;
+		give football ~general broken;
+		give simone ~general;
+		rtrue;
+	],
+	found_in k_drive k_patio,
+has	static;
+

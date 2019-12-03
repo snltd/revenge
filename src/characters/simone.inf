@@ -1,0 +1,455 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+! The lovely Simone, and all the routines she needs to work
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Person Simone "Simone" lounge with ! I no longer treat her as an Object
+  ! if she HAS GENERAL she's mad
+  name "Simone" "honey" "actual",
+  state 1,  ! 1 means she is standing round doing nothing
+            ! 2 means she is following you
+            ! 3 means she is up for moving the filing cabinet
+            ! 4 means she is waiting for you to say "no"
+            ! 5 means she is holding the bottom end of the cabinet
+            ! 6 means she has hold of the chipboard
+  number 1, ! how often (+1) she's picked up the cement
+  just_visited grass,
+  description [;
+    if (self has general) {
+      "You look carefully at Simone. She glares back. You seem to have
+      upset her.";
+    }
+
+    switch(self.state) {
+      1 to 4:
+        print "Fairly tall and boyishly pretty, with a slightly turned-up nose
+              and a ready smile.";
+      5:
+        print "Simone is squatting down, holding onto the bottom of ", (the)
+              file_cab, ".";
+      6:
+        print "Currently, she is holding a large piece of chipboard up in the
+              air.";
+    }
+  ],
+  whatsit "Simone is your girlfriend of the last three months. You met in the
+          most unfortunate of circumstances: she was the only witness to your
+          accident.
+          ^^
+          As you lay on the ground and Savage screamed abuse at you, she
+          called an ambulance and the police, staying with you until the former
+          arrived, and gaving a statement to the latter.
+          ^^
+          When you were in hospital Simone was your most regular visitor,
+          romance blossoming over grapes and sympathy.
+          ^^
+          She lives just a few doors away, works in a bookshop in town and
+          could do a great deal better than you. Since Simone was instrumental
+          in Savage losing his driving license, for which hates her almost as
+          much as he hates you.",
+  peekdesc [;
+    switch(self.state) {
+      5:
+        print "is holding the bottom end of a filing cabinet";
+      6:
+        print "is holding a slab of chipboard in the air";
+      default:
+        print "stands doing nothing";
+    }
+  ],
+  before [;
+    Insult:
+      if (self has general) {
+        "That would only make the situation worse.";
+      }
+
+      "You did that quite adequately with that underwear you bought her for
+      her birthday.";
+    Pull:
+      "You already have.";
+    Touch:
+      if (self has general) {
+        "~Get off!~";
+      }
+
+      "You can't decide which part to go for.";
+    Enter:
+      "That's a bit forward.";
+  ],
+  life [;
+    Kiss, Comfort:
+      if (self has general) {
+        "~Don't think you can get round me that easily~.";
+      }
+
+      "You give Simone a little kiss on her cheek. She wrinkles her nose and
+      gives you an affectionate smile.";
+    Attack:
+      "What's your problem?";
+    Ask:
+      if (self has general) {
+        "Simone just glares at you. It is most unlike her to be moody.";
+      }
+    switch(second) {
+      QKev:
+        "~I hate him. He's scum. They should have locked him up for what he
+        did to you.~";
+      QBronson:
+        "~That damned animal? It set about little Francis from across the road
+        last week. If Ken hadn't seen it and layed into it with his walking
+        stick it'd've torn Frank's throat out. I told Francis' Dad to report
+        it to the police, but apparently Savage persuaded him not to. They're
+        a pair of dangerous animals if you ask me.~";
+      QDate:
+        "~I'm round here all the time anyway.~";
+      QSimone:
+        "~I'm Simone aren't I? Your girlfriend? Remember?~";
+      QKen:
+        "~You know, old Ken from, is it number 23? His wife died just before
+        Christmas. You remember her, she had that little electric car thing.~
+        You do remember, vaguely. Although you only met her a couple of times,
+        you are sad that she has died.  Sad for her that she has had to leave
+        poor, shambling Ken to fend for himself, and sad for her that until
+        now no one thought it was worth telling you she was dead.";
+      QFrancis:
+        "~Yeah, Bronson chewed his arm up. They had to take him to hospital
+        and tell the doctors it was a stray dog that did it.  I think he's
+        okay now, no real scarring even. Damned lucky if you ask me.~";
+      QWork:
+        "~Don't mention work. Not when I'm on my holidays.~";
+      QDonna:
+        "~I don't know her really. She seems okay. A bit tarty looking, but
+        nice enough. I can't think what she's doing with that chimp.~";
+      QCalender:
+        "~It doesn't bother me. Bit sad though.~";
+      QMusic:
+        print "~I love the ", (string) random("first",
+                                              "second",
+                                              "new"),
+              " ",
+              (string) random("Prolapse",
+                              "New Bad Things",
+                              "Stereolab",
+                              "Quickspace",
+                              "Apples In Stereo",
+                              "Olivia Tremor Control",
+                              "Halo Benders",
+                              "Heavenly"),
+              " ",
+              (string) random("lp", "single"),
+              ".~
+              ^";
+        print_box(14);
+        rtrue;
+      QFootball:
+        print "~I bought it for you to kick about and build up strength in
+              your legs";
+
+        if (football has general) {
+          " and what do you do? Deliberately shoe it over the bloody fence.
+          You'd best get it back.~ [I think she means it too.]";
+        }
+
+        ".~";
+      default:
+        "Simone seems not to know about that.";
+    }
+    Tell:
+      switch(second) {
+        QFootball:
+          if (football has general) {
+            give simone general;
+            "You explain to Simone how you were playing football and
+            accidentally kicked it over into Savage's garden. She is not
+            impressed. ~Well you'd better get it back.~";
+        }
+
+        "You excitedly blabber about your team's new signing. Simone has not
+        jumped on the football bandwagon, but understands it is important to
+        you and listens patiently.";
+      }
+    Answer:
+      switch(noun) {
+        'hello', 'hi':
+          "~Hello.~";
+        'sorry', 'sos', 'apologies':
+          if (self has general) {
+            "~Yeah, I bet.~";
+          }
+
+        "~What for? No, don't answer that: it's probably better I don't
+        know.~";
+      }
+    Show:
+      switch(noun) {
+        mirror:
+          "For a second Simone absent-mindedly admires herself in ", (the)
+          noun, ", then notices that you are watching her do so and stops.";
+        gun, money:
+          "Surprisingly, Simone is unfazed by your producing", (a) noun, ".";
+        default:
+          "~Mm. That's really interesting.~";
+      }
+    ],
+    orders [;
+      Follow:
+        if (noun == player) {
+          if (self.state == 6) {
+            "~I'll have to let go of this wood first.~";
+          }
+
+          if (self has following) {
+            if (self has general) {
+              "~God! I already am!~";
+            }
+
+            "Gently, Simone reminds you that she is following you already.";
+          }
+
+          self.state = 2;
+          StartDaemon(self);
+          give self following;
+
+          if (self has general) {
+            "Begrudgingly, Simone nods assent.";
+          }
+
+          "~I'd follow you to the ends of the earth.~ She says,
+          semi-sarcastically.";
+        }
+
+        if (self has general) {
+          "~Don't you try ordering me about!~";
+        }
+      Take:
+        if (self.state == 6 && noun ~= chipboard) {
+          "~I've got my hands full.~";
+        }
+
+        switch(noun) {
+          cement_bag:
+            if (self.number == 2) {
+              "~No. I'm fed up of lugging that round.";
+            }
+
+            if (cement notin cement_bag) {
+              "~Pick it up yourself you idle get.~";
+            }
+
+            if (cement_bag in self) {
+              "~I'm already holding it you closet.~";
+            }
+
+            self.number++;
+            move cement_bag to self;
+            StartTimer(cement_bag, 3);
+            "Simone gives you a long-suffering look, bends down, and hefts ",
+            (the) noun, " up in her arms with a strength that belies her
+            slight frame.";
+          tea_chest:
+            "~What do I want that for?~ asks Simone.";
+          chipboard:
+            if (self.state == 6) {
+              "~I already am.~";
+            }
+
+            self.state = 6;
+            StopDaemon(self);
+            chipboard.number = 2;
+            "Simone lifts up ", (the) noun, ".";
+          file_cab:
+            switch(self.state) {
+              3:
+                if (noun has general) {
+                  self.state = 5;
+                  StartTimer(middle_drawer, 5);
+                  "Simone steps into the gap between ", (the) noun, " and the
+                  wall, then squats down and hooks her fingers around the edge
+                  of its base.  ~Ready when you are.~ she says.";
+                }
+
+                "~Okay: I'll take the bottom end. When I can get my hands
+                underneath it.~";
+              5:
+                "~I already am!~ gasps Simone.";
+              6:
+                "~Make your mind up!~ says Simone.";
+              default:
+                self.state = 4;
+                "Simone looks up and down ", (the) noun, ". ~You think I can
+                lift that do you?~ she says.";
+            }
+        }
+
+        if (noun has animate) {
+          "~I don't suppose ", (the) noun, " would care for that.~ says
+          Simone.";
+        }
+
+        if (noun has scenery or static) {
+          "Simone gives you a funny look.";
+        }
+
+        move noun to simone;
+        "Simone takes ", (the) noun, ".";
+      Drop:
+        switch(noun) {
+          chipboard:
+            if (chipboard.number == 2) {
+              move chipboard to parent(self);
+              self.state = 1;
+              print "Simone lets ", (the) noun, " fall onto the ";
+
+              if (tea_chest hasnt moved) {
+                chipboard.number = 1;
+                "top of the tea-chest.";
+              }
+              else {
+                chipboard.number = 3;
+                print "floor. Disturbed by the noise, a mouse (or rat?) darts
+                      out and through a hole in the shed wall^";
+
+                if (weed_killer in chipboard) {
+                  <<bottle_fall weed_killer>>;
+                }
+
+                rtrue;
+              }
+            }
+          cement_bag:
+            move noun to parent(self);
+            "Simone drops ", (the) noun, ", and seems glad to have done so.";
+          file_cab:
+            if (self.state == 5) {
+              self.state = 3;
+              give noun ~general;
+              move noun to parent(self);
+            }
+          default:
+            if (noun notin self) {
+              "~I'm not even carrying it.~";
+            }
+
+            move noun to parent(self);
+            print_ret (The) self, " drops ", (the) noun, ".";
+        }
+      PutOn:
+        if (noun == cement_bag && second == barrow) {
+          if (cement_bag notin self) {
+            "~I'm not carrying it.~";
+          }
+
+          move cement_bag to barrow;
+          "Simone drops the cement bag onto what is left of the wheelbarrow.";
+        }
+      Go:
+        if (file_cab in player) {
+          "~You just start walking andI'll go with you.~";
+        }
+
+        self.state = 1;
+
+        if (self.state == 6) {
+          "~I'll have to let go of this wood first.~";
+        }
+
+        give simone ~following;
+        MoveActor(self, noun);
+        rtrue;
+      Wait:
+        self.state=1;
+        StopDaemon(self);
+        "~Okay, I'll just wait here then shall I?~";
+      Kiss:
+        if (noun hasnt animate) {
+          "Simone looks puzzled by your request.";
+        }
+
+        if (noun == player) {
+          print "Simone gives you ";
+
+          if (self has general) {
+            "a black look";
+          }
+
+          "a delicate kiss.";
+        }
+
+        switch(noun) {
+          bronson, savage, fish:
+            "~Get knotted!~";
+          donna, prostitute:
+            "Simone is not in the mood for girl-on-girl action.";
+          default:
+            "Simone is unwilling to pucker up.";
+        }
+      Examine:
+        switch(noun) {
+        calendar:
+          "Simone scrutinizes the girl in the calendar but makes no
+          reaction.";
+        mirror:
+          "~Why, what's wrong with me?~";
+        simone:
+          "~Looking good!~ says Simone.";
+        }
+
+        print_ret (The) self, " examines ", (the) noun, ".";
+      Jump:
+        "~I suppose you expect me to ask how high don't you?~";
+      Attack:
+        "~Do your own dirty work.~";
+      Climb:
+        if (noun == sav_wall) {
+          if (football has general) {
+            "~Do it yourself!~";
+          }
+          print_ret (The) self, " has no good reason to do that.";
+        }
+      Push, Pushdir:
+        "Simone adjusts ", (the) noun, " microscopically.";
+      No:
+        if (self.state == 4) {
+          print "~Good. I don't mind helping you move it though.~^";
+          self.state = 3;
+          rtrue;
+        }
+
+        "~Why are you always so negative?~";
+      Yes:
+        if (self.state == 4) {
+          print "~Well I bloody well can't. We might be able to move it
+                between us though.~^";
+          self.state = 3;
+          rtrue;
+        }
+
+        "~Indeed.~";
+      Open:
+        if (second has open) {
+          "~It's already open.~ explains Simone.";
+        }
+
+        if (second hasnt openable) {
+          "Simone gives you a funny look.";
+        }
+
+        switch(second) {
+          k_garden_gate, garden_gate:
+            "~I don't think it can be opened from this side~ says Simone.";
+          shed_door:
+            "Simone tries the bolt. ~It's jammed into the curve of staple.~
+            she says. ~But I'm sure you don't need me to tell you how to open
+            it.~";
+        }
+      Turn:
+        "~I'm sure you can manage that yourself.~ says Simone. She's probably
+        right.";
+      Pull:
+        if (noun == file_cab) {
+          "~I'm sure you can manage that yourself.~ says Simone.";
+        }
+    ],
+    travel_buffer wilderness,
+  has female transparent;

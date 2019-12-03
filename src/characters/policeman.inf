@@ -1,0 +1,121 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+! Call the cops();
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Person police garden with
+  state 1,  !  You have not been introduced
+  name "pig" "copper" "filth" "bobby" "peeler" "inspector" "Greenwald"
+       "policeman",
+  short_name [;
+    if (self.state == 1) {
+      print "policeman";
+    }
+    else {
+      print "Inspector Greenwald";
+    }
+
+    rtrue;
+  ],
+  description "A tired looking man of thoroughly unremarkable appearance.",
+  walkdesc "slowly walks away",
+  describe [;
+    if (self.state == 1) {
+      "A policeman is here. He looks at you expectantly.";
+    }
+  ],
+  before [;
+    Insult:
+      "You ask the policeman why he isn't out catching proper criminals.
+      ~Now then Sir, there's no need for that kind of attitude.~";
+    Attack:
+      "That would be a really smart move wouldn't it?";
+  ],
+  life [;
+    Ask:
+      switch(second) {
+        QPartner:
+          "~The policeman nods wearily. ~Well, yes. Normally I wouldn't be
+          sent out on a case like this on my own, but these days, what with
+          the cutbacks and everything, sending two officers takes at least
+          twice as much programming. It's a wonder the public can sleep at
+          night.~";
+        QKev:
+          "~He's been done a couple of times for public order offences, and we
+          came round here because someone complained about his dog, but he's
+          never been done for anything serious.~";
+        QGun:
+          "~This is England son: we don't carry them~";
+        QWork:
+          "~It's all bloody paperwork. I'm glad to get out and about like
+          this.~";
+        QDate:
+          "He gives you a funny look.";
+        QMusic:
+          "~I'm not a very big listener to music sir. Especially all this
+          modern rubbish. It just sounds like a thumping noise to me. Jungle
+          drums. No tune,you can't make out a word they're saying. Half the
+          time I can't even tell if it's a man or a woman.~";
+      }
+    Answer:
+      if (noun == 'hello' or 'hi') {
+        if (self.state == 1) {
+          self.state = 2;
+          give self proper;
+          "~Hello Sir.~ says the policeman. ~Mr. McMahan is it?~ You nod an
+          affirmitive. ~Inspector Greenwald. I believe you claim to have
+          information which could be of interest to us.~ You nod again.";
+        }
+
+        "~We've already been through all that sir.~";
+      }
+  ],
+  orders [;
+    Drink:
+      "~Not while I'm on duty sir.~";
+  ],
+  daemon [i;
+    self.number++;
+    switch(self.number) {
+      1:
+        i = 1;
+        move self to lev_1; !garden;
+      2:
+        moveActor(police, nw_obj);
+      3:
+        if (self.state > 1) {
+          self.number = 5;
+        }
+
+        if (self.state == 1 && player in parent(self)) {
+          "The policeman catces your eye. ~Hello Sir.~";
+        }
+
+        switch(parent(player)) {
+          drive:
+            "The policeman knocks on your back door.";
+          kitchen, hall, lounge:
+            "You hear a knock on your back door.";
+          garden, grass:
+            "You can hear someone knocking on your back door.";
+          landing, bedroom, bathroom, spare_room:
+            "You think you just heard a knock on the back door.";
+        }
+      4:
+        if (self.state == 1) {
+          i++;
+
+          if (i == 10) {
+            if (player in drive) {
+              print "The policeman hurries away down your drive.^";
+            }
+
+            StopDaemon(self);
+            remove self;
+            rtrue;
+          }
+          self.number = 3;
+        }
+    }
+  ];

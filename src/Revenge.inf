@@ -1,0 +1,122 @@
+! Revenge - The main game header
+! (c) 1996/1997/1998/1999/2000 Robert Fisher
+
+Switches xwsv8;
+Constant Story "Revenge";
+Constant Headline "^Be awful.^";
+
+Replace DigSub;
+Replace CutSub;
+Replace RTakeSub;
+Replace InsertSub;
+Replace PutOnSub;
+Replace LMode2Sub;
+Replace DrawStatusLine;
+Replace WaitSub;
+Replace WaitMovesSub;
+
+Include "Parser";
+
+Ifndef DEBUG;
+  Global debug_flag;
+endif;
+
+Include "../lib/adnames";
+Include "../lib/physics";
+Include "../lib/menus";
+Include "include/attributes";
+Include "include/globals";
+Include "include/constants";
+Include "include/house";
+Include "include/weather";
+Include "include/quote_boxes";
+Include "include/scores";
+Include "include/choose_objects";
+Include "include/death_message";
+Include "include/menu";
+Include "Verblib";
+Include "include/new_verblib";
+
+Fake_Action bottle_fall;
+
+[	Initialise;
+	ChangePlayer(newself);
+	player.max_weight = max_weight_carried;
+	player.max_space = max_space_carried;
+	move bronson to k_grass;
+
+	#IFDEF DEBUG;
+    ! We have a special set of circumstances for games with the debugging
+    ! flag enabled. You skip the prologue, for a start
+		print "^^^Skipping the prologue....^";
+    Settime(635, 1);
+    setup_main_game();
+	#IFNOT;
+		! This is the standard start
+	  location = pub;
+    print "^^
+          It was a bad idea to come out after all. You've been living round
+          here for three months now and you still don't know anyone.
+          Pathetic.
+          ^^
+          So, you made the effort to go out on your own, somehow convincing
+          yourself that you'll hook up with someone somewhere along the line.
+          But of course everyone who has come out tonight has come out with
+          friends, and you haven't made so much as a token effort to
+          infiltrate any of these cliques, and still stand in the corner you
+          took when you arrived.
+          ^^
+          Moving to a new part of the country to do an uninteresting job for
+          an unwelcoming corporation has often seemed like the wrong decision,
+          but never more so than it does now.  It's past midnight so you won't
+          get served any more vodka - not that you can take much more vodka.
+          It seems like a good time to leave.
+          ^^";
+    Settime(10, 1);
+		herobj = young_woman;
+		give player general;
+    move vodka_glass to player;
+    StartDaemon(pub_daemon);
+	#ENDIF;
+
+	return 2;
+];
+
+Include "prologue/01_in_the_pub.inf";
+Include "prologue/02_on_the_street.inf";
+Include ">your_house.inf";
+Include ">filing_cabinet.inf";
+Include ">your_garden.inf";
+Include ">savages_house.inf";
+Include ">savages_garden.inf";
+Include ">the_road.inf";
+Include ">wip.inf";
+Include "Grammar";
+Include "include/new_grammar";
+Include "../lib/timesys";
+Include "include/statusline";
+Include "characters/player.inf";
+Include "characters/topics.inf";
+Include "characters/person.inf";
+Include "characters/savage.inf";
+Include "characters/bronson.inf";
+Include "characters/simone.inf";
+Include "characters/donna.inf";
+Include "characters/prostitute.inf";
+Include "characters/young_woman.inf";
+Include ">keys.inf";
+
+[ setup_main_game;
+  print "^^^^^^^^^^^";
+  day = 2;
+  PlayerTo(kitchen);
+  the_Time = 635;
+  herobj = 0;
+  StartDaemon(master_daemon);
+  StartDaemon(Bronson);
+  StartDaemon(Simone);
+  StartDaemon(Savage);
+  StartDaemon(Donna);
+  Print_Box(21);
+];
+End;

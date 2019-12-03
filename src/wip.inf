@@ -1,0 +1,1065 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+! Work in progress - also notepad for ideas, bugs, and improvements
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Object master_Daemon "all seeing omnipotent master daemon"
+	with	daemon
+		[ i;	i = parent(player);
+			if (bath.state == 5 && k_k_ceiling hasnt general)
+				k_k_ceiling.number++;
+			if (k_k_ceiling.number == 5 && k_k_ceiling hasnt general)
+				CeilingCrash();
+			switch(the_time) {
+				0:	day++;
+				390:	give k_in_shed light;
+					give in_shed light;
+					if (i has outside)
+						"A grey dawn is breaking in the eastern
+						sky.";
+				420:	if (i has outside)
+						"It is properly light now.";
+				1200:	if (i has outside)
+						"You notice that it is definitely getting
+						dark.";
+				1230:	if (i has outside)
+						"The sky is dark now. Night has fallen.";
+			}
+		];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+global dino = 3;
+
+[	PhoneNumber f a l ch pp i;
+	pp = 1;
+	if (NextWordStopped() == -1) return 0;
+	do	{
+		a = WordAddress(wn - 1);
+		l = WordLength(wn - 1);
+		for (i = 0: i < l: i++) {
+			ch = a->i;
+			if (ch >= '0' && ch <= '9') {
+				if (pp < 12) dino->(pp++) = ch - '0';
+			}
+			else {
+				if (ch ~= '-') f = 1;
+					if (i ~= 0) return -1;
+			}
+		}
+		if (f == 1) {
+				if (pp == 1) return -1;
+				dino->0 = pp-1;
+				return 0;
+			}
+		}
+	until
+		(NextWordStopped() == -1);
+	if (pp == 1) return -1;
+	dino->0 = pp-1;
+	return 0;
+];
+
+
+Object phone "telephone" hall	! if it HAS GENERAL it's ringing
+	with name "phone" "telephone" "^phone" "cradle" "push" "button" "modern"
+			"handset",
+		description	"It is a brand new push-button telephone.",
+		state 1,
+		add_to_scope
+		[;	AddToScope(handset);
+		],
+		before
+		[;	Take:	if (handset in player)
+					"You already have the handset, and you're not
+					taking the rest of the telephone anywhere.";
+				<<Take handset>>;
+		],
+		react_before
+		[;	Listen:
+				if (self has general)
+					"The telephone is ringing.";
+		],
+	has	supporter;
+
+Object handset "telephone handset"	! if it HAS GENERAL it's off the hook
+	class adnc
+	with	name "handset" "receiver",
+		adname 'telephone' 'phone',
+		before
+		[;	Drop:	print "You put the handset back in its cradle.^";
+				give self ~general;
+				remove self;
+				rtrue;
+			Insert:
+				if (second == phone)
+					<<Drop self>>;
+				"You can't.";
+		],
+		after
+		[;	Take:	give self general;
+				"You pick up the telephone handset. You can
+				hear the dialling tone.";
+		],
+		react_before
+		[;	Go:	if (self in player)
+					"Not whilst you're holding the telephone.";
+		];
+
+Array your_number string	2 8 9 0 9 2 5;
+Array Ali_number string		9 5 1 5 2 4;
+Array Savage_number string	2 6 7 0 3 9 3;
+
+[	DialPhoneSub i j k l;	! telephone thing
+	if (handset hasnt general && k_handset hasnt general)
+			"You'll have to pick up the receiver first.";
+	if (dino == 0)
+		"** ERROR: dialled by zero **";
+	print "Slowly and definately, you dial ";
+	for (i = 1: i <= dino->0: i++) {
+		print dino->i;
+		if (dino->i == Ali_number->i) j++;
+		if (dino->i == Savage_number->i) k++;
+		if (dino->i == your_number->i) l++;
+	}
+!	print "^j=", j, "k=", k, ": length=", dino->0, "^";
+	if (j == ali_number->0 && dino->0 == ali_number->0) {
+		if (the_time < 360)
+			". You let the phone ring until it is obvious that
+			there is no-one at the other end to answer it.";
+		else	{	move ali to location;
+				". After a few rings your call is answered. A
+				northern voice says ~Hello?~";
+			}
+	}
+	if (k == savage_number->0 && dino->0 == savage_number->0) {
+		if (parent(player) has sav)
+			"Think about that for a minute.";
+		give k_phone general;
+		"** move Savage to telephone **";
+	}
+	if (l == your_number->0 && dino->0 == your_number->0) {
+		if (parent(player) has sav) {
+			if (handset has general)
+				"You get the engaged tone.";
+			give phone general;
+		}
+		"You can't ring yourself on your own phone!";
+	}
+];
+
+Object k_phone "telephone" k_hall	! if it HAS GENERAL it's ringing
+	with name "phone" "telephone" "^phone" "cradle" "push" "button"
+			"modern" "handset",
+		description	"It is a brand new push-button telephone.",
+		state 1,
+		add_to_scope
+		[;	AddToScope(k_handset);
+		],
+		before
+		[;	Take:	if (k_handset in player)
+					"You already have the handset, and you're not
+					taking the rest of the telephone anywhere.";
+				<<Take k_handset>>;
+		],
+	has	supporter;
+
+Object k_handset "telephone handset"
+	class adnc
+	with	name "handset" "receiver",
+		adname 'telephone' 'phone',
+		before
+		[;	Drop:	print "You put the handset back in its cradle.^";
+				remove self;
+				rtrue;
+			Insert:
+				if (second == k_phone)
+					<<Drop self>>;
+				"You can't.";
+		],
+		after
+		[;	Take:	"You pick up the telephone handset. You can hear the
+				dialling tone.";
+		],
+		react_before
+		[;	Go:	if (self in player)
+					"Not whilst you're holding the telephone.";
+		];
+
+Object ali "voice"
+	!	SELF.STATE defines type of curry ordered
+	with name "voice" "ali" "man",
+		state 1,
+		life
+		[;	Ask:	switch(second) {
+				QCurry:
+					"~We only do two sorts of curry. Madras and
+					vindaloo. We do a special extra hot tindaloo
+					though, for all you English hard lads on a
+					Saturday night.~";
+				QWork:
+					"~It's OK. I work for my uncle. Don't let his
+					accent fool you: he's born and bred in Hull.~";
+				QFootball:
+					"~I support Man U. I've never seen them like,
+					but, y'know, they're good.~";
+				QMusic:
+					"~I like Oasis me. I'm mad for it.";
+				QVindaloo, QTindaloo, QMadras:
+					switch(second) {
+						QVindaloo:
+							print "~Vindaloo? Is that right?~^^>";
+							self.state = 1;
+						QMadras:
+							print "~Madras strength? Is that
+								right?~^^>";
+							self.state = 2;
+						QTindaloo:
+							print "~Tindaloo? That's one bloody
+								hot curry. Are you sure?~^^>";
+							self.state = 3;
+							}
+				if (YesOrNo() == 1) {
+					StartTimer(self, 3);
+					remove self;
+					give phone ~general;
+					"~Okay, give us your address and we'll be round in
+					twenty minutes.~ You supply the necessary
+					details and put the phone down.";
+				}
+				"~Okay, what would you like then?";
+				}
+			Answer:
+				if (noun == 'hello' or 'hi')
+					"~Yes, hello.~";
+		],
+		before
+		[;	if (action ~= ##question or ##listen)
+				"What, over the phone?";
+			Listen:
+				if (self has general)
+					"The phone is quiet, but you are still
+					connected.";
+				"It's the bloke from the curry house.";
+		],
+		each_turn
+		[;	if (random(11)<6)
+				print "~Hello?~ says the voice.^";
+		],
+		time_left 0,
+		time_out
+		[;	print "Your ";
+			switch(self.state) {
+				1:	print "vindaloo";
+				2:	print "madras";
+				3:	print "tindaloo";
+			}
+			" is here.";
+		],
+	has	animate scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place	bathroom "Your Bathroom"
+	with description	"Sparse and functional. All the usual fixtures and
+				fittings in a rather overwhelming shade of powder
+				blue.",
+		locname "the bathroom",
+		s_to bathroom_door,
+		cant_go "You can only go back south.",
+	has	upstairs;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place loft "Your Loft"
+	with name	"eaves",
+		description	"One of the previous owners of the house boarded over
+				the floors, presumably to maximise the holding capacity
+				of the loft, so you do not run the risk of crashing
+				through a plasterboard floor. It is very dusty up here,
+				and also very empty. You have not accumulated enough
+				junk to fill all the normal rooms in your house, so
+				you've never had cause to put anything in the loft.
+				Light shines up through the trapdoor, illumintating the
+				centre of the room, but failing to penetrate into the
+				shadows under the eaves.",
+		locname "your loft",
+		d_to
+		[;	if (trapdoor hasnt open)
+				"But the trapdoor is closed.";
+			if (file_cab notin landing)
+				"There is no way down.";
+			PlayerTo(File_cab, 2);
+		],
+		cant_go "The only exit is via the trapdoor.",
+	has	upstairs;
+
+Object shadows "shadows" loft
+	with	name	"shadow" "shadows" "darkness",
+		description
+		[;	if ((torch in player || torch in loft) && torch has on)
+				"The shadows are too dark to make anything out.";
+			"You've chased them all away.";
+		],
+		when_open "Shadows loom under the eaves",
+		before
+		[;	Touch:	"They run the length of the loft: it would take
+				ages to hunt through them. And you'd probably get
+				splinters in your hands.";
+			Search:
+				<<examine self>>;
+		],
+	has	container;
+
+Object torch "torch" loft
+	with name "torch" "tools//p",
+		before
+		[;	Point:	if (self hasnt on)
+					"It wouldn't do much good: ", (the) self,
+					" is switched off.";
+				switch(second) {
+				shadows:
+					if (children(second) == 0)
+						"You see that the shadows were hiding
+						nothing.";
+					print	"As you flash ", (the) self, " around
+						the room, you notice ";
+					WriteListFrom(child(shadows), ENGLISH_BIT +
+					RECURSE_BIT + PARTINV_BIT + TERSE_BIT +
+					CONCEAL_BIT);
+					".";
+				secret:
+					"The light only illuminates the back of the
+					compartment: it does not allow you to see if
+					there is anything concealed within it.";
+				}
+		],
+		after
+		[;	SwitchOn:
+				give shadows transparent open;
+				if (parent(player) == loft)
+					"You snap on ", (the) self, ". It is surprisingly
+					bright, and as you turn to look round the room, the
+					shadows in each corner slide away at the speed of
+					light.";
+			SwitchOff:
+				give shadows ~transparent ~open;
+				if (parent(player) == loft)
+					"As you switch off ", (the) self, ", dark shadows
+					lurk in and fill up half the room.";
+		],
+		weight 3,
+		size 3,
+	has	switchable;
+
+Object saw "saw" loft
+	with name "saw" "tenon" "blade" "teeth" "tools//p",
+		description	"A small tenon saw used for woodworking. Its blade is
+				about nine inches long.",
+		size 3,
+		weight 2,
+	has	metallic cutter;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+[	Go_To_Sleep t;
+	print	"That aint been written yet. (The time, in real numbers, by
+			the way is ", t, ".)^";
+	rtrue;
+];
+
+[	Raining;
+	if (the_time == 0)
+		return 1;
+	else return 0;
+];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Object ivy "poison ivy" wilderness	!	if it HAS broken it has been cut
+	with name	"poison" "ivy" "poisoned" "plants//p",
+		article "some",
+		before
+		[;	Examine:
+				"One of the few plants you can identify. And that's only because of a
+        bad encounter as a child.";
+			Take:	if (gloves hasnt worn)
+					"Talk sense. Do you know what that stuff does
+					to you?";
+			Eat:	"Perhaps after a starter of broken glass washed
+				down with benzene.";
+			Cut:	if (second == scissors) {
+					if (self has broken)
+						"You've already done that.";
+					else	{	print "You snip off a fairly
+								sizeable piece of ", (the)
+								self, ".^";
+							move cutting to player;
+							give self broken;
+							rtrue;
+						}
+				}
+				if (second == saw or axe)
+					"I think your choice of tool is a bit over
+					the top.";
+		],
+	has	concealed;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Object	k_sofa "settee" k_lounge !	if it HAS BROKEN it's wet
+	with name "sofa" "settee" "suite" "3" "piece" "three",
+		description
+		[;	print	(The) self, " is very large and thickly upholstered.
+				It can accommodate three people, each on his own
+				cushion";
+			if (self has broken)
+				". It is soaking wet.";
+			".";
+		],
+		before
+		[;	PushDir:
+				if (player in self)
+					"You try propelling ", (the) self, " with your
+					feet, but your legs are not yet strong enough.";
+				if (location == k_patio && second == n_obj or nw_obj)
+					"You can't get ", (the) self, " up the step.";
+				if (location == k_kitchen && second == e_obj)
+					print_ret	(The) self, " is too wide to go
+							through ", (the) k_back_door, ". They
+							must have brought it in through the
+							front door.";
+				AllowPushDir();
+				rtrue;
+		],
+		after
+		[;	Enter:	print "Very comfortable.^";
+				Print_box(9);
+				rtrue;
+			PushDir:
+				give self moved;
+				print (The) self, " moves along easily.^";
+		],
+		weight 30,
+		size 30,
+	has	enterable supporter;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Object fish "koi carp" pond	!	if it HAS BROKEN it is dead
+	with	name "fat" "koi" "carp" "fish" "animals//p",
+		short_name
+		[;	if (self has broken) print "dead fish";
+			else print "fat koi carp";
+			rtrue;
+		],
+		life
+		[;	Ask, Answer, Give, Show:
+				"It's a fish.";
+			Tell:	"The fish seems less than sympathetic.";
+			Kiss:	"It'd be like kissing a wet fish.";
+			Attack:
+				if (self has broken)
+					"It's already dead, what further damage
+					did you have in mind?";
+				"You can't bring yourself to kill the fish.";
+		],
+		before
+		[;	Take:	if (self in pond) {
+					if (self has broken) "Ugh! But it's dead!";
+					"You can catch fish with your bare hands
+					can you?";
+				}
+			Examine:
+				if (self in pond && pond_stones hasnt broken) {
+					print	"As you step towards the edge of the
+						pond to get a better look at ", (the) self,
+						", the stone on which you stand moves
+						slightly under your foot. Alarmed, you step
+						back onto the grass and simply crane your
+						neck to look.^^";
+					move stone to k_grass;
+				}
+				print	"The koi carp is an ornamental Japanese fish.
+					It is a very expensive fish, and in some circles
+					is regarded as quite a status symbol. This
+					particular specimen is ";
+				if (self has broken)
+					"dead.";
+				"almost a foot long and a gorgeous ruddy orange
+				colour.";
+			Eat:	if (self has broken)
+					"It would need gutting, cleaning, boning and
+					cooking first.";
+				"While it's still alive?";
+			Stroke:
+				if (self in pond) {
+					if (self has broken)
+						"It's a bit late to be kind to it now.";
+					print_ret	(The) self, " flashes away into
+							the weeds.";
+				}
+				"Nice fishie.";
+			Shoot:	if (gun in player)
+					"It's not in a barrel: you'd miss.";
+			Catch:	if (self notin pond)
+					"You already have: you can just grab it now.";
+				if (rod notin player)
+					"You can't catch fish with your bare hands!";
+				if (worm notin pin)
+					"You dangle the hook in the water, but don't
+					get a bite.";
+				else	{	print "Almost immediately you get a tug
+							on the fishing line. (Who'd have
+							thought it?) With a tug, you haul
+							your catch out of the water. A fat
+							red fish flops onto the grass.
+							Kneeling down you remove the hook
+							from its mouth.^";
+						remove worm;
+						move fish to k_grass;
+						rtrue;
+					}
+		],
+		size 4,
+		weight 4,
+	has	animate flimsy;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Object escort "Ford Escort XR3i" k_drive
+!	if it HAS BROKEN you've caved the carport in on it
+	with name "ford" "escort" "xr3" "xr3i" "car" "passion" "pussy" "wagon"
+			"wheels" "door" "ignition",
+		description
+		[;	if (self has broken) {
+				print	"Although the carport seemed flimsy and
+					lightweight, it has done a surprising amount
+					of damage to Savage's car. The large supporting
+					girder seems to have landed on the rear window,
+					(breaking it, ) then been dragged forwards across
+					the back half of the roof, cutting through the
+					paintwork down to raw metal. A similar girder has
+					inflicted similar damage to the bonnet of the car
+					after putting a not insignificant dent in the
+					front of the roof.";
+				print_box(17);
+				Achieved(14);
+			}
+			if (self has open) {
+				print	"The door nearest to you is open";
+				if (self has on)
+					print	". The key is in the ignition, and a heavily
+						laden key ring hangs from it";
+				".";
+			}
+			if (self hasnt broken) {
+				print "In the last few months Savage has not been able
+					to drive his pride and joy, so he has spent his
+					spare time totally refitting and restyling it. New
+					wide tyres (bigger at the back); new interior
+					(although this is difficult to see through the
+					tinted windows); new paint job (now black,
+					previously white); stripped down, cleaned up
+					and rebuilt engine; and a host of other
+					trimmings.";
+				print	" For instance, a vulgar, pointless spoiler, a
+					multitude of fog lights, go-faster stripes,
+					private number plates, fat chrome exhaust pipes
+					and, to top it all, you can just make out a pair
+					of fluffy dice hanging from the rear-view
+					mirror.^";
+			}
+			rtrue;
+		],
+		when_open
+		[;	"The door on this side of the car is open.";
+		],
+		when_closed
+		[;	if (self has broken)
+				"The remains of Savage's car are under the carport
+				roof.";
+			"Savage's Ford Escort stands at the end of the drive.";
+		],
+		before
+		[;	SwitchOn:
+				if (self has on)
+					"The engine is running already.";
+				if (self hasnt open)
+					"With no keys? I think not.";
+			SwitchOff:
+				if (self hasnt on)
+					"The engine isn't running.";
+				"Savage would hear that it had stopped, catch you
+				messing with his baby, and probably rip your head
+				off.";
+			Open:	if (self has open)
+					"The door nearest to you is open already.";
+				"The car is all locked up, and a sticker on the
+				window warns that it has an alarm.";
+			Enter:	if (self has open)
+					"Savage would murder you.";
+				else	<<open self>>;
+			Attack:
+				"That would be plain criminal damage.";
+			Take:	"Yeah, right.";
+			Push, PushDir:
+				"The handbrake is on and it's been left in
+				gear: you can't shift it.";
+		],
+		react_before
+		[;	Listen: if (self has on)
+					"You can hear the car engine.";
+		],
+	has	static container openable locked lockable;
+
+Object	your_key "your back door key"
+	class adnc,
+	with name "your" "back" "key",
+		adname 'my' 'door',
+		description	"A small silvery latch key which will lock and
+unlock your back door.";
+
+!compare keys?
+
+Object ansaphone "answerphone" k_hall
+	class adnc,
+	with name "ansa" "answer" "ansaphone" "answerphone",
+		adname 'phone',
+		description	"A small black box which records messages onto
+				a cassette tape. There is
+				a green button marked ~play~ on the front.",
+		before
+		[;	SwitchOn:
+				"It's already on.";
+			SwitchOff:
+				"You can't find a switch.";
+			UnPlug:
+				"You can't see where the cable goes.";
+		],
+	has	container open;
+
+Object cassette "audio cassette" ansaphone
+	with name "audio" "cassette" "tape",
+		adname 'ansaphone' 'answerphone';
+
+Object play_button "play button"
+	with	name "play" "switch" "button" "buttons/p",
+		adname 'ansaphone' 'answerphone',
+		before
+		[ i j;
+			i = cassette;
+			Push:	if (i notin ansaphone)
+					"There is no cassette in ", (the) ansaphone, ".";
+				if (self has on)
+					"The messages are already playing.";
+				if (children(i) == 0)
+					"After a short pause, the button clicks
+					back up. Obviously there are no messages.";
+				give self on;
+				print "The cassette rewinds, and after a short
+					pause you hear ";
+				objectloop (j in i) {
+					PrintOrRun(j, description, 0);
+					remove j;
+					if (children(i) > 0)
+						". There is another pause, and
+						then another message begins: ";
+					else	{	give self ~on;
+							". The play button clicks back
+							up. The messages have all been
+							replayed.";
+						}
+				}
+		],
+	has	switchable;
+
+Object steak2 "steak"
+	with name "steak";
+
+! first, get Savage to suggest he and Simone have a BBQ
+
+! get donna to phone up and leave a message on the answerphone to say she's
+! looking forward to their BBQ on Sunday
+
+[	Sav_BBQ i j d;
+	i = savage;
+	j = parent(player);
+	d = donna;
+	if (i notin patio || bbq notin patio || donna notin patio)
+		"** ERROR sav_BBQ called erroneously **";
+	switch(i.number) {
+		1:	if (i notin k_kitchen)
+				"** ERROR: Need Savage to be in k_kitchen [Sav_BBQ] **";
+			if (j == k_hall || (j == k_drive && k_back_door has open)) {
+				if (j == k_hall)
+					print "From the kitchen";
+				if (j == k_drive)
+					print "Through the open back door";
+				print	" you hear ", (name) i, " explain that he thinks
+					the weather is pleasant enough to cook
+					outside. ", (name) Donna, " doesn't seem too
+					enthusiastic: perhaps not too taken by the idea
+					of a meat burned black on the outside and still
+					half frozen and bloody in the middle, but
+					she agrees anyway.^";
+			}
+		2:	i.peekdesc = "is rummaging through his freezer";
+			if (i == k_kitchen)
+				print (name) i, " opens the freezer and takes
+				out some meat.";
+			if (steak in freezer)
+				move steak to i;
+			else	move steak2 to i;
+		3:	MoveActor(i, s_obj);
+			MoveActor(d, s_obj);
+		4:	MoveActor(i, e_obj);
+			MoveActor(d, e_obj);
+		5:	MoveActor(i, n_obj);
+			MoveActor(d, n_obj);
+		6:	if (j == k_lounge)
+			print	"Through the window you see ", (name) i, " explaining
+				something to ", (name) Donna, " and gesturing
+				towards ", (the) bbq, ". From a pocket in his jacket ",
+				(name) i, " produces a bottle of something which he
+				pours on the charcoal. He strikes a match and drops
+				that into the barbecue, which presumably lights.^";
+			if (banger in charcoal) {
+				give banger broken;
+				if (j hasnt outside && j hasnt sav)
+					"You hear a muffled bang from the back of the
+					house.^";
+				if (j has outside)
+					print "Suddenly, there is an enormous *bang*.";
+				if (j == k_lounge) {
+					print	" You see Savage flinch, and Donna shrieks
+						in fright.^";
+					Achieved(8);
+				}
+			}
+			if (j ~= k_lounge) {
+				give k_french_window broken;
+				remove rocket;
+				move spent_rocket to k_patio;
+			}
+			if (j == k_lounge) {
+				if (rocket in charcoal) {
+					if (banger in charcoal)
+						print "Savage still seems shaken, shoulders
+							hunched up round his ears when the ";
+					else	print "Suddenly, a ", (name) rocket,
+							" soars out from the heart of ",
+							(the) bbq, ", narrowly missing ";
+					if (banger in charcoal)
+						print "him";
+					else	print "Savage";
+					if (rocket has general) {
+						print " and soaring towards you! It hammers
+							into the french window, cracking the
+							outside pane of the double glazing
+							and falling, spent, to the floor.^";
+						Achieved(9);
+						give k_french_window broken;
+						remove rocket;
+						move spent_rocket to k_patio;
+					}
+				}
+			}
+	}
+];
+
+[	Sav_Aerial; rtrue; ];
+
+[	Sav_TV i j;
+	i = savage;
+	j = k_lounge;
+	if (i notin j || tv notin j)
+		"** ERROR sav_TV called erroneously **";
+	if (player in k_patio) {
+		print "Through ", (the) k_french_window, " you see ", (name) i,
+			" turn on ", (the) tv;
+		if (k_sofa notin i)
+			". Automatically, he walks back to where ", (the)
+			k_sofa, " used to be.";
+		else print " and settle back on ", (the) k_sofa, " to watch it.";
+	}
+	if (player in j)
+		print (name) i, " turns on ", (the) tv;;
+];
+
+Object persil_box "box of soap powder" k_kitchen
+! if lime HAS GENERAL this has lime in
+	class adnc,
+	with	name "box" "of",
+		adname 'soap' 'powder' 'persil' 'daz' 'radion' 'washing',
+		description
+		[;	if (persil in self)
+				"The box is almost full of powder.";
+			if (lime in self)
+				"Almost full of a white powder which, if you
+				didn't know otherwise, you'd assume was soap
+				powder.";
+		],
+		before
+		[ x;	Empty:	if ((persil in self) || (lime in self))
+					"It's already empty.";
+				if (location has outside) {
+					objectloop (x in self)
+						remove x;
+					"As you empty the box, the wind whips
+					all the powder away.";
+				}
+				if (location has sav)
+					"Savage would just get Donna to hoover
+					it up, and you've no grudge against her.";
+				"Not on the carpet!";
+			Close:	"A flap has been torn out of the top. You can't
+				really close it.";
+		],
+		!capacity 1,
+		max_space 2,
+		max_weight 3,
+	has	container openable open;
+
+Object persil "soap powder" persil_box
+	with name "soap" "powder" "persil" "daz" "radion" "washing",
+		description	"A white powder flecked with blue.",
+		article "some",
+		before
+		[;	Eat:	"Not the best idea you've ever had.";
+			Take:	if (gloves hasnt worn)
+					"You have an allergic reaction to ",
+					(name) self, " so are reluctant to touch
+					it with bare hands.";
+				if (self in persil_box)
+					"The gloves are too large and clumsy.
+					You can't reach into the box whilst wearing
+					them.";
+				"The large gloves make you too clumsy to pick
+				up any quantity of ", (name) self, ".";
+		],
+		size 2,
+		weight 2;
+
+Object lime_bag "polythene bag" k_kitchen ! if it HAS MOVED it's got no label
+	class adnc,
+	with	short_name
+		[;	if (self hasnt moved) {
+				print "plastic bag full of white powder and
+					labelled ~lime~";
+				rtrue;
+			}
+			print "plastic bag";
+			if (lime in self)
+				print " of lime";
+			if (persil in self)
+				print " full of white powder";
+			rtrue;
+		],
+		name "bag" "plastic" "polythene" "of",
+		adname 'lime' 'quicklime' 'alum',
+		description
+		[;	if (children(self) == 0)
+				"An clear, unlabelled plastic bag with traces
+				of white powder in its folds and creases.";
+			if (lime in self) {
+				print	"About the size of the bag a loaf of
+					bread might come in. It is transparent and
+					almost filled with a white powder ";
+				if (self has moved)
+					print "you know to be";
+				else	print "that the label indicates is";
+				" lime.";
+			}
+			if (persil in self)
+				"The clear plastic bag contains an anonymous
+				looking white powder.";
+		],
+		before
+		[ x;	Empty:	if ((persil in self) || (lime in self))
+					"It's already empty.";
+				if (location has outside) {
+					objectloop (x in self)
+						remove x;
+					"As you empty the bag, the wind whips
+					all the powder away.";
+				}
+				if (location has sav)
+					"Savage would just get Donna to hoover
+					it up, and you've no grudge against her.";
+				"Not on the carpet!";
+		],
+		after
+		[;	Take:	if (self hasnt moved)
+					"As you pick up the bag, the paper label you
+					thought was attatched to it falls off and
+					disappears among the detritus on the floor.";
+		],
+		!capacity 1,
+		max_space 2,
+		max_weight 2,
+	has	container open openable transparent;
+
+Object lime "lime" lime_bag
+	with name "lime" "quicklime" "powder" "white" "alum" "caustic",
+		description "A caustic white powder. Very unpleasant.",
+		article "some",
+		before
+		[;	Eat:	"You're thinking of the other sort of lime.";
+			Take:	if (gloves hasnt worn)
+					"You know enough chemistry not to do that.";
+				if (self in persil_box)
+					"The gloves are too large and clumsy. You
+					can't reach into the box whilst wearing them.";
+				"The large gloves make you too clumsy to pick
+				up any quantity of ", (name) self, ".";
+		],
+		size 2,
+		weight 2;
+
+Object tape k_bathroom
+	with	name "roll" "of" "packaging" "tape" "sellotape" "cardboard"
+			"ring" "middle" "adhesive",
+		short_name
+		[;	if (self has general)
+				print "middle from";
+			else	print "what remains of";
+			print " a roll of adhesive tape";
+			rtrue;
+		],
+		description
+		[;	if (self has general)
+				"Just a two inch broad cardboard ring.";
+			"Three or so inches of brown packaging tape remain on
+			the roll.";
+		],
+		before
+		[;	Cover:	if (second == overflow && verb_word == 'stick')
+					<<Cover overflow self>>;
+		],
+	has	proper;
+
+[	Dijkstra actor dest source i j n z v d c cnt;
+	source = parent(actor);
+
+	if (dest == source) {
+		give actor ~travelling;
+		rtrue;
+	}
+
+	objectloop(i ofclass Place)
+		i.v = 0;
+
+	source.v = 1;
+	source.d = 0;
+	source.c = 0;
+	n = 0;
+	.step2;
+	cnt = 0;
+	objectloop(i ofclass Place && i.v == 1 && i.d == n) {
+		objectloop(z in compass) {
+
+			if (ZRegion(i.z) == 1) {
+				cnt++;
+				j = i.z;
+
+				if (j ofclass stairs or portal) {
+
+					if (i == j.inloc)
+						j = j.outloc;
+					else
+						j = j.inloc;
+				}
+
+				if (j.v == 0) {
+					j.v = 1;
+					j.d = n + 1;
+
+					if (n == 0)
+						j.c = j;
+					else
+						j.c = i.c;
+				}
+			}
+		}
+	}
+
+	if (cnt > 0) {
+		n++;
+		jump step2;
+	}
+
+	if (dest.v == 0)
+		"** ERROR in Dijkstra() - Destination cannot be reached.**";
+
+	objectloop(i in compass) {
+		j = source.i;
+
+		if (j ofclass stairs or portal) {
+
+			if (source == j.inloc)
+				j = j.outloc;
+			else
+				j = j.inloc;
+		}
+
+		if (j == dest.c)
+			MoveActor(actor, i);
+	}
+];
+
+Object windows "window"
+with name "window" "glass" "pane" "frame" "windows" "UPVC" "wooden" "frames"
+	"panes",
+	description
+	[;	if (location has sav)
+			"A double-glazed UPVC window.";
+
+		"Old wooden frames in need of a lick of paint. Damp has made them black
+		and dirty around the edges of the panes.";
+	],
+	before
+	[;	Open:
+			if (location has outside)
+				"You can't open the window from this side.";
+
+			if (location has sav)
+				"The windows are locked.";
+
+			"Uneven, yellowing layers of gloss glue the window shut and make
+			this quite impossible.";
+
+		Search:
+			if (location has outside)
+				"You can see into the house.";
+
+			switch(location) {
+			spare_room:
+				"The view is of your own garden, although
+				you can also see into Savage's.";
+			lounge, k_lounge, bedroom, k_bedroom:
+				"All you can see is cars parked across the
+				road, and the houses behind them.";
+			kitchen, k_kitchen:
+				"You can see out into the garden.";
+			bathroom, k_bathroom:
+				"The window is made of uneven glass which you
+				can't see through.";
+			lev_1, lev_2:
+				"You can't see through any of them from here.";
+			}
+		Rub:	if (location has sav)
+				"Clean enough already.";
+			"Leave it to the window cleaner.";
+		LBehind:
+			if (location has outside)
+				"Behind the window is the hard outside world.";
+			"Behind the window is the house.";
+		Take:	"Just the glass or the whole damned thing?";
+	],
+	found_in spare_room lounge k_lounge lev_1 lev_2 bathroom
+	k_bathroom bedroom k_bedroom kitchen k_kitchen,
+has	scenery;

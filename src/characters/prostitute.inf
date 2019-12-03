@@ -1,0 +1,187 @@
+Person prostitute "provocatively dressed woman" with
+	! if she HAS GENERAL the argument has taken place
+	number 0, ! set to minus for delayed arrival
+  name "tart" "call" "girl" "masseuse" "provocatively" "dressed" "young"
+       "woman",
+	description [;
+    print "Wearing a short tight skirt, high heels and not a lot else.";
+	],
+	before [;
+    Insult:
+			"She's supposed to be on your side.";
+		Pull:
+			"For a price, I'm sure she could be yours.";
+	],
+	walkdesc "wiggles",
+	peekdesc "stands provocatively",
+	life [;
+    Kiss, Comfort:
+			"She'd charge you.";
+		Attack:
+			"Very brave.";
+		Ask:
+			switch(second) {
+			  QKev:
+          "The woman looks down her (rather long) nose at you and says, ~That
+          you is it? Yeah, I can tell by your voice.~";
+			  QDate:
+          "~Look, I'm busy. You'll have to phone me up and arrange it.~";
+			  QMusic, QFootball:
+				  "~I like whatever you like love.~";
+			}
+		Tell, Show:
+			"~Very nice love.~";
+		Answer:
+      "~If you just want to talk, we'll just talk. But it costs the same.~";
+	],
+	orders [;
+    Kiss:
+			"~Look, I'm busy all day today. Phone me tomorrow.~";
+		Attack:
+			if (noun has animate) {
+				"~Stuff like that costs extra.~";
+      }
+		default:
+			"~Oh, dominant type are you?~";
+	],
+	daemon [;
+    switch(self.number) {
+      1:
+        move self to lev_2;
+
+        if (player in parent(self)) {
+          print "A hard faced woman in a short skirt walks up to you and
+                quickly assesses you through heavily made up eyes.^";
+        }
+      2:
+        MoveActor(self, ne_obj);
+      3:
+        if (player in k_drive) {
+          print (The) self, " pulls a scrap of paper from her hadbag and
+                glances at the number on Savage's door. She straightens her
+                hair a little and knocks on ", (the) k_back_door, ".^";
+        }
+
+        if (k_back_door hasnt open) {
+          self.number=100;
+        }
+      4:
+        MoveActor(self, w_obj);
+        savage.walkdesc = "chases after the woman to the";
+      5:
+        MoveActor(self,s_obj);
+        if (parent(savage) == k_kitchen) {
+          MoveActor(savage, s_obj);
+        }
+      6:
+        MoveActor (self, w_obj);
+        if (parent(savage) == k_hall) {
+          MoveActor(savage, w_obj);
+        }
+
+      7:
+        if (savage notin k_lounge ||
+            donna notin k_lounge ||
+            self notin k_lounge) {
+          print "^*** Error! Savage, Donna & masseuse have not met up ***^";
+          self.number = 8;
+          rtrue;
+        }
+        chuck = chuck + 2;
+        if (player in k_lounge) {
+          print "~What the 'ell's this?~ demands ", (the) self, ", jabbing a
+                purple lacquered fingernail in Donna's direction.  ~You didn't
+                say you wanted kinky stuff!~ Aghast, Donna looks from the
+                unannounced guest to Savage and back again. The confused look
+                on Savage's face is a momentary treat, but he quickly comes to
+                terms with the situation. With a snarl, he gets up from the
+                setee and advances towards you. ~This is you innit?~ he
+                growls. You back away instinctively, (betraying your guilt)
+                but Savage grabs your collar  and drags you through the house,
+                throwing you down onto the tarmac outside his back door, and
+                administering a solid kick to the ribs.  Gasping for air, you
+                pull youself to your feet.^";
+          move savage to k_kitchen;
+          chuck = chuck - 5;
+          score--;
+          PlayerTo(k_drive, 2);
+        }
+
+        if (player in k_patio) {
+          print "Through ";
+          if (k_french_window has open) {
+            print (the) k_french_window, " you can hear your masseusse
+                  protesting that Savage did not previously state that he
+                  required ~kinky stuff~ and demanding that either Donna leave
+                  immediately or her fee be increased by fifteen pounds. A
+                  full scale argument ensues, no party listening to any other,
+                  simply the flinging of blind, wild accusations. Donna bursts
+                  into tears, Savage makes no effort to console her, simply
+                  hurling obscenities at the masseuse, who in turn yells at
+                  both of them for wasting her time.^";
+          }
+          else {
+            print (the) k_french_window, " you can see an argument raging.
+                  Although the double glazing of the window prevents you
+                  hearing any specific details, it is clear that you have
+                  introduced a new friction into Donna and Savage's
+                  relationship.^";
+          }
+          Achieved(15);
+        }
+
+        if (parent(player) has sav &&
+            parent(player) hasnt outside &&
+            parent(player) ~= k_patio or lounge) {
+          print "From elsewhere in the house, you can hear a high volume
+                argument. Accusations from Donna, denials from Savage, and
+                confused interjections from their surprise visitor. The
+                argument ends in tears from Donna and obscenities from Savage.
+                ^";
+          Achieved(15);
+        }
+        donna.state = 1;
+        self.walkdesc = "glares at you and storms off";
+        savage.walkdesc = "lumbers off";
+        StartTimer(donna, 20);
+      8:
+        MoveActor(self, e_obj);
+      9:
+        MoveActor(self, n_obj);
+      10:
+        MoveActor(self, e_obj);
+        self.number = 109;
+      100 to 109:
+        if (k_back_door has open) {
+          self.number = 4;
+        }
+        else {
+          if (player in parent(self)) {
+            print (The) self, " knocks on Savage's back door.^";
+          }
+
+          if (player in k_kitchen) {
+              print "You hear a knock on ", (the) k_back_door, ".";
+          }
+
+          move savage to k_kitchen; ! Implement properly
+          give k_back_door ~locked open;
+
+          if (player in parent(savage) or parent(self)) {
+            print (name) savage, " opens ", (the) k_back_door, ".";
+            self.number = 3;
+          }
+        }
+      110:
+        MoveActor(self,s_obj);
+      111:
+        if (player in parent(self)) {
+          print (The) self, " storms off down the crescent.^";
+        }
+
+        remove self;
+        StopDaemon(self);
+    }
+    self.number++;
+  ],
+  has	female ~proper;

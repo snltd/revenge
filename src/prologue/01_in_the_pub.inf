@@ -1,0 +1,312 @@
+! To get out of the pub you must be carrying four glasses. You start with the
+! vodka glass; a pint glass is exposed when you try to move; a lager glass is
+! on the table; a girl will give you a wine glass if you pay her some
+! attention
+!
+Place pub "Dahn the Boozer" with
+  name "dark" "trail" "students" "beer-monsters" "drinkers",
+  description "Absolutely bursting at the seams with local beer-monsters,
+              twice-a-year drinkers, home-for-the-holidays students and
+              whatever else you get in a small-town pub on Christmas Eve.
+              Everyone is boistrous, loud and in good spirits. You're standing
+              quietly and self-consciously in a corner of the room, trying to
+              keep your distance from a couple of pushed together tables
+              surrounded by hugely intoxicated young people.^^It's difficult
+              enough right now even to know which way is up, so for the sake
+              of argument let's assume that the bar is to the north.  That
+              means that the exit is roughly northeast.",
+  locname "the pub",
+  underfoot pub_carpet,
+  number 0,
+  n_to [i glasses_carried;
+    objectloop(i in player) {
+      if (i ofclass DrinkingGlass) {
+        glasses_carried++;
+      }
+    }
+
+    if (glasses_carried == 4) {
+      print "Holding aloft your collection of glasses and shouting ~'scuse me!
+            'scuse me~ everyone assumes you're barstaff, and makes some room.
+            The crowds part for you like the Jordan for the Isrealites, and
+            you walk on to the promised land of...
+            ^";
+      return by_the_bar;
+    }
+
+    self.number++;
+
+    if (self.number % 3 == 0) {
+      print "One of the bar staff glides past, arms full of empties. ";
+    }
+  ],
+  w_to [; return self.s_to(); ],
+  sw_to [; return self.s_to(); ],
+  s_to "You're standing in a corner: the wall blocks your path",
+  cant_go [;
+    if (self has general) {
+      "You can't force a way through the crowd.";
+    }
+    else {
+      give self general;
+      move pint_glass to pub;
+      "As you turn to try and find a way through the crowd you accidently kick
+      over a glass. It spins across the floor into the wall, but doesn't
+      break";
+    }
+  ];
+
+Object pub_carpet "carpet" with
+  name "sticky" "carpet",
+  description "The carpet is dark coloured and permanantly sticky. You gently
+              lift each foot in turn, concentrating on the weak adhesion
+              between your soles and the hard wearing nylon.";
+
+Object pub_table "table" pub with
+  name "table",
+  description "A shallow, cigarette ash floored ocean of spilt drinks laps
+              against beaches of torn up beer mats and cliffs of sheer fag
+              packet. A bunch of dangerous looking local lads sit around it.",
+  before [;
+    Take: "Half of it is cast iron. You can't budge it.";
+  ],
+has  supporter scenery;
+
+Object pub_chairs "chairs" pub with
+  name "chair" "chairs" "seat" "seats",
+  description "They look a little rickety...",
+  before [;
+    Take, Enter, Climb: "Every chair is occupied.";
+  ],
+has scenery;
+
+Object lads "lads" pub with
+  name "lads" "boys" "youths" "young" "men" "people",
+  description "All of them are dressed in brightly coloured shirts which
+              hang outside their black trousers. They each have their hair cut
+              short and unnecessarily gelled down. They are punctuated by
+              bored looking girlfriends.",
+  whatsit "don't ask",
+  before
+  [;
+    Attack:
+      "You might be drunk, but you're not stupid.";
+    Take:
+      "I don't know where you want to take them but I don't think they'd be
+      keen.";
+    Touch, Kiss, Enter:
+      "I can't see them being comfortable with that side of their sexuality.";
+  ],
+has scenery animate;
+
+Object lasses "bored looking girlfriends" pub with
+  name "bored" "looking" "girls" "girlfriends" "girl" "young" "people",
+  before [;
+    Kiss:
+      "Although it's probably more affection than they usually get shown, I
+      don't think it's a good idea.";
+    Enter:
+      "That's a bit forward.";
+    Touch:
+      "Do you want your head kicked in?";
+    Attack:
+      "Leave that to the boyfriends.";
+    Examine:
+      print "Wearing next to nothing, the glazed and distant looks on the
+            girls don't suggest that they are particularly looking forward to
+            the five minute ~Chrismtas Treat~ that their repective boyfriends
+            no doubt have planned.";
+
+      if (self has general)
+         rtrue;
+      else {
+        give self general;
+        move wine_glass to pub_table;
+        " Noticing you looking at her, one of the girls seems to think you
+        want to buy her a drink, and she pushes her empty wine glass to the
+        edge of the table.";
+      }
+  ],
+has scenery animate female;
+
+Class DrinkingGlass with
+  name "glass" "glasses//p",
+  before [;
+    Fill:
+      "You do not feel the requisite urge.";
+    Drink:
+      "There's nothing in there to drink.";
+    Eat:
+      "And for your next trick?";
+    Search:
+      print "Looking through the glass you see...^";
+      PrintOrRun(location, description, 1);
+    Shave:
+      "The glass is already pretty smooth.";
+    Attack, Crush:
+      "You can't just go round leaving broken glass everywhere.";
+    ThrowThrough:
+      "Calm down! Calm down";
+    Close:
+      "A glass is not the kind of container you can normally close.";
+  ],
+  after [;
+    Drop:
+      "Carefully, you set ", (the) noun, " down.";
+  ],
+has transparent container open;
+
+DrinkingGlass vodka_glass "vodka glass" with
+  name "vodka" "lipstick" "stain" "imprint",
+  description "The vodka is long gone. The glass carries the lipstick imprint
+              of the person who used it before you.  That's the closest you've
+              got to a Christmas kiss this year.",
+  before [;
+    Drink:
+      "You long since drank all the vodka, and drained away all the melted ice
+      water.";
+  ],
+  size 1,
+  max_space 1;
+
+DrinkingGlass wine_glass "wine glass" with
+  name "wine" "red",
+  description "A short stemmed wine glass with traces of some nasty red
+              wine in the bottom.",
+  before [;
+    Drink:
+      "As even a sniff of red wine inevitably gives you an awful hangover it's
+      probably a good thing that ", (the) self, " is empty";
+  ],
+  size 2,
+  max_space 1;
+
+DrinkingGlass lager_glass "lager glass" pub_table with
+  name "lager",
+  description [;
+    if (lager in self) {
+      "There is an inch or so of lager in the bottom of the glass.";
+    }
+
+    "It's a pint glass emblazoned with the name of a formerly local brewery.";
+  ],
+  parse_name [w i p;
+    w = NextWord();
+    while(w == 'lager' or 'glass') {
+      i++;
+
+      if (w == 'glass') {
+        p = 1;
+      }
+
+      w = NextWord();
+    }
+
+    if (p == 1 || TestScope(lager) == 0) {
+      return i;
+    }
+  ],
+  before [;
+    Drink:
+      "Leave it for the beer monkey.";
+    Empty:
+      if (lager in self) {
+        remove lager;
+        "The lager soaks away into the already sodden carpet";
+      }
+    Receive:
+      if (lager in self) {
+        "You are reluctant to splosh anything into the lager.";
+      }
+  ],
+  size 3,
+  max_space 2;
+
+DrinkingGlass pint_glass "pint pot" with
+  name "pint" "pot" "grabber",
+  description "A thick heavy pint pot with a handle. ~A pint wi' a grabber~.
+              It weighs about a stone and you could probably knock a hole in
+              the wall with it before it would break.",
+  initial "A now empty pint pot lies on the floor at the end of a trail of
+          dark beer.",
+  size 4,
+  max_space 3;
+
+Object lager "lager" lager_glass with
+  name "lager" "beer",
+  article "some",
+  description "Flat. Host to cigarette ash and a spent match.",
+  before [;
+    Take:
+      "As ever with liquids you have difficulty taking a firm hold.";
+    Drink:
+      "I think not.";
+    Pour:
+      remove self;
+      "In your drunken state you end up tipping ", (the) self, " all
+      over the floor. It soaks away into the carpet.";
+    Receive:
+      <<insert noun lager_glass>>;
+  ];
+
+Place by_the_bar "The Bar" with
+  description "Though the bar is no longer serving, it's still three-deep in
+              people who either haven't realised, or think they deserve
+              special favour. Glasses are piled everywhere, and drunken
+              mateyness reigns. Time to go.
+              ^^
+              The main door is north, and the door to the snug is west, and
+              the tap room is south.",
+  s_to "You're not getting mixed up in that lot again.",
+  w_to "Someone seems to be leaning against the door. It hardly moves.",
+  n_to [i glasses_carried;
+    objectloop(i in player) {
+      if (i ofclass DrinkingGlass) {
+        glasses_carried++;
+      }
+    }
+
+    if (glasses_carried > 0) {
+      "Leave the glasses, eh? They're not yours.";
+    }
+    else {
+      print "You push the double doors open and plunge out into the cold.
+            Having reached the pub by chance whilst strolling, you're not
+            absolutely sure where your house is now. Somewhere over there,
+            probably. Yeah, that's probably it. Deep breaths. Sober up.
+            ^^
+            A girl walks past, avoiding eye-contact. She's going the way you
+            think you ought to, and you follow her, worrying that she'll think
+            you're following her, because you're not. Not like that anyway.
+            Briefly you consider catching her up to tell her that you're not
+            following her, but that seems creepier than not doing, and after
+            all you're only walking in the same direction and where the heck
+            are you now anyway and crikey it's cold.
+            ^^
+            Hang on, that's your road! Never underestimate the power of the
+            beer scooter.
+            ^";
+      Achieved(0);
+      StopDaemon(pub_daemon);
+		  StartDaemon(road_Daemon);
+      return road_1;
+    }
+  ];
+
+Object the_bar "bar" pub
+  has scenery supporter;
+
+Object pub_daemon "pub daemon" with
+  daemon [;
+    switch(the_time) {
+      5:
+        "Someone barges past, treading on your foot.";
+      15:
+        "A crash of glass comes from the north, followed by cheers and cries
+        of ~sack the juggler~.";
+      50:
+        deadflag = 3;
+        "Eventually the pub clears out and you make your way home without
+        incident.";
+    }
+  ];

@@ -1,0 +1,402 @@
+! No problem to be solved here. Just wait for time to elapse and you'll get
+! run over.
+!
+Place road_1 "Shambling Drunkenly Along Levinson Crescent" with
+  name "tightope" "tight" "rope" "dashed" "line" "of" "flourescent" "white"
+       "flourescence",
+  locname "One end of Levinson Crescent",
+  description "You scale a tightrope. A four inch wide dashed line of
+              flourescent white stretching all the way to your door and
+              beyond. To fall would be fatal, but with all the invincibility
+              of the pleasantly drunk, you skip and pirouette along:  a
+              funambulatory Nureyev.
+              ^^
+              Blurred, spreading streetlights arc away both north and south.",
+  before [;
+    Wait:
+      "It's too cold to be standing about all night.";
+  ],
+  u_to "You're not quite drunk enough to think you can fly.",
+  s_to "That's the way you walked home, and you're pretty sure you haven't
+       passed the house.",
+  n_to road_2,
+  cant_go "You'd love to go hedge-hopping, but you'd rather go home to bed.",
+  overhead snow_sky,
+  underfoot snow_road,
+  has outside;
+
+Place road_2 "On the Sweeping Bend of Levinson Crescent" with
+  name "light" "bulbs" "coloured" "colored" "front" "door" "windows"
+       "window" "chains" "chain",
+  locname "More of Levinson Crescent",
+  description "Whoever lives at number 20 has trimmed the house up like
+              Blackpool Illuminations. The conifer in the garden is adorned
+              with scores of variously coloured light bulbs which your woolly
+              vision conflates into a mass of polychromatic effulgence. Chains
+              of similar bulbs frame the front door and windows.
+              ^^
+              If just one filament popped it would take until Easter to get
+              the others shining again. This can't be your house though. Even
+              in this state you'd remember putting that lot out. They must
+              have had to start in August.
+              ^^
+              Further up the road (to the northeast) you can see the gigantic
+              caravan which, in the afternoon blocks all the sunlight out of
+              your front room!  You live in the house next door to it.",
+  before [;
+    Go:
+      switch(noun) {
+        u_obj:
+          <<climb conifer>>;
+        w_obj:
+          <<enter Number_20>>;
+      }
+    Wait:
+      "It's too cold to wait more than a minute or so.";
+    Sing:
+      "You give the residents a seasonal blast of ~We Wish You A Merry
+      Christmas~, but they don't seem to be falling over themselves with the
+      figgy pudding.";
+  ],
+  s_to road_1,
+  ne_to road_3,
+  cant_go "You can't just go rampaging through people's gardens.",
+  underfoot snow_road,
+  overhead snow_sky,
+  has outside;
+
+Object conifer "conifer decked out like God knows what" road_2 with
+  name "tree" "conifer" "fir" "pine",
+  description "I've already described it in a style of a drunken and
+              frustrated poet.",
+  before [;
+    Climb:
+      "I don't think the already overburdened tree could stand that.";
+    Attack:
+      "What sort of a person attacks a tree?";
+    Take:
+      "You rip the whole tree, roots and all, clean out of the ground. Or
+      perhaps you don't.";
+  ],
+  has scenery;
+
+Object Number_20 "house at number twenty" road_2 with
+  name "house" "at" "number" "twenty" "20",
+  description "A house, just like yours but adorned with coloured lights in a
+              desperate bid to bring some light hearted festivity to a
+              desperately bland road.",
+  before [;
+    Go, Enter:
+      "You are not about to go breaking and entering and spending Christmas in
+      custody.";
+    Take, Push:
+      "I wonder how much a house weighs?";
+  ],
+has scenery;
+
+Place road_3 "Next to the Gigantic Caravan" with
+  name "door" "window" "windows" "wheels" "wheel" "clamp" "wheelclamp" "gate"
+       "wall",
+  locname "More of Levinson Crescent",
+  description "None of the houses on Levinson Crescent have much of a front
+              garden, and it is by some geometric miracle that the whole of
+              this one is taken up by a gigantic caravan. The ugly metal
+              cuboid stands in and area about two feet wider than itself, long
+              side parallel to the front wall of the house.
+              ^^
+              The gate, of comparable width, is situated level with the end of
+              the caravan. Amazing.
+              ^^
+              Your house is the nearest half of the semi-detached off to the
+              east. The road continues in a sinuous curve off to the
+              southwest.",
+  sw_to road_2,
+  u_to "You're high enough already.",
+  e_to [;
+    if (car.number == 5) {
+      rtrue;
+    }
+
+    "You set off, but return to ponder the impossible caravan/garden geometry
+    problem.";
+  ],
+  cant_go "Stick to the road.",
+  underfoot snow_road,
+  overhead snow_sky,
+has outside;
+
+Object caravan "gigantic caravan" with
+  name "gigantic" "huge" "humongous" "massive" "enormous" "massive" "big"
+       "very" "large" "caravan" "ginormous" "cara" "ridiculous" "eye-sore"
+       "ugly" "metal" "cuboid",
+  found_in road_2 road_3,
+  before [;
+    if (location == road_2) {
+      "That's away to the north-east.";
+    }
+
+    Examine:
+      "A silvery blue box of holidaymaking hypertrophy. The insanely huge bulk
+      probably contains a kitchen, bathroom, (with jacuzzi), sauna, badminton
+      court, polo pitch and five-halled exhibition centre.  Imagine being
+      stuck behind this on the motorway. It would take ten minutes to overtake
+      it. And the width! What sized wing mirrors does the car pulling it need?
+      What sized engine does the car pulling it need? The mind boggles.";
+    Take, Push:
+      "You reach out to the caravan and - is it your imagination or does it
+      seem to possess its own gravitational field?";
+    Enter:
+      "It's all locked up.";
+    Search:
+      "As items of this size and situation are obviously prime targets for
+      petty opportunistic crime, the owners have fixed a flimsy yellow clamp
+      on the near side wheel. You can't help but think that anyone who wants
+      the caravan badly enough to put sufficient effort into the geometry
+      problem intrinsic in removing it from the garden would take the trouble
+      to bring wire snips.";
+  ],
+has scenery;
+
+The_Sky snow_sky "sky" with
+  name "sky" "air" "weather" "atmosphere",
+  description "Falling snow, gently cascading down, drifting and spiralling.
+              It's wonderful.";
+
+Object car "car" with
+  name "car" "engine" "vehicle",
+  number 0,
+  describe [;
+    if (self.number < 5) {
+      rtrue;
+    }
+
+    "Full-beam car headlights blast out at you.";
+  ],
+  react_before [;
+    listen:
+      if (self.number == 5) {
+        "All you can hear is the roar of the car engine.";
+      } else {
+        "You can hear the engine of a motor-car.";
+      }
+  ],
+  before [;
+    if (self.number < 5) {
+      "You can't see the vehicle yet.";
+    }
+
+    Listen:
+      "It sounds like a fairly powerful engine.";
+    Examine:
+      "All you can see is a dazzling pair of headlights, pointing at you like
+      twin barrels of a luminescent shotgun.";
+    default:
+      "We are talking about a substantial, speeding motor vehicle you know.";
+  ],
+  daemon [;
+    self.number++;
+    move self to parent(player);
+    switch(self.number) {
+      1:
+        "From the south the noise of a car engine fractures the stillness of
+        the night.";
+      4:
+        !give tw_waiting on;
+        "The sound from the car engine grows louder.";
+      5:
+        "You (dangerously) spin round on a heel just in time to see a vehicle
+        enter the southern end of the road. It appears to skid slightly of the
+        film of wet snow, its headlights flashing into your eyes and dazzling
+        you momentarily.";
+      6:
+        StopDaemon(self);
+        RunOver();
+    }
+  ];
+
+Object pavement "pavement" with
+  found_in road_1 road_2 road_3,
+  name "pavement" "sidewalk" "gutter" "kerb" "paving" "stones" "hollow" "of"
+       "angles",
+  description "Snow is settling on the pavement, softening the angles of the
+              kerb and the hollow of the gutter.",
+  before [;
+    Enter, Go, Climb:
+      "But it's so nice here in the middle of the road.";
+  ],
+  has scenery;
+
+Object road "Levinson Crescent" with
+  name "levinson" "road" "street" "crescent" "sinuous" "curve" "of",
+  description "Levinson Road is situated right in the white middle-class
+              heartland of the suburbs. Although favoured predominantly by
+              social climbers and the nouveau riche, the odd house is owned by
+              normal people. (Such as yourself.) These houses are unusual in
+              not having cream carpets, living flame fires, the garden
+              concreted over (for more car-parking space) and glass-topped
+              coffee tables bearing unread copies of ~A Brief History
+              of Time~.",
+  found_in road_1 road_2 road_3,
+  has proper scenery;
+
+Object streetlights "streetlights" with
+  name "street" "lights" "streetlights" "lamps" "streetlamps" "blurred"
+       "metal" "post" "posts",
+  description "Tall metal posts illuminating the street and drowning the
+              stars. By placing reflecting cones above the bulbs, local
+              councils would make the streets brighter and safer, save money
+              on electricity and return to us the beauty of the night sky.",
+  article "blurred",
+  found_in road_1 road_2 road_3,
+  has scenery light;
+
+Object snow "snow" with
+  name "snow" "flakes" "snowflakes" "snow-flakes" "film" "of" "covering"
+       "blanket" "flake" "sixfold" "symmetry" "symmetrical",
+  article "a light covering of",
+  before [;
+    Examine:
+      "It is common knowledge known that no two snowflakes are the same. This,
+      like most common knowledge, is not true.  They do all exhibit sixfold
+      symmetry though.";
+    Taste:
+      "It tastes like water, only colder.";
+    Listen:
+      "It is such a quiet (silent?) night that you fancy you can indeed hear
+      the snow landing.";
+    default:
+      "Too cold.";
+  ],
+  found_in road_1 road_2 road_3,
+  has scenery;
+
+Object houses "nearby houses" with
+  name "nearby" "house" "houses",
+  description "All the houses around here are pretty much the same. What makes
+              them interesting is the lengths to which people have gone to
+              make theirs stand out.  Carports, porches, canpoies, small
+              extensions, concrete gardens filled with ornamental fountains
+              and plastic wishing wells and cherubim holding plant pots. It's
+              a nightmare.",
+  article "all the",
+  found_in road_1 road_2 road_3,
+  has scenery;
+
+Object home_improvements "home improvements" with
+  name "carports" "carport" "cement" "garden" "gardens" "small" "extensions"
+       "extension" "gnome" "gnomes" "plastic" "cherub" "cherubs" "wishing"
+       "well" "wells" "ornamental" "fountain" "fountains",
+  article "vulgar",
+  description "Pretty damn vulgar.",
+  found_in road_1 road_2 road_3,
+  has scenery;
+
+Floor snow_road "road" with
+  name "road" "asphalt" "tarmac",
+  description "The road is covered with downy soft snow, settling gently.";
+
+Object road_daemon "road daemon" with
+  number 0,
+  daemon [i;
+    i = young_woman;
+    self.number++;
+
+    switch(self.number) {
+      1:
+        moveActor(i, n_obj);
+        give i moved;
+      3:
+        StartDaemon(car);
+      4:
+        MoveActor(i, ne_obj);
+      6:
+        if (i in parent(player)) {
+          print "The young_woman slips away between two houses.^";
+        }
+
+        remove i;
+        i.follow_dir = 0;
+        i.just_visited = road_3;
+        StopDaemon(self);
+        rtrue;
+    }
+  ];
+
+[ RunOver i;
+
+  print "^You move to the edge of the road, but the vehicle is too soon upon
+        you. It seems to have taken no time at all to traverse the couple of
+        hundred yards from the junction, but minutes pass as it crosses the
+        last few feet of road before it inevitably hits you. An intense
+        burning in your arm and side and everything becomes blurred into
+        nothing. Knocked off your feet, you may have gone clear over the roof
+        of the car: you can't be sure. ";
+
+  print "Laying in the road, you can hear the cries of the girl you saw
+        earlier. As she runs towards you, her high heels slip from under her
+        and she falls, ruining her tights and skinning a knee. You feel like
+        apologizing. In a moment of surprising clarity you notice the tyre
+        tracks of your assailant.  Parallel zig zagging ranks of snow march
+        unbroken, right up to the fat back wheels. He never even braked.
+        ^^
+        [ Please press any key ]";
+
+  remove car;
+  give player ~general;
+
+  do {
+    @read_char 1 0 0 i;
+  } until (i ~= 0);
+
+  @erase_window -1;
+
+  print "^^
+        Although you were fortunate not to sustain any neck or head injury,
+        and suffered little psychological trauma after the accident, you still
+        woke up on Christmas morning with a badly broken leg (now slightly
+        shorter than before the accident), a cracked pelvis, three broken
+        ribs, and, worst of all, a large amount of contusion around the area
+        of impact. As a consequence of this final injury you later suffered
+        large amounts of painful swelling, and myoglobin leaked by the damaged
+        cells damaged your kidneys.
+        ^^
+        The car that hit you, (driven by your drunken next door neighbour Kev
+        Savage) was his girlfriend's ~four by four~. (Four wheel drive is
+        essential in the unforgiving terrain of a middle class housing
+        estate.) This vehicle was fashionably equipped with ~bull bars~ (again
+        essential as you can't go ten paces without bumping into a kangaroo or
+        water buffalo round your way) which effectively eliminated any
+        cushioning of impact by the car's crumple zone and made your injuries
+        far worse than they might have been.  (Fortunately you are taller than
+        the average seven year old, for whom these steel bars are at head
+        height.)";
+
+  print "^^
+        After the accident Savage left you in the road, waiting in his house
+        for the police to arrive. He was later breath tested and failed
+        dismally. His punishment was a heavy fine and a one year confiscation
+        of his driving licence. He saw no longer being able to drive his
+        beloved Escort as a kind of emasculation: the ultimate insult
+        inflicted on him by you.";
+
+  print "^^
+        So, upon your return home, Savage began taking his own form of
+        retribution: nuisance things. For instance, ordering pizzas for your
+        address, leaving loud music playing all night whilst he was out and
+        you were in, insulting your friends and threatening your girlfriend.
+        Now you're out of plaster and sick of Savage. It is time to exact
+        ^^";
+
+  Banner();
+
+  print "^^
+        [Press any key to continue]
+        ^";
+
+  do {
+    @read_char 1 0 0 i;
+  } until (i ~= 0);
+
+  @erase_window -1;
+  setup_main_game();
+];

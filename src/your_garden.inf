@@ -1,0 +1,1590 @@
+Place patio "Your Patio" with
+  name "patio" "paving" "slabs",
+  locname "the patio",
+  description  "A narrow paved buffer between the house and the garden,
+              intended for you to put plastic garden furniture or a barbecue
+              (pardon me, BBQ) on. In fact, you would just as soon have a
+              toxic dump outside the French windows, but that's just a matter
+              of personal taste.
+              ^^
+              Red and yellow concrete slabs, some cracked, all mildewed join
+              onto a concrete path, leading north into the wilds of the garden
+              proper. The french windows provide entry back into the house.
+              The gate onto your drive is in the southwest corner of this
+              area.",
+  n_to garden,
+  ne_to grass,
+  s_to french_window,
+  sw_to garden_gate,
+  e_to "The patio extends right up to the fence, which blocks further progress
+       east.",
+  underfoot paving,
+  overhead sky,
+  has  outside;
+
+Object yellow_wall "yellow brick wall" with
+  name "yellow" "brick" "wall",
+  description "There's no place like home.",
+  before [;
+    Climb:
+      if (location == patio) {
+        "It would be simpler to use the gate.";
+      }
+
+      "Normally you'd be able to climb over it easily, but trying to lift your
+      leg high enough hurts too much, and you have to give up.";
+    Take:
+      "Why not go the whole hog and try to pick up the house?";
+  ],
+  found_in drive patio,
+  has scenery;
+
+Portal garden_gate "garden gate" with
+  name "wrought" "iron" "garden" "gate",
+  before [;
+    Open:
+      if (location == drive && self hasnt open) {
+        "The catch is on the other side of the gate and the black bars and
+        curlicues are too close together for you to reach through and open
+        it.";
+      }
+    Climb:
+      "You haven't a chance.";
+  ],
+  InLoc patio,
+  OutLoc drive,
+  InDir ne_to,
+  OutDir sw_to,
+  found_in patio drive;
+
+Floor paving "paving" with
+  name "paving" "slabs" "flags" "flag" "slab" "red" "yellow",
+  description "Large square slabs of faded red and yellow.";
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place garden "Your Garden Path" with
+  name "timbers" "bent" "warped" "doorframe" "frame" "moss" "wood" "twee"
+       "little" "spike",
+  locname "your garden" "z" "diagonal" "piece",
+  description "On purely aesthetic grounds, it was perhaps unwise to opt for
+              the maintenance-free ~natural look~ garden. To the east the
+              grass covering what could have been your lawn is thin, patchy
+              with moss and never grows too well, but it is beginning to
+              encroach onto the path and is getting much longer up against the
+              fence and around the garden shed.  (Which is north.)",
+  before [;
+    Go:
+      if (shed_door has general && noun == n_obj or ne_obj or s_obj or e_obj) {
+        give shed_door ~general;
+        move shed_gap to self;
+        print "(First letting go of the door)^";
+      }
+    Enter:
+      <<go n_obj>>;
+  ],
+  w_to "No point.",
+  e_to grass,
+  n_to shed_door,
+  s_to patio,
+  ne_to wilderness,
+  underfoot path,
+  overhead sky,
+  has outside;
+
+! The bolt sticks, so to get in the shed you have to push the door in, then
+! slide back the bolt
+!
+Object bolt "rusty bolt" garden class adnc with
+  name "bar" "socket" "rusty" "metal" "bolt" "rusted" "staple" "u",
+  adname 'door' 'doorframe',
+  before [;
+    Examine:
+      if (shed_door hasnt open) {
+        "The bolt fits tightly into a rusted ~U~ of metal hammered into
+        the doorframe.";
+      }
+    Open:
+      if (shed_door has open) {
+        "The bolt is already open.";
+      }
+
+      <<open shed_door>>;
+    Take:
+      "Firmly attatched to the door.";
+    Pull:
+      "The bar is wedged up against the socket too tightly. You can't shift
+      it.";
+    Push:
+      "The bar is pushed in all the way.";
+  ],
+  has metallic scenery;
+
+Object shed_gap "gap" garden
+  class adnc
+  with name "gap",
+  adname 'door' 'doorframe' 'between',
+  description "You can't see through the gap - it is only half an inch wide,
+              and very dark.",
+  before [;
+    Search:
+      <<Examine self>>;
+    Take, Push:
+      "A very peculiar concept.";
+  ],
+  has scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+! There's a dog toy hidden here. Search the grass to find it. You need that
+! toy to knock the weedkiller off the shelf in the shed.
+!
+Place grass "Enjoying A Walk In the Garden" with
+  name "soft" "earth" "dog" "turds" "shit" "muck" "mess" "crap" "post" "moss"
+       "bottom" "of" "hole" "stone",
+  locname "your garden",
+  description "Although the long grass does its best to obscure the horror, it
+              is painfully evident that next door's dog, (the adorable
+              Bronson) has been using your garden as an open plan al fresco
+              lavatory. Charming.
+              ^^
+              At first sight it is difficult to tell how he has been getting
+              in here. The wooden fence is about five feet high and it's hard
+              to imagine Bronson having the nous to come around the front and
+              through the garden gate.
+              ^^
+              From here you can return to the path by going slightly west;
+              venture north into the unchartered wilds; or pick your way
+              across the grass back to the patio. Just watch your step.",
+  react_before [;
+    Go:
+      if (noun == u_obj && player in hole) {
+        <<Exit hole>>;
+      }
+  ],
+  before [;
+    Dig:
+      if (spade notin player) {
+        "You've no suitable implement.";
+      }
+
+      if (noun == 0) {
+        if (player in hole) {
+          <<Dig hole>>;
+        }
+        else {
+          "Whereabouts?";
+        }
+      }
+  ],
+  after [;
+    Go:
+      if (toy in self) {
+        print "You hear a peculiar squeak.^";
+      }
+  ],
+  w_to garden,
+  sw_to patio,
+  s_to patio,
+  e_to "The fence is in the way.",
+  n_to wilderness,
+  underfoot lawn,
+  overhead sky,
+  has  outside;
+
+Object toy "squeaky dog toy in the shape of a child's head" grass with
+  name "squeaky" "dog" "toy" "rubber",
+  description  "Made of rubber, it squeaks irritatingly when squeezed.",
+  before [;
+    Squeeze:
+      print "The toy squeaks irritatingly";
+
+      if (bronson in location) {
+        print ". Bronson turns his head and looks at you";
+      }
+
+      ".";
+  ],
+  size 3,
+  weight 2,
+  has concealed;
+
+Object football "football" grass with
+  ! if it HAS GENERAL it's lost,
+  ! if it HAS BROKEN it's been retrieved
+  name "footie" "footy" "togger" "football" "ball" "casey",
+  description  "Of the English variety, naturally.",
+  before [;
+    Burst:
+      "Simone bought it for you, to encourage you to get fit and help build up
+      the strength in your legs. I don't think that bursting it is a very good
+      way to show your gratitude, do you?";
+    KickOver:
+      if (self in player) {
+        print "(Dropping the ball first)^";
+        move self to parent(player);
+      }
+
+      if (second == fence or sav_wall) {
+        if (self has broken)
+          "Not after the trouble you had last time.";
+
+        switch(location) {
+        grass, k_drive:
+          move self to k_grass;
+          give self general;
+          print "With a toe-ended punt, the ball sails over ", (the)
+          second, " into Savage's garden";
+
+          if (simone in location) {
+            give simone general;
+            ". ~You idiot!~ exclaims Simone. ~You'd better go and
+            fetch that: it cost me twenty quid!~";
+          }
+
+          ".";
+
+        k_grass:
+          move self to grass;
+          give self ~general;
+          "The ball soars high over the fence, back into your
+          garden.";
+        }
+
+      }
+
+      if (second == other_fence or sav_wall) {
+        print (The) self, " hits ", (the) second, " and bounces back
+        to rest by your feet.^";
+        print_box(20);
+        rtrue;
+      }
+    KickAt:
+      if (self in player) {
+        print "(Dropping the ball first)^";
+        move self to parent(player);
+      }
+
+      if (location hasnt outside)
+        "Not indoors: you'd break something.";
+
+      if (second == player)
+        "You try to flick the ball up into your hands, but succeed only
+        in kicking it a short distance.";
+
+      switch(second) {
+      Simone:
+        print_ret (The) second, " traps the ball neatly and side-foots
+        it back to you.";
+
+      Savage:
+        "You daren't.";
+
+      gap:
+        <<KickThrough self gap>>;
+      }
+
+      if (second has animate) {
+        print (The) second, " doesn't look as if ";
+        HeShe(second);
+        " wants to play football.";
+      }
+
+    KickThrough:
+      if (second == gap)
+        "Your kick is not of sufficient accuracy, and rebounds off the
+        fence.";
+
+    Knock:
+      if (verb_word == 'kick') {
+        if (location hasnt outside)
+          "I'm not going to let you play football in the house.";
+        else {
+          if (self in player) {
+            print "(Dropping the ball first)^";
+            move self to parent(player);
+          }
+
+        print "You give the ball a little toe-ended tap. It doesn't go
+        far.^";
+        print_box(22);
+        rtrue;
+        }
+      }
+
+    Eat:
+      "Could be a bit leathery.";
+
+    ThrowAt:
+      "Footballs are meant to be kicked.";
+  ],
+  after
+  [;  Take:
+      "You try and flick the ball up into your arms, but fail miserably,
+      and have to bend down and pick it up.";
+
+    Drop:
+      "The ball bounces a couple of times, and finally settles by your
+      feet.";
+  ],
+  size 5,  ! just like they always used to be
+  weight 5,
+has  footy;
+
+Object fence "fence"
+with name "fence" "wooden" "weave" "post" "posts",
+  description  "The fence is about five feet high and made of a kind
+      of wood weave. Every few yards a four inch thick post
+      is driven into the ground, and next to the foot of the
+      one nearest to you is a gap large enough to admit a
+      medium sized dog.",
+  before
+  [;  Climb:  "The fence is very flimsy, there's no good foothold and
+      your leg isn't up to the job anyway.";
+    Search:
+      "You find a gap at ground level.";
+    Enter:  print "You can't sit on the fence in this game.^";
+      print_box(18);
+      rtrue;
+  ],
+  found_in grass k_grass,
+has  scenery;
+
+Object gap "gap in the fence"
+class adnc
+with name "gap",
+  adname 'in' 'fence',
+  before
+  [;  Examine:
+      if (location == k_grass)
+        "About the size of a small dog.";
+      print "In front of the gap ";
+      if (hole.number == 1)
+        "a bare patch has been worn in the grass and a
+        hollow is starting to be formed in the soft
+        earth.";
+      else {  print "is a fairly deep hole";
+          if (bronson in hole)
+            " with Bronson at the bottom.";
+          ".";
+        }
+    Search:
+      if (location == grass)
+        "Bending at the waist, you can see through the
+        gap into the garden next door.";
+      "Kneeling on the grass you can see through into your
+      own garden. It is not a pretty sight.";
+    Enter:  "The gap is too small for you to get through.";
+    Receive:
+      if (location == grass)
+        move noun to k_grass;
+      else move noun to grass;
+      print "You shove ", (the) noun, " through the gap.";
+    Take:  "Rather an abstract concept.";
+    Dig:  if (spade notin player)
+        "You've no suitable implement.";
+      "The ground is a little too hard.";
+  ],
+  found_in grass k_grass,
+has  scenery container open;
+
+Object hole grass  ! if it HAS GENERAL Bronson has been trapped in it
+with short_name
+  [;  if (self.number == 1)
+      print "hollow";
+    else
+      print "hole";
+
+    rtrue;
+  ],
+  name "dip" "hole" "hollow" "stone",
+  number 1,
+  describe
+  [;  if (self.number > 1)
+      "Careful: there's a fairly deep hole near the fence. Next to the
+      hole is a pile of soil.";
+
+    rtrue;
+  ],
+  inside_description
+  [;  "With your eyes nearer ground level you get an even better view of
+    your unhealthy and fouled lawn. You can see the fence to the east,
+    and the garden shed to the northwest from a new and interesting
+    perspective.";
+  ],
+  before
+  [;  Examine:
+      if (bronson in self) {
+        if (bronson.number == 2)
+          "Bronson sleeps like a canine angel at the bottom of the
+          hole.";
+
+        if (bronson.number == 3)
+          "From the bottom of the hole Bronson angrily growls at
+          you.";
+
+        "Bronson is in the hole.";
+      }
+
+      switch(self.number) {
+      1:  "Just a dip in the ground really.";
+
+      2:  "It's about a foot deep.";
+
+      3:  "The hole is now about two feet deep.";
+
+      4:  "The hole must be all of three feet deep, with steeply cut
+        sides.";
+      }
+
+    Dig:
+      if (spade notin player)
+        "You've no suitable implement.";
+
+      switch(self.number) {
+      1:  self.number++;
+        move soil to grass;
+        "You make the hollow a little deeper.";
+
+      2:  self.number++;
+        move worm to self;
+        "You dig down another foot or so, chopping a worm in half.";
+
+      3:  if (player notin self)
+          "Standing here, the end of the shovel only really scrapes
+          the bottom of the hole.";
+
+        else {
+          self.number++;
+          "At a depth of around three feet the shovel hits stone with
+          a scrape that sets your teeth on edge.";
+        }
+
+      4:  "You can't dig any further down: there's a large stone in the
+        way.";
+      }
+
+    Take:
+      "More easily said than done.";
+
+    Fill:
+      if (self.number > 1)
+        "Not after the effort expended digging it.";
+
+    Enter:
+      if (bronson in self)
+        "I think not!";
+
+      if (self.number == 1)
+        "It's only a subtle dip.";
+  ],
+  max_space 15,
+  max_weight 100,
+  after
+  [;  Enter:
+      if (self.number > 1)
+        "You jump down into the hole.";
+  ],
+  underfoot "Muddy.",
+  overhead sky,
+has  enterable container open static;
+
+
+Object worm "half a worm"
+with name "half" "a" "worm" "earthworm" "wiggly" "woo",
+  description  "You can't tell which half it is.",
+  before
+  [;  Attack:
+      "I think you've already done it enough damage.";
+
+    Cut:
+      "Further unnecessary dissection would just be plain cruel.";
+
+    Ask, Answer, Tell, Show, Order:
+      "Come on, it's a worm.";
+
+    Eat:
+      "You should be in a circus. (Or on The Word.)";
+
+    PutOn:
+      if (second == pin) {
+        if (self in pin)
+          "You've done that already.";
+
+        move self to pin;
+        "You impale the worm on the pin. It bleeds.";
+      }
+    ],
+    after
+    [;  Take:
+        give self ~concealed;
+        "Not in the least bit squeamish (you're a *real man* after all)
+        you pick up what's left of the worm.";
+
+      Drop:
+        "The worm wriggles about on the floor a little, but it isn't up
+        to escaping.";
+    ],
+    size 0,
+    weight 0,
+  has  concealed talkable proper;
+
+Object soil "pile of soil"
+with name "pile" "of" "earth" "dirt" "soil",
+  before
+  [;  Take:
+      "You don't really want any.";
+
+    Dig:
+      "You poke about in the soil, but find nothing of interest.";
+
+    Push:
+      "After the effort expended in digging the hole you really don't want
+      to fill it in again.";
+  ],
+has  scenery;
+
+Floor lawn "unkempt lawn"
+with name "grass" "lawn" "dog" "shit" "excrement" "crap" "turds" "ground",
+  description  "Patchy, full of moss, littered with dog excrement.",
+  article "an",
+  before
+  [;  Search:
+      if (location == grass && toy has concealed) {
+        give toy ~concealed;
+        "A quick hunt about in the grass reveals a rubber toy.";
+      }
+
+      "You find a great deal of unpleasantness.";
+
+    Take:
+      "Talk silly Dave.";
+  ];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place wilderness "In the Wilds At the Bottom Of Your Garden"
+  with name "faries" "bricks" "brick" "ends" "bit" "bits" "of" "wood"
+    "junk" "clutter" "garden" "tools" "lumps" "old" "table",
+  locname "your garden",
+  description  "And you thought the rest of the garden was rough. Weeds, brick
+    ends, bits of wood, the remains of some kind of long-gone compost heap.
+    No wonder you never come down here. The garden shed stands to the west,
+    and a fence to the north and east means that you can only leave here via
+    the way you came.",
+  w_to "Your garden shed is in the way.",
+  s_to grass, sw_to garden,
+  cant_go  "There is a fence in that direction. You can only go south.",
+  underfoot lawn,
+  overhead sky,
+has  outside;
+
+Object weeds "weeds" wilderness
+with name "weeds" "long" "grass" "nettles" "thistles" "thistle"
+    "plants//p",
+  description "Nettles, long grass, thistles, poison ivy.",
+  article "masses of",
+  before
+  [;  Dig, Cut:
+      "It's a shame you didn't think of that before they really
+      got hold.";
+
+    Take:
+      "Weeding eh? That makes a change.";
+  ],
+has  scenery;
+
+Object cutting "cutting of poison ivy"
+with name "cutting" "of" "poison" "ivy" "poisoned",
+  size 1,
+  weight 1;
+
+Object rusty_metal "piece of rusty metal" wilderness
+with name "rusty" "metal" "hollow" "tube",
+  before
+  [;  Examine:
+      if (self has general)
+        "It's a tube of some description.";
+
+      move stick to player;
+      give self general;
+      "Picking up a nearby stick, you poke some of the
+      compost away from around the metal. You have unearthed
+      a kind of hollow tube, one end of which disappears
+      into the mulch.";
+
+    Take:
+      "Whatever it is is buried in the compost heap.";
+
+    Pull:
+      remove self;
+      move barrow to wilderness;
+      give compost_heap general;
+      "With all the strength you can muster, you heave on the metal. It
+      takes a fair bit of effort, but you eventually manage to produce a
+      damaged, but still serviceable, old wheelbarrow.";
+  ],
+  whatsit "You're not sure yet.",
+has  metallic scenery;
+
+[  Test_Rod;
+  if (pin has broken && cord has general && stick_cord in player) {
+    remove pin;
+    remove cord;
+    remove stick_cord;
+    move rod to player;
+    return 2;
+  }
+  return 1;
+];
+
+Object stick "stick"
+with name "stick",
+  description "About two feet long, fairly straight and thin.",
+  size 4,
+  weight 1;
+
+Object stick_cord "stick (with a length of cord tied to it)"
+! self.number == 1: cord
+! self.number == 2: stick
+with name "stick" "cord" "length" "of" "tied" "to" "string",
+  number 1,
+  size 4,
+  weight 2,
+  parse_name
+  [ w1 w2 w3;
+    w1 = NextWord(); w2 = NextWord(); w3 = NextWord();
+    if (w1 == 'length' && w2 == 'of' && w3 == 'cord' or 'string') {
+      self.number=1;
+      give self stringy;
+      return 3;
+    }
+
+    if (w1 == 'cord' or 'string' or 'length') {
+      self.number=1;
+      give self stringy;
+      return 1;
+    }
+
+    if (w1 == 'stick') {
+      self.number=2;
+      give self ~stringy;
+      return 1;
+    }
+  ],
+  add_to_scope
+  [;  if (cord has general) AddToScope(pin); ],
+  description
+  [;  if (self.number == 1)
+      PrintOrRun(cord, description, 0);
+
+    print "The stick is about two feet long, fairly straight, and has three
+    feet of cord tied to one end";
+
+    if (cord has general)
+      print ". A ", (name) pin, " is stuck through the cord";
+
+    ".";
+  ],
+  before
+  [;  Untie:
+      print "You slide ", (the) cord, " off the end of ", (the) stick,
+      " and pick the knot out of it.^";
+      remove rod;
+      remove self;
+      move stick to player;
+      move cord to player;
+
+    TieTo:
+      if (self.number == 1 && second == pin) {
+        move cord to player;
+        <TieTo cord pin>;
+        remove cord;
+        rtrue;
+      }
+
+      if (self.number == 1 && second == self)
+        "You already have.";
+  ],
+has  stringy;
+
+Object pin "pin" ! if it HAS BROKEN it's bent
+with parse_name
+  [ w1 w2;
+    w1 = Nextword(); w2 = NextWord();
+
+    if (w1 == 'pin')
+      return 1;
+
+    if (((w1 == 'bent' && w2 == 'pin') || (w1 == 'hook')) && self has
+    broken)
+      return 2;
+  ],
+  short_name
+  [;  if (self has broken)
+      print "bent ";
+    print "pin";
+    rtrue;
+  ],
+  description
+  [;  if (self has broken)
+      print "The pin is bent";
+    else
+      print "An inch or so long";
+
+    if (worm in self)
+      print ". It is stuck through half a worm";
+    ".";
+  ],
+  before
+  [;  Bend:  if (pin has broken)
+        "You can bend it no further and you certainly
+        can't make it straight again.";
+      print "It isn't easy, but you do manage to bend the
+        pin into a lop-sided ~U~";
+      give pin broken;
+      if (Test_Rod() == 2) {
+        print ". It makes a reasonable hook, and the
+          whole ensemble becomes a passable
+          fishing rod!^";
+        rtrue;
+      }
+      ".";
+    Receive:
+      if (noun ~= worm)
+        "Balancing things on the end of a pin is not
+        something at which you excel.";
+    Pierce:
+      if (second == cord || (second == stick_cord &&
+      stick_cord.number == 1)) {
+        print "You push ", (the) pin, " through
+          the end of the cord. The pin head catches
+          between the seperate strands of the cord
+          and stays there";
+        remove pin;
+        give cord general;
+        if (Test_Rod() == 2)
+          ". You have made a makeshift fishing rod!";
+        ".";
+      }
+    Take:  if (cord has general) {
+        give cord ~general;
+        move self to player;
+        print "You remove ", (the) self, " from the end
+          of the cord.^";
+        if (rod in player or parent(player)) {
+          remove rod;
+          move stick_cord to player;
+        }
+        rtrue;
+      }
+  ],
+  after
+  [;  Receive:
+  ],
+  size 1,
+  weight 0,
+  max_space 1,
+  max_weight 1,
+  has supporter metallic;
+
+Object rod "makeshift fishing rod"
+with name "makeshift" "fishing" "rod" "pole",
+  number 1,
+  add_to_scope
+  [;  AddToScope(pin);
+    AddToScope(stick_cord);
+  ],
+  description
+  [;  print "A very makeshift fishing rod made of a stick, a
+      length of cord and a bent pin";
+    if (worm in pin)
+      print ". A worm slowly wriggles on the pin";
+    ".";
+  ],
+  size 4,
+  weight 2;
+
+Object shed "garden shed"
+with name "garden" "shed" "wooden" "gable",
+  before
+  [;  Examine:
+      if (location == garden)
+        "Just an ordinary garden shed really. Made of
+        tongued-and-grooved wood which you have never
+        creosoted and has subsequently begun to warp.
+        Although you can't see it from here you know
+        that there is a window exactly half way down the
+        shed's eastern wall, and you can see the twee
+        little spike at the apex of the nearest gable.";
+      "A flat wall punctured by a grimy window.";
+    Open:  <<open shed_door>>;
+    Take, Push, Turn:
+      "You are not the viking.";
+    Enter:  <<go n_obj>>;
+    LookUnder:
+      "Don't: there are probably rats or something.";
+  ],
+  found_in garden wilderness,
+has  scenery;
+
+Object shed_window "shed window"
+with name "window" "glass" "frame" "windowframe" "grimy",
+  before
+  [;  Search:
+      if (location == in_shed)
+        "You can't really see through the window from
+        here.";
+      "The window is rather dirty, but you can just about
+      see through it. Inside the shed you can see all manner
+      of junk and clutter: garden tools, lumps of wood, an
+      old table, that kind of thing.";
+    Open:  "It's not the kind of window that opens. Just two panes
+      of glass in a frame.";
+    Take:  "Fixed solid.";
+    Attack:
+      "What would be the point?";
+  ],
+  inloc in_shed, outloc wilderness,
+  found_in in_shed wilderness,
+has  scenery;
+
+Object other_fence "fence"
+with name "fence" "wooden",
+  before
+  [;  Climb:  "It's too high and too flimsy.";
+    Enter:  print "You can't sit on the fence in this game.^";
+      print_box(18);
+      rtrue;
+  ],
+  found_in wilderness k_orchard k_garden garden patio k_patio,
+has  scenery;
+
+Object barrow "wheelbarrow"
+with name "wheelbarrow" "barrow" "wheel" "frame" "solid" "rubber",
+  before
+  [;  Examine:
+      print "The frame, red-brown with oxidation, is sturdy enough,
+      although the sides and base of the actual barrow have all but
+      gone. The solid rubber wheel turns smoothly, but with a piercing
+      squeal which lasts about a quarter of each revolution. ";
+      <<search self>>;
+
+    Take:
+      "Get stuffed, it weighs a ton.";
+
+    PushInto:
+      if (second == pond) {
+        print "You push ", (the) self, " into ", (the) pond;
+        remove self;
+        if (parent(cement) in self && cement_bag has open) {
+          print ". Convection currents and turbulence from the splash
+          spread billowing, expanding grey clouds of cement through ",
+          (the) pond, ". With a few bubbles, ", (the) second, " sinks
+          to the bottom of ", (the) pond,", lost in the now opaque
+          murk of the water.^";
+          move cement to pond;
+          remove cement_bag;
+          rtrue;
+        }
+
+        ", where it sinks without trace.";
+      }
+
+    PushDir:
+      AllowPushDir();
+      rtrue;
+
+    Pour:
+      if (child(self == 0))
+        "There's no point.";
+
+      if (second == pond && cement_bag in self && cement in cement_bag)
+        "The barrow is too heavy.";
+  ],
+  size 30,
+  weight 35,
+has  supporter;
+
+Object compost_heap "compost heap" wilderness
+with name "compost" "heap" "mulch" "leaves" "prunings" "cuttings"
+  "grass" "rubbish",
+  before
+  [;  Examine:
+      print "A pile of rotten garden rubbish. Most of what is recognizable
+      is grass cuttings, but there are leaves, weeds, prunings and ";
+
+      if (self hasnt general)
+        "even some rusty metal thrown in there.";
+
+      "all manner of other decomposing mulch.";
+
+    Take:
+      "You couldn't, even if you wanted to, which you don't.";
+
+    Search:
+      <<Examine self>>;
+  ],
+has  scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place in_shed "Your Garden Shed"
+  with
+  name "doorframe" "tins" "cans" "tin" "can" "of" "paint" "broken" "lamp"
+  "trowel" "block" "blocks" "polystyrene" "old" "mag" "magazines" "mags"
+  "magazine" "rubbish" "dust" "plank" "planks" "lath" "laths" "roof" "crates"
+  "crate",
+  locname "your garden shed",
+  description [;
+    print "When you moved in this was a cosy little potting shed, but was soon
+          transformed into an Aladdin's cave of discarded rubbish. Mildewed
+          cardboard boxes, plant pots, planks and laths, wooden crates, the
+          handles of garden tools all form a complex interlocked mass of junk
+          and lumber
+          ^^
+          Most of the space is taken up by a huge slab of chipboard whose
+          plane seems to intersect that of the back wall at about waist
+          height.
+          ^^An eye-level shelf is suspended at the join of the back and
+          right-hand (as you look at it) walls, across from a faded and
+          damp-corrugated girly calendar";
+
+    if (daytime() == 1) {
+      print ".
+            ^^
+            The shed is softly lit by a shaft of light from a cracked and
+            dirty window in the east wall, dust drifting and spiralling across
+            its width, disappearing into the cool shadow up near the roof and
+            down by the floor";
+    }
+
+    ".";
+  ],
+  before [;
+    Push:
+      "It's difficult to see where you can move anything to in here.";
+    Go:
+      if (noun == s_obj && shed_door has open && tea_chest in player) {
+        "The tea chest won't fit through the door. How on earth did it ever
+        get in here?";
+      }
+  ],
+  cant_go "The only exit is back through the door.",
+  s_to shed_door,
+  underfoot boards,
+  overhead k_loft_ceiling,
+  has scored;
+
+Object shed_shelf "shelf" in_shed
+  with
+  name "shelf" "bracket" "brackets",
+  description "Held in place by a couple of brackets, the shelf is in the far
+              corner of the shed, well out of your reach.",
+  describe [;
+    if (weed_killer in self && weed_killer hasnt concealed) {
+      "A bottle of weed killer sits on the shelf.";
+    }
+  ],
+  before [;
+    if (action ~= ##Examine or ##Search) {
+      "You can't reach the shelf.";
+    }
+
+    Examine:
+      give weed_killer ~concealed;
+
+      if (weed_killer in self) {
+        <<search self>>;
+      }
+  ],
+  has scenery supporter;
+
+Object weed_killer "bottle of weed killer" shed_shelf
+	with
+  name "bottle" "of" "weed" "killer" "weedkiller" "poison",
+  before [;
+    if ((self in shed_shelf || self in chipboard) &&
+			  (action ~= ##Examine or ##ThrownAt or ##Bottle_Fall)) {
+				"You can't reach it.";
+    }
+
+    ThrownAt:
+      if (self in shed_shelf && noun == toy) {
+        give self ~concealed;
+        remove toy;
+        move self to chipboard;
+        print	"Bullseye! With a quick squeak the toy knocks the bottle of weed
+        killer onto the chipboard then falls in amongst the rubbish at the
+        back of the shed, presumably never to be seen again. ";
+
+        if (chipboard.number == 3) {
+						<<Bottle_Fall self>>;
+        }
+
+        new_line;
+        rtrue;
+      }
+    Bottle_Fall:
+      move self to in_shed;
+      "The bottle rolls down the chipboard and settles by your feet.";
+    Squeeze:
+      "The plastic bottle is too rigid and too empty for you to squeeze any
+      weed killer out.";
+    Open:
+      "The top was lost long ago.";
+  ],
+  describe [;
+    if (self in chipboard) {
+      print_ret	"A bottle of weed killer lays on its side in the middle of ",
+                (the) chipboard, ".";
+    }
+  ],
+  size 3,
+  weight 2,
+	has	concealed scored;
+
+Object chipboard "big slab of chipboard" in_shed
+  with
+  name "big" "slab" "of" "chipboard" "wood" "board",
+  ! if it HAS GENERAL you've looked under it
+  number 1, ! 1: inital state: flat, on tea_chest
+            ! 2: Simone is lifting it up
+            ! 3: chest removed, sloping down
+  before [;
+    Examine:
+      switch(self.number) {
+        1:
+          "The chipboard is balanced on top of the other junk in the shed. The
+          near end is supported by a tea-chest. You can't tell what is under
+          the far end or the middle.";
+        3:
+          "Something under the far end of the chipboard raises it a couple of
+          feet off the ground. The near end rests on the floor.";
+      }
+    Take:
+      "The board is to big and awkward for you to carry. All you can do is
+      raise it up a little, then let it fall back.";
+    Receive:
+      if (self.number == 3) {
+        move noun to in_shed;
+        print_ret (The) noun, " slides down the sloping board onto the
+        floor.";
+      }
+
+      "That doesn't look a very sturdy supporter.";
+    Climb:
+      if (self.number == 2)  {
+        "Simone could never support the extra weight.";
+      }
+
+      "Too unstable.";
+    LookUnder:
+      switch(self.number) {
+        1:
+          "All you can make out is the nearby tea-chest.";
+        2:
+          if (self hasnt general) {
+            move cement_bag to in_shed;
+            "Under the chipboard is a bag of cement.";
+          }
+
+          if (cement_bag in in_shed && cement_bag hasnt moved)
+            "There is a bag of cement (and a whole host of unidentifiable
+            rubbish) under ", (the) self, ".";
+
+        3:
+          "You can't see under the chipboard.";
+      }
+  ],
+  after [;  Drop:
+    if (weed_killer in self) {
+      <<bottle_fall weed_killer>>;
+    }
+  ],
+  size 40,
+  weight 20,
+  max_space 30,
+  max_weight 30,
+  has supporter concealed;
+
+Object tools "collection of broken tools" in_shed
+  with name "handle" "handles" "tools" "broken" "tool" "tools//p",
+  number 1, ! 2: you've found the spade
+            ! 3: you've found the axe too
+  before [;
+    Examine:
+      switch(self.number) {
+        1:
+          print "Leaning across you look through the tools as best you can. ";
+          self.number++;
+          move spade to location;
+          give self general;
+          "The first couple of handles you look at are just rotten lengths of
+          wood with no heads. The third or fourth however, turns out to be
+          connected to a fairly servicable looking spade, which you place in
+          the corner of the shed.";
+        2:
+          self.number++;
+          move axe to location;
+          "You check the remaining handles. One is that of a viciously tapered
+          axe, which you remove and lean up against the doorframe.";
+        default:
+          "No more of the handles have blades or heads attatched.";
+      }
+    Take:
+      "Leave them alone, they just want binning.";
+  ],
+  has scenery;
+
+Object spade "spade"
+  with
+  name "spade" "shovel" "bladed" "implement" "servicable" "tools//p",
+  description  "Common or garden spade.",
+  size 20,
+  weight 13,
+  has digger;
+
+Object axe "axe"
+  with
+  name "ax" "axe" "shaft" "head" "of" "tools//p",
+  article "an",
+  description "The shaft of the axe looks rather weak. It might not be a good
+              idea to try and use it.",
+  size 10,
+  weight 18,
+  has cutter;
+
+Object cement_bag  !  if it HAS GENERAL it has been seen
+with name "bag" "of" "sack" "cement",
+  short_name
+  [;  if (cement notin self) {
+      print "empty cement sack";
+      rtrue;
+    }
+
+    if (self has open)
+      print "open ";
+
+    print "sack of cement";
+    rtrue;
+  ],
+  describe
+  [;  if (self has broken)
+      "Although you can't see it you know there is a sack of cement
+      under the chipboard.";
+  ],
+  before
+  [;  Examine:
+      if (self has open) {
+        if (cement in self)
+          "It is full of cement.";
+
+        "It is torn open and empty.";
+      }
+
+      "Just an everyday paper sack of cement.";
+
+    Take:
+      "Your long period of convalescence has left you rather weak. I don't
+      honestly think you could lift it off the floor.";
+
+    Receive:
+      "No.";
+
+    Pull:
+      give self ~broken;
+      "You pull the sack out from under the chipboard.";
+  ],
+  after
+  [;  Open:
+      self.invent="an empty cement sack";
+      "You tear open the bag. A fine dust billows up and you cough.";
+
+    Drop:
+      "You are glad to put down the cement.";
+  ],
+  time_left 0,
+  time_out
+  [;  if (self notin simone)
+      rtrue;
+
+    move self to parent(simone);
+
+    if (simone in parent(player))
+      "Simone drops the bag of cement. With her palms on her hips she
+      arches her back. ~If you think I'm lugging that round all day you've
+      got another thing coming.~";
+    rtrue;
+  ],
+  size 20,
+  weight 40,
+has  container openable;
+
+Object cement "cement" cement_bag
+  with
+  name "cement",
+  description  "A fine, dry, grey powder.",
+  article "some",
+  before [;
+    Take:
+      if (self in pond) {
+        "It's a bit late for that now.";
+      }
+
+      "The fine grey powder trickles away between your fingers.";
+  ];
+
+Object calendar "girly calendar" in_shed
+  with
+  name "girl" "topless" "girly" "calendar",
+  description "One look at the topless girl convinces you all women are
+              objects, there only for your sexual gratification.  Or perhaps
+              it doesn't.",
+  before [;
+    if (action ~= ##Examine) {
+      "The calendar is out of reach.";
+    }
+  ],
+  has scenery;
+
+Object shed_boxes "cardboard boxes" in_shed
+  with
+  name "mildewed" "cardboard" "boxes" "mildew" "box",
+  article "many",
+  description "They contained your belongings when you moved in. Heaven only
+              knows what is in them now.",
+  before [;
+    Search:
+      "The boxes you can see into contain a broken lamp, a trowel, polystyrene
+      blocks, old magazines, that kind of thing. Why you don't throw the whole
+      lot away I don't know.";
+    Receive:
+      "There's no sense filling them with more rubbish.";
+    Empty, Take, Push:
+      "It's just rubbish. Leave it alone.";
+  ],
+  has scenery;
+
+Object plant_pot "plant pot" in_shed
+class adnc
+with name "plant" "pot" "pots",
+  adname 'plastic',
+  before
+  [;  Examine:
+      if (self has concealed)
+        "Among the plant pots you find one which contains some small
+        black seeds.";
+
+      if (seeds in self)
+        "The cracked plastic pot contains some small black seeds.";
+
+      <<search self>>;
+
+    Receive:
+      if (noun ~= seeds)
+        print_ret (The) noun, " won't fit.";
+  ],
+  after
+  [;  Take:
+      if (self has concealed) {
+        give self ~concealed;
+        print_ret "You are just able to reach ", (the) self, ". As you
+        take it, you inadvertently tilt it a little, and see a few
+        small black seeds tumble out onto the floor.";
+      }
+
+    LetGo:
+      if (noun == seeds)
+        "You shake the seeds out into the palm of your hand.";
+  ],
+  size 3,
+  weight 2,
+has  container open concealed;
+
+Object seeds plant_pot  !  if they HAS GENERAL they have been planted
+with short_name !  if they HAS FLAGGED you don't know what they are
+  [;  if (self has proper)
+      print "some";
+    else
+      print "marijuana";
+
+    print " seeds";
+    rtrue;
+  ],
+  name "marijuana" "dope" "seeds" "seed" "handful" "of",
+  article "handful of",
+  before
+  [ i;
+    i = k_flower_bed;
+    Examine:
+      if (self has flagged) {
+        give self ~flagged;
+        "I'm not sure how you know this, but they seem to be marijuana
+        seeds.";
+      }
+
+      "They were sold to you by an upper middle-class hippy you knew a
+      couple of years ago. Hardly being at one with nature you could never
+      get the seeds to grow, and threw most of them away. Had you had
+      Savage's green fingers you might have been safe middle England's
+      answer to Pablo Escobar.";
+
+    Plant:
+      if (second == 0) {
+        if (location == k_grass)
+          <<Plant self k_flower_bed>>;
+
+          "Where do you want to plant them?";
+      }
+
+      if (second == i) {
+        if (self notin player)
+          <take self>;
+
+        if (i has general) {
+          give self general;
+          remove self;
+          "With your index finger you poke the seeds down into the
+          soft earth, where they are lost without trace.";
+        }
+
+        "The soil in the flower bed is too hard and full of grass and
+        weeds to plant anything in.";
+      }
+
+      "You can't plant seeds in that!";
+  ],
+  size 0,
+  weight 0,
+has  flagged;
+
+
+Object shoots "green shoots"
+with name "green" "shoots" "marijuana" "plants" "shoot" "pot" "dope",
+  description  "All plants look the same to you.",
+  describe
+  [;  "A few green shoots can be seen in the flowerbed.";
+  ],
+  time_left 0,
+  time_out
+  [;  remove self;
+    move pot_plant to k_grass;
+  ],
+  before
+  [;  Take:
+      "You're quite proud of your bit of gardening.You don't want to rip
+      it out of the ground.";
+    Eat:
+      "Maybe when they've grown a bit more you can bake them in a cake or
+      something.";
+  ];
+
+Object pot_plant "marijuana plants"
+with name "marijuana" "pot" "plant" "plants" "dope" "leaves" "green",
+  description  "Large ragged edged leaves bobbing gently in the breeze. You
+    feel quite proud of them. Perhaps you will start doing a bit of work
+    in your own garden.",
+  describe
+  [;  "The flower bed is full of healthy looking marijuana plants.";
+  ],
+  before
+  [;  Take:
+      "You'd better leave them where they are. You don't want to get done
+      for possession.";
+  ];
+
+Object tea_chest "wooden tea chest"  in_shed
+! if it HAS MOVED you have removed it from under the board
+with name "wooden" "tea" "chest" "teachest" "tea-chest" "crate" "box",
+  initial  "Wedged under the end of the chipboard is a wooden tea
+      chest.",
+  before
+  [;  Examine:
+      if (self hasnt moved)
+        print_ret "You can't see whether or not there's anything in ",
+        (the) self, ".";
+
+      <<search self>>;
+
+    Pull:
+      if (self hasnt moved)
+        <<Take self>>;
+
+    Drop:
+      if (simone in location)
+        "Yourself and Simone are taking up all the available floor
+        space. There's nowhere to put it down.";
+  ],
+  after
+  [;  Take:
+      if (self hasnt moved) {
+        give self moved;
+
+        if (chipboard.number == 2)
+          "You remove the chest.";
+
+        chipboard.number = 3;
+        print "As you work the tea chest loose, the near end of the
+        chipboard which was resting on top of it crashes down and hits
+        the floor just inches away from your toes";
+
+        if (weed_killer in chipboard)
+          <<bottle_fall weed_killer>>;
+
+        ".";
+      }
+  ],
+  describe
+  [;  if (self hasnt general)
+      rtrue;
+  ],
+  react_before
+  [;  Pull, Push, Take, Close, Open:
+      if (self in player) "Your hands are full.";
+  ],
+  size 15,
+  weight 10,
+has  container open;
+
+Object gloves "pair of gardening gloves" tea_chest
+with name "pair" "of" "gardening" "rubber" "gloves" "grey",
+  description  "Made of thick grey rubber, they should protect the clumsiest
+    gardener from the sharpest of thorns.",
+  size 3,
+  weight 1,
+has  clothing;
+
+Portal shed_door "shed door"
+!  if it HAS GENERAL you can open it
+with name "shed",
+  before
+  [;  Examine:
+      if (self has general)
+        "Since you are leaning on the door, it's difficult to get a very
+        good look at it.";
+
+      if (self hasnt open)
+        "The door is very slightly ajar, although the gap is too dark
+        and narrow to see through.";
+
+      "It has seen better days. Some of the thin vertical boards which
+      make it up have broken off the diagonal piece which should hold them
+      in place.";
+
+    Open:
+      if (self has open)
+        "It's already open.";
+
+      if (location == garden && self hasnt general) {
+        "You can't work the bolt free from the rusted staple into which
+        it fits.";
+        rfalse;
+      }
+
+    Push:
+      if (location == in_shed)
+        "Pointless.";
+
+      if (self hasnt open) {
+        if (self hasnt general) {
+          give self general;
+          remove shed_gap;
+          "You lean on the door. It pushes in slightly.";
+        }
+
+        "You are already leaning on the door.";
+      }
+
+    Close:
+      if (self hasnt open)
+        "It's already closed.";
+
+      if (location == in_shed)
+        "There's nothing on the inside of the door to get hold of.";
+
+      "You close the door, but can't get the bolt through the staple, so
+      you decide to leave it open.";
+  ],
+  after
+  [;  Open:
+      give self ~general;
+      "Now it is not so tightly pressed against the socket, the bolt
+      slides back easily enough, and the door opens stiffly.";
+  ],
+  InLoc in_shed, OutLoc garden,
+  InDir n_to, OutDir s_to,
+  found_in in_shed garden;
+
+Floor boards "floorboards"
+with name "boards" "dusty" "wood" "wooden",
+  description "What you can see of the wooden floor is dusty and dirty.";
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place drive "Your Drive"
+with name "security" "light" "yellow" "arch",
+  locname "your drive",
+  description
+  [;  print "This is currently a rather superfluous part of your property, as
+    you do not own a car, but hey, it's here if you ever get one. The red
+    brick wall of your house is to the east, punctured by the door into the
+    kitchen, and the drive leads south onto the road. ";
+    print "In the northeast corner of this area, a flimsy and totally
+    unnecessary arch springs from the top of a four foot high yellow brick
+    wall around and over a wrought iron gate which is taller than you are";
+
+    if (daytime() == 3)
+      ". The scene is illuminated by next door's yellow security light
+      which amuses itself by switching on and off at random all night";
+
+    ".";
+  ],
+  ne_to garden_gate, e_to back_door, s_to lev_1,
+  cant_go "Northeast, east or south.",
+  underfoot actual_drive,
+  overhead sky,
+  outLoc drive,
+has  outside;
+
+Object house "house wall"
+with name "wall" "house" "your" "my" "bricks" "brick",
+  description  "The house is brick built and dates from the early
+      1970s.",
+  found_in drive k_drive lev_1 lev_2 patio k_patio,
+  before
+  [;  Take:  "Yeah, right."; ],
+has  scenery;
+
+Object gravel "gravel" drive
+with name "gravel",
+  description "Fairly coarse gravel which thinly covers a long strip
+    sandwiched between two paved areas.",
+  before
+  [;  Take:
+      "You could only take a handful: there doesn't seem much point.";
+  ],
+has  scenery;
+
+
+Object gravel_in_bucket "gravel"
+class adnc
+with name "gravel",
+  adname 'in' 'bucket',
+  invent "gravel",
+  article "some",
+  before
+  [;  Pour:  if (location hasnt outside)
+        "Not indoors!";
+      if (second == pond)
+        <<insert self pond>>;
+      move self to parent(player);
+  ],
+  weight 7;
+
+Floor actual_drive "paved area"
+with name "drive" "paved" "area" "areas" "strip" "strips",
+  description  "The drive consists of two unevenly paved strips which slope
+    down to the edge of the road. Loose gravel has been scattered between
+    these strips.";
+

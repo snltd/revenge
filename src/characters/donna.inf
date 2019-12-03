@@ -1,0 +1,186 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+! Donna, and the routines she needs to go about her everyday life
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Person donna "Donna" k_lounge with
+  name "donna",
+  state 0,  !  0 is normal
+            !  1 means that she is upset about the prostitute
+  description [;
+    print "Donna is rather short and with a full figure. She has long bleached
+          blonde hair, and perhaps wears a little too much makeup. She seems
+          pleasant, and you always wonder what she is doing with a meathead
+          like Savage.";
+
+    if (self.state == 1) {
+      print " She is sobbing quietly, her mascara cutting a purple channel
+            through her foundation.";
+    }
+  ],
+  whatsit "Donna is Savage's girlfriend. You have no particular problem with
+          her, she seems nice enough, but she could provide you with ways to
+          get at Savage. He seems to regard her as something of a trophy,
+          although you treat your old swimming medals better.",
+  walkdesc "walks off",
+  peekdesc [;
+    print (string) random("is examining her fingernails",
+                          "fidgets with the hem of her skirt",
+                          "gazes into space");
+  ],
+  before [;
+    Insult:
+      "Donna has done nothing to upset you. Why bother?";
+    Comfort:
+      if (savage in parent(self)) {
+        <<kiss self>>;
+      }
+
+      if (self.state == 1) {
+        print "You tentatively put an arm round Donna's shoulders, trying to
+              keep the gesture as platonic as possible. You cautiously, and
+              rather self-consciously, mutter a few platitudes to Donna,
+              (~he's not worth crying over~ etc.) occasionally gently
+              squeezing and patting her shoulders.
+              ^^
+              ~Thanks.~ says Donna, dabbing her eyes with a tissue, ~you're
+              okay really, whatever Kev says.~ You give her your kindest
+              smile.
+              ^";
+        chuck = chuck + 2;
+        StopTimer(self);
+        self.state = 0;
+      }
+
+      "She doesn't look as if she needs it.";
+  ],
+  life [;
+    Kiss:
+      if (simone in location) {
+        if (simone has general) {
+          "If you think you can get round her by making her jealous, forget
+          it.";
+        }
+
+        "With Simone here?";
+      }
+
+      if (savage in location) {
+        "I'm sure Savage would just love that.";
+      }
+
+      if (self.state == 1) {
+        <<comfort self>>;
+      }
+
+      "Don't flatter yourself. What makes you think she finds you
+      attractive?";
+    Attack:
+      "You might be a lot of things, but you don't hit women.";
+    Ask:
+      switch(second) {
+        QDate:
+          <<kiss self>>;
+        QBronson:
+          "Donna sneers. ~That monster? The bloody thing frightens me to death
+          sometimes.~";
+        QFrancis, QKen:
+          "~I don't think I know him.~";
+        QWork:
+          "~I work on the perfume counter at Debenhams. It's alright.~";
+        QSimone:
+          print "~She your girlfriend? She's pretty, but she could make a bit
+                more of herself.~";
+
+          if (simone in location) {
+            ". Simone fires Donna a bitchy glance.";
+          }
+
+          rtrue;
+        QMusic:
+          print "~I'm not that bothered really. I like clubbing though. And
+                most chart stuff.~
+                ^";
+          print_box(11);
+          rtrue;
+      }
+    Show:
+      switch(noun) {
+        gun:
+          if (Qgun has showdon) {
+            "Donna has already seen it.";
+          }
+          else {
+            give QGun showdon;
+            "Donna looks at you aghast.(Perhaps you should not have pointed it
+            quite so directly at her.) ~What the hell is that?~
+            ^^
+            ~It's a gun.~ you point out. This is not the right time to be
+            facaetious. ~What are you doing with it?~ demands Donna.";
+          }
+      }
+    Tell:
+      switch(noun) {
+        QGun:
+          if (Qgun hasnt showdon) {
+            "~What are you on about?~";
+          }
+          else {
+            print "Trying to calm her down, you patiently explain where ",
+                  (the) gun, " came from, and ask ", (name) self,
+                  " if she knows anything about it.";
+            ChuckKev();
+            print "~Well,~ she begins, ";
+
+            if (chuck < 5) {
+              " ~he must be looking after it for somebody. I know he can get a
+              bit rough sometimes, but he doesn't mess about with stuff like
+              that.~";
+            }
+            else if (chuck < 7) {
+              " ~Kev's got some dodgy mates, but.. I don't know.";
+            }
+          }
+      }
+  ],
+  time_left 0,
+  time_out [;
+    ! she's a tough old bird and she soon gets over things
+    self.state = 0;
+
+    if (player in parent(self)) {
+      print "Donna sniffs, dabs her eyes with a paper handkerchief, produces a
+            compact and fixes her make-up. In no time at all she looks as
+            smart and brassy as ever, and puts her compact away.
+            ^";
+    }
+  ],
+  has female;
+
+[ ChuckKev;
+  if (chuck == 10) {
+    print "Donna shakes her head, bewildered. ~I just can't believe it. I
+          mean, I know he's a bit rough and that";
+
+    if (savage in location) {
+      print "; (she looks over at Savage with contempt,) ";
+    }
+
+    print "but, Christ, never anything like this. I can't take it in. It's
+          done now anyway. ";
+
+    if (savage in location) {
+      print "And you, you";
+    }
+    else {
+      print "He";
+    }
+
+    print  " can forget ever seeing me again. I'm not stopping here a minute
+           longer.";
+    !Travel(donna, lev_2);
+  }
+
+  rtrue;
+];

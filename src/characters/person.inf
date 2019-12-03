@@ -1,0 +1,440 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+!
+! People.h
+! (c) 1998 Robert Fisher
+!
+! Classes and routines to help create non-player characters.
+!
+! This may be used in any way you like. It may work, it may not. I take no
+! responsibility for any problems, frustrations or personal injuries this
+! software causes.
+!
+! Be sure to uncomment and move the additions to the Grammar found at the
+! end of this file.
+!
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Attribute travelling;
+Attribute following;
+
+Property follow_dir 0;
+Property just_visited 0;
+
+Class Person with
+  name "people//p" "persons//p" "other" "person" "actual",
+  just_visited 0,
+  follow_dir 0,
+  travel_buffer 0,
+  peekdesc "stands doing nothing",
+  walkdesc "walks away",
+  before [i j k;
+    Examine:
+      if (location == thedark) {
+        return L__M(##Examine, 1);
+      }
+      else {
+        PrintOrRun(self, description, 1);
+      }
+
+      objectloop (k in self) {
+        if (k hasnt worn && k hasnt concealed) {
+          give k workflag;
+          i++;
+        }
+        else {
+          give k ~workflag;
+        }
+      }
+
+      if (i > 0) {
+        print "^";
+         HeShe(self, 1);
+        print " is carrying ";
+        WriteListFrom(child(self), FULLINV_BIT + ENGLISH_BIT + WORKFLAG_BIT +
+                                   CONCEAL_BIT);
+      }
+
+      objectloop (k in self) {
+        if (k has worn && k hasnt concealed) {
+          give k workflag;
+          j++;
+        }
+        else {
+          give k ~workflag;
+        }
+      }
+
+      if (j > 0) {
+        if (i == 0) {
+          print " ", (name) self, " is";
+        }
+        else {
+          print ", and";
+        }
+
+        print " wearing ";
+        WriteListFrom(child(self), ENGLISH_BIT + WORKFLAG_BIT);
+      }
+
+      if (i > 0 || j > 0) {
+        print ".";
+      }
+
+      new_line;
+      rtrue;
+    ],
+    daemon [;
+      if (self has following) {
+        give self ~travelling;
+
+        if (parent(self) ~= parent(player)) {
+          move self to parent(player);
+
+          if (location ~= thedark) {
+            print "^", (The) self;
+
+            if (location has outside) {
+              " arrives.";
+            }
+            else {
+              " enters";
+            }
+          }
+        }
+      }
+
+      !if (self has travelling && self hasnt following)
+        !Dijkstra(self, self.travel_buffer);
+    ],
+  has  proper animate;
+
+! call with second argument of 1 for upper case
+!
+[ HeShe the_name arg;
+  if (the_name hasnt animate) {
+    if (arg == 1) {
+      print "It";
+    }
+    else {
+      print "it";
+    }
+
+    return;
+  }
+
+  if (the_name has female) {
+    if (arg == 1) {
+      print "She";
+    }
+    else {
+      print "she";
+    }
+
+    return;
+  }
+
+  if (arg == 1) {
+    print "He";
+  }
+  else {
+    print "he";
+  }
+
+  return;
+];
+
+[ PronounAcc i;
+  if (i hasnt animate) {
+    print "it";
+  }
+  else {
+    if (i has female) {
+      print "her";
+    }
+    else {
+      print "him";
+    }
+  }
+];
+
+[ PronounNom i;
+  if (i hasnt animate) {
+    print "it";
+  }
+  else {
+    if (i has female) {
+      print "she";
+    }
+    else {
+      print "he";
+    }
+  }
+];
+
+[ CPronounNom i;
+  if (i hasnt animate) {
+    print "It";
+  }
+  else {
+    if (i has female) {
+      print "She";
+    }
+    else {
+      print "He";
+    }
+  }
+];
+
+[ IsAmAre w;
+  w = NextWord();
+  if (w == 'is' or 'am' or 'are') {
+    return 0;
+  }
+
+  return -1;
+];
+
+[ FollowScope i;
+  if (scope_stage == 1) {
+    rfalse;
+  }
+
+  if (scope_stage == 2) {
+    objectloop(i ofclass person) {
+      if (i.just_visited == location) {
+        PlaceInScope(i);
+      }
+    }
+
+    rfalse;
+  }
+  else {
+    NoFollowSub(i);
+  }
+
+  if (i ofclass person && i.just_visited == location) {
+    PlaceInScope(i);
+  }
+
+  rfalse;
+];
+
+[ FollowSub;
+  if (noun == player) {
+    P_Responses("Follow", 1);
+  }
+
+  if (noun in location) {
+    P_Responses("Follow", 2, noun);
+  }
+
+  if (noun.follow_dir == 0) {
+    P_Responses("Follow", 3, noun);
+  }
+
+  <Enter noun.follow_dir>;
+];
+
+[ InsultSub;
+  if (noun has animate) {
+    P_Responses("Insult", 1);
+  }
+
+  P_Responses("Insult", 2, noun);
+];
+
+[ NewConsultRSub;
+  <<NewConsult second noun>>;
+];
+
+[ NewConsultSub;
+  consult_words=0;
+  <<Consult noun>>;
+];
+
+[ NoFollowSub;
+  if (noun == player) {
+    P_Responses("Follow", 4);
+  }
+
+  if (parent(noun) == parent(player)) {
+    P_Responses("Follow", 5, noun);
+  }
+
+  P_Responses("Follow", 6);
+];
+
+[ NoQuestionSub;
+  <<Question noun 0>>;
+];
+
+[ QuestionSub;
+  if (RunLife(noun, ##Ask) ~= 0) {
+    rfalse;
+  }
+
+  P_Responses("Question", 1, noun);
+];
+
+[ TQuestionSub;
+  if (RunLife(noun, ##Tell) ~= 0) {
+    rfalse;
+  }
+
+  P_Responses("Question", 2);
+];
+
+[ ComfortSub;
+  if (noun hasnt animate) {
+    P_Responses("comfort", 1, noun);
+  }
+
+  P_Responses("comfort", 2, noun);
+];
+
+[ P_Responses v_word n w1 w2;
+  switch(v_word) {
+    'Comfort':
+      switch(n) {
+        1:
+          "What a peculiar notion.";
+        2:
+          "I don't think ", (name) w1, " wants your pity.";
+      }
+    'Follow':
+      switch(n) {
+        1:
+          "You chase yourself round in a small circle.";
+        2:
+          print_ret (The) w1, " is here with you.";
+        3:
+          "You're not sure where ", (the) w1, " has gone.";
+        4:
+          "You chase yourself round in a small circle for a while.";
+        5:
+          print_ret (The) w1, " is here with you.";
+        6:
+          "You can only follow someone who has just left your present
+          location.";
+    }
+    'Insult':
+      switch(n) {
+        1:
+          "You have no cause to.";
+        2:
+          "You low down dirty good for nothing ", (name) w1, ".";
+      }
+    'Question':
+      switch(n) {
+        1:
+          print (The) w1;
+          print_ret (string) random(" does not offer an opinion.",
+                                    " does not reply.",
+                                    " seems not to have heard you.",
+                                    " practically ignores you.",
+                                    " just shrugs.",
+                                    " denies any knowledge of that.",
+                                    " is not telling.");
+        2:
+          "You provoke no response.";
+      }
+  }
+];
+
+Verb 'follow' 'chase' 'pursue' 'trail' 'stalk'
+  * scope=FollowScope -> Follow
+  * 'after' scope=FollowScope -> Follow
+  * noun -> NoFollow
+  * 'after' noun -> NoFollow;
+
+Verb 'insult'
+  * noun -> Insult;
+
+Verb 'comfort' 'console'
+  * noun -> Comfort;
+
+Extend 'ask' replace
+  * creature 'about'/'for' scope = TopicScope -> Question
+  * creature scope=TopicScope -> Question
+  * creature ConTopic -> NoQuestion;
+
+Extend 'tell' replace
+  * creature 'about' scope=TopicScope -> TQuestion
+  * creature 'about' ConTopic -> TQuestion
+  * creature scope=TopicScope -> TQuestion
+  * creature ConTopic -> NoQuestion;
+
+Verb 'who' 'what' * IsAmAre -> WhatIsWhat
+  * IsAmAre 'I'/'I?' -> WhoAmI
+  * IsAmAre scope=Whatscope -> WhatIs
+  * IsAmAre noun -> Whats;
+
+[ MoveActor actor direc dest loc other x_to;
+  loc = parent(actor);
+  x_to = direc.door_dir;
+  other = loc.x_to;
+
+  if (ZRegion(other) == 0 or 2 or 3) {
+    ! Bronson is a container. I know it's weird, but here "container" becomes
+    ! a substitute for "mute". I hit the attribute limit.
+    if (actor hasnt following && player in loc && actor has container) {
+      "~I can walk through walls now can I?~ says ", (name) actor, ".";
+    }
+
+    rtrue;
+  }
+
+  if (other has door) {
+    if (loc == other.inloc) {
+      dest = other.outloc;
+    }
+    else {
+      dest = other.inloc;
+    }
+
+    if (other hasnt open) {
+      if (actor has sav || other has locked || other has unpassable) {
+        if (player in loc) {
+          print "^", (The) actor, " can't get through ", (the) other, ".^";
+        }
+
+        rtrue;
+      }
+      else {
+        give other open;
+        if (loc == location) {
+          print  "^", (The) actor, " opens ", (the) other, ".^";
+        }
+
+        if (dest == location) {
+          print "^", (The) other, " opens.^";
+        }
+      }
+    }
+  }
+  else {
+    dest = other;
+  }
+
+  if (actor in location && actor hasnt following) {
+    if (noun == u_obj or d_obj) {
+      print "^", (The) actor, " goes ";
+      LanguageDirection(x_to);
+      print " ", (the) other, ".^";
+    }
+    else {
+      print  "^", (The) actor, " ", (string) actor.walkdesc, " to the ";
+      LanguageDirection(x_to);
+      print ".^";
+    }
+
+    actor.follow_dir = direc;
+  }
+
+  actor.just_visited = loc;
+  move actor to dest;
+
+  if (player in dest) {
+    print "^", (The) actor, " enters.^";
+  }
+];

@@ -1,0 +1,57 @@
+! Things the player can ask other people about
+
+Object Topics "Topics";
+
+Topic QDate "date" Topics with
+	name "date";
+
+Topic QKev "Kev Savage" Topics with
+	name "kev" "savage" "neighbour" "neighbor" "next-door";
+
+Topic QBronson "Bronson" Topics with
+	name "bronson" "dog";
+
+Topic QSimone "Simone" Topics with
+	name "simone" "girlfriend";
+
+Topic QKen "Ken" Topics with
+	name "ken" "old";
+
+Topic QFrancis "little Francis" Topics with
+	name "little" "frank" "francis";
+
+Topic QWork "work" Topics with
+	name "work" "her" "his" "job";
+
+Topic QDonna "Donna" Topics with
+	name "donna";
+
+Topic QGun "gun" Topics with
+	name "gun" "sawn-off" "shotgun";
+
+Topic QPartner "partner" Topics with
+	name "partner";
+
+Topic QCalender "calendar" Topics with
+	name "girly" "topless" "nude" "calendar" "calendar";
+
+Topic QMusic "taste in music" Topics with
+	name "music";
+
+Topic QFootball "football" Topics with
+	name "football" "footie" "casey" "ball" "togger";
+
+Topic QCurry "curry" Topics with
+	name "curry";
+
+Topic QVindaloo "vindaloo" Topics with
+	name "vindaloo" "chicken" "beef" "mutton";
+
+Topic QTindaloo "tindaloo" Topics with
+	name "extra" "hot" "tindaloo" "chicken" "beef" "mutton";
+
+Topic QMadras "madras" Topics with
+	name "madras" "chicken" "beef" "mutton";
+
+Topic QPhone "telephone" Topics with
+	name "telephone" "ringing" "bell" "phone" "call" "is";

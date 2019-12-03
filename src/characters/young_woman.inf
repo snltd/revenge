@@ -1,0 +1,46 @@
+Person young_woman "attractive young woman" road_1 with
+  name "pretty" "woman" "lovely" "sexy" "beautiful" "girl" "young" "lady"
+       "leggy" "short" "very" "skirt" "jacket" "high" "heels" "tights"
+       "attractive",
+  description "A very pretty girl of about your age. No, perhaps a little
+              younger, twenty-three or four. She has short dark hair and big
+              dark eyes, long slim legs and a narrow waist. She is wearing a
+              fairly short skirt and a thin jacket which she pulls tightly
+              around her as she hurries home.",
+  whatsit "I don't know: maybe you should try and strike up a conversation.",
+  article "an",
+  initial "You have caught up with the young woman who has been walking ahead
+          of you since you left the pub.",
+  walkdesc "hurries away",
+  life [;
+    Answer:
+      switch(noun) {
+        'hello', 'hi':
+          "You shout a friendly greeting to the girl, and she flashes you a
+          charming but slightly nervous smile. You feel even better than you
+          did before.";
+      }
+    Kiss:
+      "When you've had a drink you turn into six feet of pure philogyny don't
+      you?";
+    Attack:
+      "I think you should give up drinking if it makes you want to do things
+      like that.";
+    Ask:
+      switch(second) {
+        QDate:
+          "~30/1/73~";
+        QWork:
+          "~That's not what you really want to know.~";
+      }
+    Order:
+      if (action == ##Kiss && noun == player) {
+        "~You'll be lucky!~";
+      }
+  ],
+  before [;
+    Enter:
+      "Call me old fashioned, but I think you should first get better
+      acquainted.";
+  ],
+  has female ~proper;

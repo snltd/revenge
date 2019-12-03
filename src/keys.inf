@@ -1,0 +1,128 @@
+Object key_ring "Porsche key ring" savage
+	class adnc
+	with
+  name "porsche" "ring" "imitation" "leather" "fob",
+  adname 'key',
+  description [;
+    if (self in escort) {
+      "A ring loaded with keys hangs from the Escort's ignition.";
+    }
+  ],
+  before [;
+    if (self in savage) {
+      "You can't: it's in Savage's hand.";
+    }
+
+    Take:
+      <<take ignition_key>>;
+    Examine:
+      print "A few keys are attatched to the imitation leather fob,
+            including ";
+      WriteListFrom(child(self), FULLINV_BIT + ENGLISH_BIT + WORKFLAG_BIT +
+                                 CONCEAL_BIT);
+    Receive:
+      if (~~(noun ofclass key)) {
+        "You can't put ", (a) noun, " on a key ring!";
+      }
+  ],
+  size 1,
+  weight 1,
+  max_space 1,
+  max_weight 1,
+  has	supporter;
+
+Class sav_key
+	class key,
+	with
+  name "savage^s" "kev^s",
+  before [;
+    Take:
+      if (self in key_ring) {
+        if (savage in parent(player) && key_ring in escort) {
+          "That would mean reaching right into the car. With
+          Savage here, you daren't do that.";
+        }
+      }
+  ];
+
+Sav_Key k_f_door_key "door key" key_ring
+	with
+  name "long",
+  description "A long silver coloured key which obviously unlocks an important
+              door.";
+
+Sav_key k_b_door_key "Yale key" key_ring
+	with
+  name "coloured" "colored" "silver" "latch" "Yale",
+  description "Kind of like a latch key. Small and flat.";
+
+Sav_Key useless_key "brass latch key" key_ring
+	with name "brass" "latch";
+
+Sav_Key ignition_key "car ignition key" key_ring
+	class adnc
+	with
+  name	"ignition",
+  adname 'car' 'escort',
+  description "The key pokes out from the Escort's ignition.",
+  before [;
+    Turn, Turn:
+      "If Savage heard the engine stop, he would know you had been tampering
+      with his car. Then he'd kill you.";
+  ];
+
+Sav_Key yale_key "Yale lock key" key_ring
+	class adnc
+  with name "Yale" "bronze",
+  adname 'lock',
+  description "A bronze coloured key for a Yale lock.";
+
+Key	box_key "small key" bronson
+  !	if it HAS GENERAL it has been used
+	with
+  name "small" "shiny",
+  short_name [;
+    print "small key";
+
+    if (self has general) {
+      print " (which unlocks the long wooden box)";
+    }
+
+    rtrue;
+  ],
+  before [;
+    Take:
+      if (bronson.state ~= 4 && self in bronson) {
+        "You daren't try.";
+      }
+  ],
+  after [;
+    Take:
+      if (bronson.state == 4 && self has concealed) {
+        give self ~concealed;
+        "With fumbling hands, desperate not to awake ", (name) self, ", you
+        unhook ", (the) self, ".";
+      }
+  ],
+  description [;
+    if (self in bronson) {
+      "You can't really see it from here.";
+    }
+
+    "Not quite two inches long and very shiny.";
+  ],
+	has	scored concealed following; ! really, he's only following his nose
+
+Key back_door_key "back door key"
+  class adnc
+  with
+  name "zinc",
+  adname 'back' 'door' 'metal',
+  description "A dull grey coloured door key.";
+
+Key f_door_key "front door key"
+  class adnc
+  with name "steel",
+  adname 'front' 'door',
+  initial "A key pokes out of the front door lock.",
+  description "A normal front door key. Three inches long and made of steel.";

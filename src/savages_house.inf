@@ -1,0 +1,2399 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+!
+! Savage's house
+!
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_kitchen "Savage's Kitchen"
+!	if it HAS BROKEN you know about the ceiling
+with name "water" "spider" "plant" "sill" "barbecue" "garden",
+	locname "Savage's kitchen",
+	description
+	[;	if (daytime() == 1)
+			print "A grey wash of sunlight limps in through the north
+			facing window, dully reflecting from the stainless steel
+			range of the draining board and eating at the edges of an
+			angular shadow cast by a spider plant on the sill.";
+
+		else
+			print "The artificial light in here adds a yellow tint to
+			the blond of the pine finished fitted kitchen.";
+
+		print " Tidy formica work surfaces over pine fronted cupboards
+		and a white washing machine give the kitchen a sense of order
+		and organization which could never pervade your own. Savage
+		really is far more domesticated than you would have ever
+		imagined.^^The southeast corner of the room is taken up by a
+		large chest freezer: a rectangular block which has the two doors
+		out of this room near its diagonal vertices. ";
+
+		if (k_k_ceiling has broken) {
+			print "Under your feet the red tiled floor is awash with
+			water and littered with chunks of wet plasterboard and
+			floating flakes of emulsion. Water ";
+
+			if (hot_tap has on || cold_tap has on)
+				"is still pouring through the ragged hole in the
+				ceiling, its steady stream breaking on the floor
+				and intermittently splashing on your ankles.";
+
+			"still drips steadily onto the floor.";
+		}
+
+		"The floor is covered with twee ~country cottagey~ red stone
+		tiles.";
+	],
+	after
+	[;	Go:	if (noun == w_obj or n_obj && k_k_ceiling has broken
+			&& self hasnt broken) {
+				if (task_done->4 == 0) {
+					print "Upon seeing the damage caused, you
+						realise that^";
+					Achieved(4);
+				}
+			}
+	],
+	underfoot k_kitch_floor,
+	overhead k_k_ceiling,
+	s_to k_hall, e_to k_back_door,
+	cant_go "The only exits are east and south.",
+has	sav;
+
+
+Object freezer "chest freezer" k_kitchen
+!	if it HAS GENERAL you've moved it
+with name "chest" "freezer",
+	before
+	[;	Take:
+			"Who do you think you are?";
+
+		SwitchOn, SwitchOff:
+			print_ret (The) self, " doesn't appear to have a switch.";
+
+		Push:
+			if (self hasnt general) {
+				give self general;
+				"At first the freezer won't move, but tugging at the corners you
+				are able to ~walk~ it a foot or so away from the wall.";
+			}
+
+			else {
+				give self ~general;
+				"With all the effort you can muster you shove ", (the) self,
+				" back into the corner.";
+			}
+
+		LBehind:
+			move freez_plug to k_kitchen;
+			"Pressing the top of your head against the wall you are able to see
+			what looks like an electrical plug in a socket.";
+
+		Unplug:
+			if (freez_plug notin k_kitchen)
+				"You can't see the plug.";
+
+			if (freez_plug has general)
+				"Already unplugged.";
+
+			<<Take freez_plug>>;
+	],
+	time_left 0,
+	time_out
+	[;	give k_food general;
+	],
+has	container openable scenery;
+Object k_worktops "worktops" k_kitchen
+with name "worktop" "worktops" "work" "surface" "surfaces",
+	description	"Wiped down and almost antiseptically clean: you could
+		eat you dinner off them. (You've eaten Chinese takeaways off much
+		worse.) At the end of one of the worktops, next to the fridge, is
+		a microwave oven.",
+	article "clean",
+has	scenery supporter;
+
+Object k_sink "kitchen sink" k_kitchen
+class adnc
+with name "sink",
+	adname 'kitchen',
+	description	"A chrome mixer tap is its only noteworthy feature.",
+has	scenery;
+
+Object freez_plug "plug" !	if it HAS GENERAL it's unplugged
+class adnc
+with name "plug" "electrical",
+	adname 'freezer',
+	description
+	[;	if (self has general)
+			"Unplugged.";
+
+		if (freezer has general)
+			"Covered in stings and threads of dust, you could probably reach
+			it.";
+
+		"It's difficult to see much of it.";
+	],
+	before
+	[;	Remove, Unplug, Take, Pull:
+			if (self has general)
+				"Already unplugged.";
+			else {
+				give self general;
+				StartTimer(freezer, 50);
+				remove self;
+				"With fingertips you are just able to work the plug out of the
+				socket. It drops out of sight somewhere along the join between
+				floor and skirting board.";
+			}
+	],
+has	concealed;
+
+Object k_food freezer	! if it HAS BROKEN it is ruined
+with name "chops" "chop" "pizza" "frozen" "pizzas" "lasagne" "lasagnes"
+	"chips" "unidentifiable" "things" "in" "bags" "frozen" "food",
+	short_name
+	[;	if (self hasnt broken)
+			print "frozen";
+		else
+			print "ruined";
+
+		print " food";
+		rtrue;
+	],
+	when_open "The top of the freezer is open.",
+	article "lots of",
+	description
+	[;	print "Frozen chips, frozen pizzas, frozen lasagne, as well as a few
+		unidentifiable things in bags";
+
+		if (self has broken)
+			". The whole lot is completely ruined.";
+
+		print ".^";
+		print_box(3);
+		rtrue;
+	],
+	before
+	[;	Take:
+			"You can't just scoop out the entire contents of a chest freezer.";
+	];
+
+Object steak "large piece of prime rump steak" freezer
+!	if it HAS GENERAL you've drugged it
+with name "large" "piece" "of" "prime" "rump" "steak" "meat" "cut",
+	before
+	[;	Examine:
+			if (self has general)
+				"The surface of the meat has a few small white granules on it.";
+
+			"Juicy raw steak.";
+
+		Eat:
+			"A little too rare for your taste.";
+
+		Receive:
+			if (noun ~= powder)
+				"It's a solid piece of meat.";
+
+			else {
+				give self general;
+				remove noun;
+				itobj=self;
+				print_ret (The) noun, " slowly dissolves in the blood and
+				moisture on the surface of ", (the) self, " until none of it can
+				be seen.";
+			}
+	],
+	size 2,
+	weight 2,
+has	supporter;
+
+Portal k_back_door "back door"
+with name "back",
+	when_open
+	[;	if (location == k_kitchen)
+			"The door in the east wall is open.";
+	],
+	InLoc k_kitchen, OutLoc k_drive,
+	InDir w_to, OutDir e_to,
+	found_in k_drive k_kitchen,
+	with_key k_b_door_key,
+has	sav lockable open;
+
+Floor k_kitch_floor "red stone tiles"
+with name "red" "stone" "tiles",
+	description
+	[;	print "They must feel awfully cold first thing in a morning.^";
+		print_box(2);
+		rtrue;
+	],
+	article "thirty-six";
+
+Object k_k_ceiling "ceiling" k_kitchen
+! if it HAS BROKEN the ceiling has caved in
+with parse_name
+	[;	if (NextWord() == 'ceiling') return 1;
+		return 0;
+	],
+	number 1,
+	description
+	[;	if (self has broken)
+			"Crashed in through the middle.";
+
+		else
+			<<examine u_obj>>;
+	],
+	before
+	[;	LookUnder:
+			"Under the ceiling is...the room!";
+	],
+has	sav scenery;
+
+Object kitch_hole "hole in the ceiling"
+with name "ragged" "hole" "in" "ceiling",
+	description	"A couple of feet across.",
+	before
+	[;	Search:
+			"It's not the kind of hole you can look right through.
+			All you can see is  glistening wet joist and the bottom
+			of the bathroom floorboards.";
+	],
+has	scenery;
+
+Object microwave "microwave oven" k_kitchen
+!	if it HAS GENERAL, the right stuff's in it
+!	if it HAS BROKEN it's broken
+with name "microwave" "oven" "timer" "time" "door",
+	number 0,	!	timer left on timer
+	state 0,	!	time elapsed on timer
+	max_space 5,
+	max_weight 40,
+	before
+	[;	Examine:
+			if (self has on && self hasnt broken && microwave_check() > 0)
+				print "Blue sparks flick around the points and edges of the
+				metallic contents. ";
+
+			if (self has broken)
+				"You've broken it.";
+
+			print "The timer has ", (number) self.number, " minutes left on it";
+
+			if (self has on)
+				print ", and it is currently counting down";
+
+			".";
+
+		Receive:
+			if (noun == steak)
+				"You don't microwave a piece of prime steak!";
+
+		SetTo:
+			if (self has on)
+				"Not whilst it's counting down.";
+
+			if (second > 60 || second < 1)
+				"The timer will only accept numbers between 1 and 60.";
+
+			self.number = second;
+			"You put ", (number) self.number, " minutes on the timer.";
+
+		SwitchOn:
+			if (self.number == 0)
+				"You'll have to set a time first.";
+
+			if (self has broken) {
+				print "Nothing happens. You appear to have broken it.^";
+				Achieved(13);
+			}
+
+			if (self has open)
+				"It won't start whilst the door is open.";
+
+		Touch:
+			if (self.state > 15 && self has on)
+				"The side of the oven with the electronics in is quite warm.";
+	],
+	after
+	[;	SwitchOn:
+			if (self has broken) rtrue;
+			self.state = 0;
+			microwave_check();
+			StartDaemon(self);
+
+		SwitchOff:
+			StopDaemon(self);
+			"You stop the microwave timer.";
+	],
+	daemon
+	[;	self.number--;
+		self.state++;
+		if (self.state == 23 && self has general) {
+			give self broken ~on;
+			StopDaemon(self);
+			if (player in location) {
+				print "Standing here, near to the microwave, you can't help but
+				notice the amount of heat it has been giving off for the last
+				few minutes. Suddenly, it gives out a loud crack, and a wisp of
+				smoke drifts out from behind it.^";
+				Achieved(13);
+			}
+		}
+
+		if (self.number == 0) {
+			StopDaemon(self);
+			give self ~on;
+			if (player in location) {
+				print (The) self, " pings";
+
+				if (self hasnt broken && microwave_check() < 6 &&
+				microwave_check() > 0)
+					print ". It's a good job (for Savage) that there wasn't more
+					metal in it, or you could have broken it";
+
+				".";
+			}
+		}
+	],
+has	openable container concealed switchable;
+
+[	Microwave_Check x i j;
+	if (microwave has broken) rfalse;
+	i = 0;
+	j = 0;
+	objectloop(x in microwave) {
+		if (x has metallic) {
+			i++;
+			j = j + x.weight;
+		}
+	}
+	if (i > 4 && j > 5 && children(microwave) > 5)
+		give microwave general;
+	return i;
+];
+
+Object washer "washing machine" k_kitchen	! just a mistake that I made
+with name "washer" "washing" "machine" "glass" "circular" "door",
+	description	"Fairly expensive looking and very solidly built. Set into the
+		front is a circular glass door.",
+	before
+	[;	SwitchOn:
+			if (self has on)
+				"Already on.";
+
+			"You can't decipher the controls. Simone does all your washing, and
+			before she did it, your mother did it for you. Pathetic isn't it?";
+
+		SwitchOff:
+			if (self has on)
+				<<SwitchOn self>>;
+
+			"Already off.";
+
+		Open:
+			if (self has on)
+				"Whilst it is running, the machine won't let you open the door,
+				which, when you think about it, is sensible.";
+
+			"You can't get the door open. Perhaps you're doing something
+			wrong.";
+
+		Attack:
+			"It's very solid. You probably couldn't damage it.";
+	],
+has	sav scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_lounge "Savage's Lounge"
+with description "no description as yet.",
+	locname "Savage's lounge",
+	e_to k_lounge_door, n_to k_french_window,
+has	sav;
+
+Object k_bookcase "bookcase" k_lounge
+with name "bookcase" "bookshelf" "bookshelves",
+	description
+	[;	print "A self-assembly unit usually displayed with a thin plastic
+		molding of several book spines on it.^";
+		Print_Box(12);
+		if (children(self) > 0) <<search self>>;
+		rtrue;
+	],
+	before
+	[;	Take:	"It appears to be fastened to the wall.";
+	],
+has	scenery;
+
+Object TV k_lounge
+!	if it HAS BROKEN it's smashed, if it HAS FLAGGED it's not plugged in
+with name "tv" "telly" "television" "set" "screen" "case" "picture" "flex"
+	"cable",
+	short_name
+	[;	if (self has broken)
+			print "smashed up ";
+
+		print "television set";
+		rtrue;
+	],
+	description	"A lovely piece of electronics.",
+	react_before
+	[;	Go:	if (location == k_drive && noun == sw_obj or s_obj)
+				"You don't really want to leave Savage's property with the TV
+				set.";
+	],
+	before
+	[;	Examine:
+			if (self has broken)
+				"The full-on Keith Moon act has smashed the screen and knocked
+				the case out of shape. It is completely beyond repair.";
+
+			if (self has on) {
+				if (k_aerial has general)
+					"The screen just shows snow. Flipping through the channels,
+					you find the odd hazy, spectral outline of a picture, but
+					nothing you could possibly watch.";
+
+				"The picture is sharp and crystal clear.";
+			}
+
+		Take:
+			if (self has broken)
+				"There doesn't seem much point now.";
+
+		Attack:
+			if (self has broken)
+				<<Take self>>;
+
+			"You belt the set as hard as you can. It is a well constructed piece
+			of kit and you do no real damage at all.";
+
+		ThrowThrough:
+			if (second == french_window or k_french_window)
+				print_ret (The) second, " is made of specially toughened glass.
+				I don't think you could but the necessary force behind ", (the)
+				noun, ".";
+
+			if (second == k_spare_window) {
+				move self to k_patio;
+				give self broken;
+				give second broken;
+				print "Rock 'n' Roll! With all the force you can muster, you
+				hurl ", (the) self, " through ", (the) second, ". The crash of
+				broken glass was loud, but nothing compared to the implosive
+				bang as the evacuated tube breaks on the patio below. You feel
+				like driving a pink Rolls Royce into a guitar shaped swimming
+				pool filled with champagne.^";
+				Achieved(6);
+				rtrue;
+			}
+
+		SwitchOn, Switchoff:
+			if (self has broken)
+				<<Take self>>;
+
+			if (self has flagged)
+				"It's not plugged in.";
+
+		Unplug:
+			if (self has flagged)
+				"You already have.";
+
+			give self flagged;
+			"You unplug ", (the) self, ".";
+	],
+	after
+	[;	SwitchOn:
+			print "The screen fills up with ";
+
+			if (k_aerial has general)
+				"static and snow.";
+
+			"asinine rubbish.";
+
+		Take:
+			print "The set is awfully heavy and awkward to hold";
+			if (self hasnt flagged) {
+				give self flagged;
+				print ". You move towards the centre of the room. The TV's flex
+				tightens, and the plug pops out of the socket";
+			}
+
+			".";
+	],
+	size 30,
+	weight 20,
+has	switchable;
+
+
+Object k_armchair "armchair" k_lounge
+with name "armchair" "chair",
+	description
+	[;	print "A large and comfortable looking armchair with fat arms
+			and a thick cushion to sit on. ";
+		if (cushion has general)
+			<<examine cushion>>;
+		else new_line;
+	],
+	describe
+	[;	if (tuna in chair_gap)
+			"There is an awful, overpowering smell of rotten fish.";
+	],
+	before
+	[;	PushDir:
+			if (player in self)
+				"You try propelling ", (the) self, " with your
+				feet, but your legs are not yet strong enough.";
+			if (location == k_lounge && second == n_obj)
+				"You can't get ", (the) self, " through ",
+				(the) k_french_window, ".";
+			if (location == k_kitchen && second == e_obj)
+				print_ret (The) self, " is too wide to go
+						through ", (the) k_back_door,
+				". They must have brought it in through the
+				front door.";
+			AllowPushDir();
+			rtrue;
+	],
+	after
+	[;	Enter:	Print_box(9);
+			"Very comfortable.";
+		PushDir:
+			give self moved;
+			print (The) self, " is on castors and moves along
+				easily.^";
+	],
+	react_before
+	[;	Smell: if (tuna in chair_gap)
+				"There is an awful smell of rotten fish. It is
+				quite overpowering.";
+	],
+	weight 25,
+	size 25,
+has	enterable supporter;
+
+Object cushion "cushion" k_armchair	! if it HAS GENERAL you've pulled it out
+class adnc
+with name "cushion",
+	adname 'armchair' 'chair',
+	description
+	[;	if (self has general)
+			print_ret (The) self, " has been pulled forwards so
+					there is a gap between it and the back of ",
+					(the) k_armchair, ".";
+	],
+	before
+	[;	Pull:	if (self has general)
+				"It won't come out any further.";
+			else {	give self general;
+					move chair_gap to k_armchair;
+					"You give ", (the) self, " a good tug, and
+					it moves forward just a few inches, then
+					appears fast.";
+				}
+		Take:	print_ret (The) self, " is wedged in between the arms
+					of the chair. You can't get it all the way
+					out.";
+		Push:	if (self has general) {
+				give self ~general;
+				remove chair_gap;
+				"You push ", (the) self, " back into the position
+				in which it began.";
+			}
+	],
+has	concealed;
+
+Object chair_gap "gap between the cushion and the back of the chair"
+with name "gap" "space" "hole",
+	description
+	[;	<<examine cushion>>;
+	],
+	after
+	[;	Receive:
+			"You push ", (the) noun. " into the gap.";
+	],
+has	concealed;
+
+Portal k_lounge_door "lounge door"
+with name "lounge",
+	InLoc k_lounge, OutLoc k_hall,
+	InDir w_to, OutDir e_to,
+	found_in k_hall k_lounge,
+has	sav open;
+
+Portal k_French_Window "French window"
+with name "tall" "glass" "window" "french" "window",
+	description
+	[;	if (parent(player) == k_lounge)
+			print "Half the window slides across the other half on
+				aluminium runners. When closed it is locked
+				automatically by a latch mechanism which has a
+				knob on this side";
+			else print "Half the window appears to slide behind
+					the other half. On the inside of the sliding
+					part you can make out a small knob. There is
+					a keyhole on this side";
+		if (self has broken) {
+			print ". The outer pane of the closed ";
+			if (self has open)
+				print " half of the ";
+			print (name) self;
+			print " is cracked.^";
+			Achieved(9);
+			rtrue;
+		}
+		if (self has open) {
+			print ". Half of ", (the) self, " has been slid back,
+				allowing entry to Savage's ";
+			if (location == k_lounge)
+				"garden.";
+			"lounge.";
+		}
+		print_ret ". ", (The) self, " is closed and locked.";
+	],
+	describe
+	[;	if (self has open) {
+			if (location == k_lounge)
+				"A cool breeze blows in through the French
+				window.";
+			"The French window is open.";
+		}
+		rtrue;
+	],
+	before
+	[;	Examine:
+			if (location == k_lounge) {
+				print "The window enables one to step out into
+					the garden. Perhaps if one should wish to
+					smoke at a middle-class dinner party. It is
+					currently ";
+				if (self has open)
+					"open.";
+				"closed.";
+			}
+			else {	print "The window is presently ";
+					if (self has open)
+						"open.";
+					"closed.";
+				}
+			"You can see into Savage's lounge.";
+		Open:	if (location == k_lounge) {
+				give self ~locked open;
+				"You turn the latch and slide back the window.";
+			}
+		Attack:
+			"Too simple.";
+		Unlock:
+			if (location == k_lounge)
+				"You don't need to unlock it from this side.";
+	],
+	after
+	[;	Close:	print "You slide the window across and hear the
+				latch click.^";
+			give self locked;
+	],
+	InLoc k_patio, OutLoc k_lounge,
+	InDir n_to, OutDir s_to,
+	found_in k_patio k_lounge,
+has	sav flagged;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_hall "Savage's Hall"
+with name "wallpaper" "stripe" "stair" "rail" "acorn" "newell"
+	"post",
+	locname "Savage's hall",
+	description
+	[;	print "Next to the archway which leads north into the
+			kitchen ";
+		if (ant_table in self)
+			print "stands a little ornamental table. Fixed
+				to the wall above this ";
+		"is a telephone; it's yellow plastic shell clashing
+		garishly with the deep red stripe of the wallpaper, which
+		in turn matches poorly with the natural wood of the stair
+		rail and newell post. (This, like your own is topped by a
+		carved acorn.)^^The layout of Savage's house appears to be a
+		simple reflection (along the dividing wall) of your own. This
+		means that his lounge is west of here, his kitchen north,
+		and his front door south.";
+	],
+	s_to k_front_door, u_to k_stairs, n_to k_kitchen,
+	w_to k_lounge_door,
+has	sav;
+
+
+Object ant_table k_hall
+with name "delicate" "antique" "table" "leg" "legs",
+	short_name
+	[;	if (self has broken)
+			print "broken";
+		else print "delicate antique";
+		print " table";
+		rtrue;
+	],
+	description
+	[;	if (self has broken)
+			"The table is smashed and useless. One of the legs is
+			irreparably broken and another is looseley hanging
+			off.";
+		"Three spindly, fluted legs support a bevelled edged, highly
+		polished surface. Even to your philistine's eye the table is
+		very old and obviously worth a fair amount of money.";
+	],
+	before
+	[;	Climb:	if (self in player)
+				"Not while you're holding it I think!";
+			if ((location  ==  k_landing && k_trap hasnt concealed)
+			|| (location  ==  landing)) {
+				give self broken;
+				print "Not without difficulty, you ease yourself
+					on to the table: as if applying your weight
+					more slowly will somehow reduce its
+					magnitude. As soon as both knees are on the
+					top of the table, it gives way. One of the
+					legs breaks half way down and like a felled
+					tree, the previously valuable table crashes
+					to the ground, depositing you in a heap on
+					the carpet. A sharp pain flashes through
+					your leg.^";
+				Achieved(5);
+				rtrue;
+			}
+			"I don't see any good reason to go clambering on top of
+			a frail looking antique which probably couldn't even
+			support your weight.";
+	],
+	after
+	[;	Take:	if (self has concealed) {
+				give self ~concealed;
+				"The table is much lighter than you expected.";
+			}
+	],
+	size 8,
+	weight 5,
+has	concealed supporter;
+Portal k_front_door "front door"
+with name "front",
+	description
+	[;	print "A modern UPVC, double-glazed front door. It
+			probably has an elaborate locking system";
+		if ((location == lev_2) || self has open)
+			print ". A black number six is fastened to it";
+		".";
+	],
+	InLoc k_hall, OutLoc lev_2,
+	InDir n_to, OutDir s_to,
+	found_in k_hall lev_2,
+	with_key k_f_door_key,
+has	sav locked;
+
+Stairs	k_stairs "staircase"
+with description	"Just an everyday staircase. The newell post has a
+			vulgar carved acorn on top and the bannister is loose,
+			but apart from that it's fine.",
+	inloc k_landing, outloc k_Hall,
+	indir u_to, outdir d_to,
+	found_in k_landing k_hall;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_landing "Savage's Landing"
+with description	"A narrow white painted corridor with three doors
+			opening onto it. They lead to the north, the west, and
+			the south. The staircase leads back down to the hall.",
+	locname "Savage's landing",
+	before
+	[;	Jump:	if (k_trap hasnt concealed)
+				"You jump as high as possible, but still can't
+				reach the handle";
+	],
+	d_to k_stairs, n_to k_bathroom_door,
+	s_to k_bedroom_door, w_to k_spare_room_door,
+	u_to
+	[ i;	i = k_trap;
+		if (i has concealed)
+			"You can't go that way.";
+		if (i has open && k_ladder_end in location)
+			<<Climb k_ladder_end>>;
+		if (i hasnt concealed && k_ladder_end notin location)
+			"It's not as simple as that...";
+	],
+	overhead k_land_ceiling,
+has	sav upstairs;
+
+Object k_trap "trapdoor" class portal
+with name "trap" "trapdoor" "plastic" "handle" "wooden" "frame",
+	describe
+	[;	if (location == k_landing) {
+			if (self has open)
+				"An open trapdoor hangs from a frame in
+				the ceiling.";
+			"^There is a trapdoor in the ceiling. You can't
+			think how you missed it before.";
+		}
+	],
+	before
+	[ i j;
+		i = k_batting; j=k_landing;
+		give self ~concealed;
+		Examine:
+			if (location == j) {
+				if (self has open)
+					"The open trapdoor hangs from a wooden
+					frame.";
+				"The trapdoor has a u-shaped handle.";
+			}
+		if (self has open)
+			"You can't really see it from in here.";
+		"The trapdoor seems to be held shut by a spring-loaded
+		catch which probably fits into a hole in the frame.";
+		Open:	if (self has open)
+				"It is open already.";
+			if (location == i) {
+				print "You give ", (the) self, " a sharp rap
+					with your heel and it pops open.^";
+				give self open;
+				rtrue;
+			}
+			"You can't reach the handle.";
+		Close:	if (self hasnt open)
+				"It's closed already.";
+			if (k_ladder has general)
+				"You can't close ", (the) self, " whilst the
+				ladder goes through it.";
+			if (location == i && k_ladder hasnt general) {
+				give self ~open;
+				"You close the trapdoor.";
+			}
+			if (location == j && k_ladder_End notin j)
+				"You can't reach the trapdoor to close it.";
+		Pull:	if (location == i)
+				<<Close self>>;
+			else <<Open self>>;
+		PullWith:
+			if (location == i)
+				<<Close self>>;
+			else {
+				if (self has open)
+					"The trapdoor is already open. Pulling it
+					now would be pointless.";
+				else {
+					if (second == umbrella) {
+						if (umbrella has open)
+							"You try to hook the handle of
+							the umbrella through that of ",
+							(the) self, ", but holding ",
+							(the) umbrella, " by the fabric
+							and open ribs it is too
+							difficult a task and you
+							desist.";
+						"You stand on tiptoes, but can't
+						quite reach the trapdoor handle.";
+					}
+					if (second == tied_umbrella) {
+						if (tied_umbrella has open) {
+							print "Stretching up, you are
+								just able to hook the
+								handle of the umbrella
+								around that of ", (the)
+								self, ". One sharp tug
+								and ", (the) self, " pops
+								open.^^A", (name)
+								k_ladder, " slides down
+								and clatters sharply as
+								its rubber feet hit the
+								floor.^";
+							give self open ~concealed;
+							move k_ladder_end to j;
+							give k_ladder general;
+							rtrue;
+						}
+					"You stand on tiptoes, but can't quite
+					reach the trapdoor handle.";
+					}
+				}
+			}
+		Take:	"Don't be silly";
+		Enter:	if (location == i && self hasnt open)
+				"Just think about that for a moment.";
+		Search:
+			if (self hasnt open)
+				"But ", (the) self, " is closed.";
+			if (location == k_batting or aerial_batting)
+				"You can't see through it from here.";
+			"You can see up into the loft, but can't make much
+			out.";
+	],
+	inloc k_loft, outloc k_landing,
+	indir u_to, outdir d_to,
+	door_to
+	[;	if (location == k_loft)
+			return k_landing;
+		return k_loft;
+	],
+	door_dir
+	[;	if (location == k_loft)
+			return u_obj;
+			return d_obj;
+	],
+	found_in k_loft k_landing,
+has	sav concealed open;
+
+Roof k_land_ceiling "ceiling"
+!	if it HAS BROKEN, Savage has dropped through it
+with parse_name
+	[;	if (NextWord() == 'ceiling') return 1;
+		return 0;
+	],
+	description
+	[ i;	i = k_trap;
+		if (self has broken)
+			"The most noteworthy thing about the ceiling is
+			a large hole.";
+		if (i has concealed) {
+			give i ~concealed;
+			"Recessed into the ceiling is a white wooden
+			trapdoor with a plastic handle.";
+		}
+		else {	if (i hasnt open)
+					"There is a trapdoor set in the high
+					ceiling.";
+				else "You see an open trapdoor.";
+			}
+	];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_bedroom "Savage's Bedroom"
+with name "wardrobe" "clothes" "duvet" "pillow" "pillows",
+	locname "Savage's bedroom",
+	description
+	[;	print "The guilty feeling of the trespasser is stronger here
+			than anywhere else in the house. Personal effects
+			belonging not just to Savage, but also to Donna, litter
+			the room. A crowded dressing table, an open wardrobe, ";
+		if (k_bed has general)
+			print "clothes on the floor, ";
+		else print "an unmade bed, ";
+		" all have an intimate nature which serves to strengthen your
+		feeling of invasion.";
+	],
+	before
+	[;	Sleep:	"You've never been one who can sleep in other peoples'
+			beds.";
+	],
+	n_to k_bedroom_door,
+	cant_go "The only exit is north.",
+	underfoot k_bedroom_carpet,
+has	sav upstairs;
+
+Object k_bed k_bedroom	!	if it HAS GENERAL it is made
+class adnc
+with name "bed",
+	short_name
+	[;	if (self hasnt general) print "unmade ";
+		print "bed";
+		rtrue;
+	],
+	adname 'savage^s',
+	before
+	[;	Examine:
+			if (savage in self) {
+				print "Savage is in the bed, dead to the world";
+				if (donna in self)
+					print ". Donna sleeps silently beside him";
+				".";
+			}
+			if (self has general)
+				"The bed is neatly made.";
+			if (cutting in self && cutting hasnt concealed)
+				"A cutting of poison ivy sits conspicuously atop
+				the bed.";
+			"The bed has not been made.";
+		LookUnder:
+			if (box has concealed)
+				"You can make out a dark square shape under the
+				bed.";
+			"There doesn't seem to be anything else of interest
+			under the bed.";
+		Make:	if (savage in self)
+				"Not while there's someone in it.";
+			if (self has general)
+				"You've already made the bed.";
+			if (cutting in self) {
+				give self general;
+				give cutting concealed;
+				"Being careful not to touch the poison ivy, you
+				arrange the duvet neatly on the bed.";
+			}
+			else {	give self general;
+					"You straighten up the duvet and fluff the
+					pillows.";
+				}
+		Search:
+			<<Examine self>>;
+		Enter, Climb:
+			<<Sleep>>;
+		Receive:
+			if (noun ~= cutting) "Pointless.";
+	],
+has	scenery supporter;
+
+Object box k_bedroom	! if it HAS GENERAL you've opened it & seen the gun
+with short_name
+	[;	if (self has concealed) print "dark shape";
+		else print "long wooden box";
+		rtrue;
+	],
+	parse_name
+	[ w1 w2 w3;
+		w1=NextWord(); w2=NextWord(); w3=NextWord();
+		if (self has concealed) {
+			if (w1 == 'shape' or 'dark')
+				return 1;
+			if (w1 == 'dark' && w2 == 'shape')
+				return 2;
+		}
+		else {	if (w1 == 'box' or 'long' or 'wooden')
+					return 1;
+				if ((w1 == 'long' or 'wooden' && w2 == 'box') ||
+				(w1 == 'long' && w2 == 'wooden'))
+					return 2;
+				if (w1 == 'long' && w2 == 'wooden' && w3 == 'box')
+					return 3;
+			}
+	],
+	with_key box_key,
+	after
+	[;	Take:	if (self has concealed) {
+				give self ~concealed;
+				"You reach under the bed and withdraw the shape.
+				It turns out to be a long wooden box.";
+			}
+		Open:	if (self hasnt scored)
+				give self scored;
+		Unlock:
+			if (second == box_key)
+				give box_key general;
+		LetGo:	print_box(6);
+	],
+	size 10,
+	weight 4,
+has	container openable concealed lockable locked;
+
+Object gun "sawn off shotgun" box
+with name "sawn" "off" "shotgun" "gun" "heater" "barrels" "barrel"
+		"twin" "stock" "butt",
+	description	"A pretty worrying piece of hardware to begin with,
+			the adaptation to the twin barrels (for ease of
+			handling and concealment as well as the effect
+			of widening the spread of a shot) makes it all
+			the more chilling.",
+	before
+	[;	Shoot:	"No way.";
+	],
+	size 9,
+	weight 13,
+has	metallic shooter;
+
+Portal k_bedroom_door "bedroom door"
+with name "bedroom",
+	InLoc k_bedroom, OutLoc k_landing,
+	InDir s_to, OutDir n_to,
+	found_in k_landing k_bedroom,
+has	sav open;
+
+Floor k_bedroom_carpet "carpet"	! if it HAS BROKEN it's stained
+with name "carpet" "cream" "white" "shag" "pile" "shagpile" "thick"
+	"stain",
+	before
+	[;	Examine:
+			if (self has broken)
+				"The carpet has a huge blackcurrant cordial
+				stain on it. It is totally ruined.";
+			"A beautiful thick cream shagpile. It must have
+			cost hundreds.";
+		Take:	"Good idea. It should be just the right size
+			for your bedroom too. It's not as simple as all that
+			though is it?";
+		LookUnder:
+			"The carpet is fitted. You can't look under it.";
+		Dig:	"You can't dig indoors.";
+	];
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Portal k_spare_room_door "spare room door"
+with name "spare" "room",
+	InLoc k_spare_room, OutLoc k_landing,
+	InDir w_to, OutDir e_to,
+	found_in k_landing k_spare_room,
+has	sav open;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_bathroom "Savage's Bathroom" ! if SELF HAS GENERAL, the floor is wet
+with name "light" "chain" "plaster" "holes" "metal" "star" "watermark"
+	"ballcock" "lid",
+	locname "Savage's bathroom",
+	description
+	[;	if (player in k_airing && k_airing hasnt open)
+			"The airing cupboard door fits poorly, and you can see
+			through a gap between it and the frame into the middle
+			of the bathroom.";
+
+		"This bathroom, like your own, is really too small. The airing
+		cupboard takes up the south-east quadrant of the room, and the
+		bath stretches between it and the north wall. The north wall
+		is also host to the sink, toilet, mirror and a small frosted
+		glass window. There is a cabinet on the west wall.";
+	],
+	before
+	[;	Go:	if ((noun == s_obj or k_bathroom_door) &&
+			plug in player)
+				"You'll have to let go of the plug first.";
+		Listen:
+			if (hot_tap has on || cold_tap has on)
+				"You can hear running water.";
+		Strong:
+			if (verb_word == 'shit')
+				"As in most works of fiction, the characters in
+				~Revenge~ do not need to use the lavatory.";
+		Jump:	if (player in k_air_shelf) {
+				print "You jump back down onto the carpet, making
+					sure you land on your good leg. It still
+					hurts though.^";
+				PlayerTo(k_bathroom, 2);
+			}
+	],
+	s_to k_bathroom_door,
+	cant_go "You can only go back south.",
+has	sav upstairs;
+
+
+
+Class	Screws
+with name "screw" "philips" "screws//p",
+	description	"A two inch long philips screw. The head is a little
+			rusty, but the edges of the indented cross gleam
+			sharply where you slipped with the scissors whilst
+			removing them.",
+	size 0,
+	weight 1,
+has	metallic;
+
+Screws	screw1 "screw";
+
+Screws	screw2 "screw";
+
+Screws	screw3 "screw";
+
+Object plug "bath plug" k_bathroom
+class adnc,
+with name "plug",
+	adname 'bath',
+	invent "a plug (which is connected to the bath by a chain)",
+	after
+	[;	Take:	if (self in plughole && bath.state ~= 0)
+				"Rolling up a sleeve, plunging a hand into the
+				water, you remove the plug and the bath begins
+				to drain.";
+			"You are now holding the plug. (You can't properly
+			take it because it is connected to the bath by a
+			light chain.)";
+		Drop:	"You hang the chain back around the hot tap.";
+	],
+	size 0,
+	weight 0,
+has	sav concealed;
+Object mirror "mirror" k_bathroom
+! if HAS GENERAL, then it isn't fastened to the wall
+with parse_name
+	[;	if ((NextWord() == 'mirror') || (NextWord() == 'screw' or
+		'screws' && self hasnt general))
+			return 1;
+		return 0;
+	],
+	before
+	[;	Examine, Search:
+			if (self has broken)
+				"The mirror is broken.";
+			if (self has general)
+				"To be honest, you've looked better.";
+			"The mirror is fastened to the wall by three
+			steam-rusted screws.";
+		LBehind:
+			if (self hasnt general)
+				"The mirror is fixed to the wall. You
+				can't see behind it.";
+		Turn, Unscrew:
+			if (verb_word ~= 'unscrew')
+				"You are unable to.";
+			if (second == screwdriver)
+				"The screws are Philips' and the screwdriver
+				isn't.";
+			if (second == scissors) {
+				give mirror general;
+				move mirror to player;
+				move screw1 to player;
+				move screw2 to player;
+				move screw3 to player;
+				"Opening the scissors out, you find that one
+				point makes an adequate screwdriver, and set
+				about removing all three screws. They are a
+				little hard to turn at first, but since whoever
+				put the mirror up didn't bother with rawlplugs,
+				they come out of the plaster easily enough.";
+			}
+			if (second == 0)
+				"You'll need a screwdriver.";
+			print_ret (The) second, "doesn't make an adequate
+					screwdriver.";
+		Attack, ThrownAt:
+			"Although you're not superstitious, you don't want
+			broken glass everywhere.";
+	],
+	size 10,
+	weight 10,
+has scenery;
+Object plughole "plughole" k_bathroom
+class adnc
+with name "plughole" "hole" "triangle" "triangles",
+	adname 'plug',
+	before
+	[;	Examine:
+			if (plug notin self)
+				"Just your average, run of the mill plughole. It
+				has a metal star in it which divides the whole
+				into small triangles and stops you losing
+				things down the drain.";
+			"It's full of plug.";
+		Take:	"But that would result in you carrying a hole (which
+			you could use somewhere else, and leaving the porcelain
+			of the bath smooth and unbroken: a wholly unlikely
+			state of affairs.";
+	],
+has	sav open container scenery;
+
+Object overflow "overflow" k_bathroom	! if it HAS GENERAL, it's covered
+with short_name
+	[;	if (self has general)
+			print "strip of adhesive tape which covers the ";
+		print "overflow";
+		rtrue;
+	],
+	parse_name
+	[ w1;
+		w1 == NextWord();
+		if (w1 == 'overflow' or 'hole')
+			return 1;
+		if (w1 == 'tape' or 'sellotape' && self has general)
+			return 1;
+	],
+	description
+	[;	if (self has general)
+			print_ret (The) self, " is covered by a strip
+					of adhesive tape.";
+		"A hole near the top of the bath, it allows water to drain
+		away should the taps be left running too long.";
+	],
+	before
+	[;	Receive:
+			print_ret (The) noun, "doesn't fit.";
+		Take:	"Take a hole. Mmm. Interesting concept.";
+		Fill:	"That's the trick though isn't it?";
+		Cover:	if (second == tape) {
+				if (tape has general)
+					"You've already done that.";
+				give self general;
+				give tape general ~proper;
+				"You stick what remains of the adhesive
+				tape over ", (the) self, ".";
+			}
+	],
+	article "an",
+has	sav scenery;
+
+[	BathFill;
+	if (bath.state == 4 && overflow hasnt general)
+		rtrue;
+	if (bath.state < 5) {
+		bath.state++;
+		if (bath.state == 5 && player in k_bathroom) {
+			give bathwater general;
+			"With a pang of alarm (and guilt) you notice that the
+			bath is overflowing.";
+		}
+	}
+	rtrue;
+];
+
+[	BathEmpty;
+	if (self.number > 1) {
+		self.number--;
+		if (self.number == 1) {
+			print "The last of the water gurgles away down the
+				plughole.^";
+			if (bathwater hasnt general)
+			remove bathwater;
+			rtrue;
+		}
+		if (self.number > 1 && random(10) < 5)
+			"The water in the bath slowly drains away.";
+		rtrue;
+	}
+];
+
+[	CeilingCrash;
+	move kitch_hole to k_kitchen;
+	give k_k_ceiling broken;
+	switch(location) {
+		k_kitchen:
+			print "Preceded by an almost inaudible creak, the ceiling
+				gives way. Plaster falls away leaving a ragged hole a
+				couple of feet across. You instinctively leap away from
+				the first wave of water which smacks down onto the
+				tiles and soon settles down to a steady stream.^";
+			Achieved(4);
+			give k_kitchen broken;
+			rtrue;
+		k_hall, k_lounge:
+			"You hear a gigantic crash.";
+		k_landing, k_bedroom, k_bathroom, k_spare_room:
+			"There is a gigantic crash from downstairs.";
+	}
+];
+
+Object b_cabinet "bathroom cabinet" k_bathroom
+with name "bathroom" "cabinet",
+has	sav scenery container openable open;
+
+Object razor "electric razor" b_cabinet	!	if it HAS BROKEN it is flat
+with name "electric" "razor" "shaver",
+	number 1,
+	article "an",
+	describe
+	[;	if (self hasnt broken)
+			" An electric razor is here, buzzing busily.";
+	],
+	before
+	[;	Examine:
+			print "A cordless electric razor. It is currently
+				switched ";
+			if (self has on)
+				print "on";
+			else print "off";
+			if (self has on && self has broken)
+				". But seems to be dead.";
+			".";
+	],
+	after
+	[;	SwitchOn:
+			if (self has broken)
+				"The razor appears to be dead.";
+			else {	StartTimer(self, 50);
+					"Bzzz!";
+				}
+		SwitchOff:
+			StopTimer(self);
+	],
+	time_left 0,
+	time_out
+	[;	give self broken;
+		if (player in parent(self))
+			"The razor stops buzzing.";
+	],
+	size 2,
+	weight 2,
+has	switchable;
+
+Object deep_heat b_cabinet
+!	if it HAS GENERAL the ointment label is stuck on
+with short_name
+	[;	if (self has general)
+			print "jar of embrocation (with an ointment
+				label stuck to it)";
+		else print "jar of embrocation";
+		rtrue;
+	],
+	number 1,
+	parse_name
+	[ w1;
+		w1=NextWord();
+		if (w1 == 'label' && self has general) {
+			self.number=2;
+			return 1;
+		}
+		if (w1 == 'jar') {
+			self.number=1;
+			return 1;
+		}
+		return 0;
+	],
+	whatsit	"For the uninitiated, even the slightest application
+			burns and stings like hell.",
+	before
+	[;	Examine:
+			if (self.number == 2) {
+				if (self has general)
+					"It says ~Soothing Ointment. For the
+					treatment of cuts, burns and irritations.
+					Not to be taken internally. Avoid contact
+					with eyes.";
+				"~For the relief of muscular pain.~";
+			}
+			else {	if (self has general)
+						"The jar is falsely labelled.";
+					"A grey plastic jar.";
+				}
+		Eat:	"You should be in a circus.";
+		Open:	"The top is stuck.";
+		Take:	if (self.number == 2) {
+				move label to player;
+				give self ~general;
+				"The label peels off quite easily. Its back is
+				still fairly sticky.";
+			}
+	],
+	size 3,
+	weight 3,
+has	sav supporter;
+
+Object label "label from an ointment jar"
+class adnc
+with name "label",
+	adname 'ointment',
+	before
+	[;	PutOn, Tie:
+			if (second == calamine) {
+				remove self;
+				give calamine ~general;
+				"The label goes back on the tub well enough.";
+			}
+			if (second == deep_heat) {
+				remove self;
+				give deep_heat general;
+				"The label adheres well enough to look as though
+				it belongs on the embrocation jar.";
+			}
+	],
+	size 0,
+	weight 0,
+	invent	"a peeled off label from an ointment jar, (stuck to the
+			end of your finger)",
+has	sav concealed;
+
+Object calamine b_cabinet	! if SELF HAS GENERAL the label is gone
+with short_name
+	[;	if (self has general)
+			print "unlabelled tub (which you know contains
+				ointment)";
+		else print "tub of ointment";
+		rtrue;
+	],
+	number 1,
+	parse_name
+	[ w1 w2;
+		w1=NextWord(); w2=NextWord();
+		if (w1 == 'label' && self hasnt general) {
+			self.number=2;
+			return 1;
+		}
+		if (w1 == 'tub') {
+			self.number=1;
+			return 1;
+		}
+		return 0;
+	],
+	before
+	[;	Examine:
+			if (self.number == 2)
+				"It says ~Soothing Ointment. For the treatment
+				of cuts, burns and irritations. Not to be taken
+				internally. Avoid contact with eyes.";
+			if (self hasnt general)
+				"A grey tub with a white label.";
+			"There could be anything in such an anonymous grey
+			tub.";
+		Take:	if (self.number == 2) {
+				move label to player;
+				give self general;
+				"The label peels off quite easily. Its back is
+				still fairly sticky.";
+			}
+		Search:
+			if (self.number == 2)
+				<<examine self>>;
+			else {	print (The) self;
+					if (self has general)
+						print " has a label stuck to the
+						outside";
+					if (self has open && self has general)
+						print " and";
+					if (self has open)
+						print " contains ointment";
+					".";
+				}
+	],
+	size 2,
+	weight 2,
+has	sav supporter openable;
+
+Object tranc_bottle "bottle of tranquillisers" b_cabinet
+with name "tranquillisers" "pills" "childproof" "top" "bottle" "of"
+		"trancs",
+	description	"A bottle with a childproof top.",
+	before
+	[;	Receive:
+			if (noun ~= tranc) "It won't fit.";
+	],
+	after
+	[;	Open:	"Given the trouble you've had with these things
+			in the past, the bottle opens surprisingly easily.";
+		Close:	"The top snaps shut.";
+	],
+	size 1,
+	weight 1,
+has	openable container;
+
+Object tranc "tranquilliser pill" tranc_bottle
+with name "tranc" "pill" "tranquilliser",
+	description	"A large white pill.",
+	before
+	[;	Eat:	"You're not into drugs.";
+		Crush:	if (noun == 0)
+				"The pill is very hard and you can't just crush
+				it with your hand.";
+			else {	move powder to parent(self);
+					remove self;
+					itobj=powder;
+					"You crush the pill into a fine white
+					powder.";
+				}
+	],
+	size 0,
+	weight 0;
+
+Object powder "fine white powder"
+with name "fine" "white" "powder" "tranc" "tranquilliser",
+	description "The crushed remains of a tranquilliser pill.",
+	before
+	[;	Eat:	"You're not into drugs.";
+		Crush:	"It's already been crushed.";
+	],
+	size 0,
+	weight 0;
+
+Class	tap
+with name "tap" "faucet" "taps//p" "faucets//p",
+	plural "taps",
+	before
+	[;	Examine:
+			print (The) self, " is turned ";
+			if (self has on)
+				print "full on";
+			else print "off";
+			if (parent(self) has sav && k_tank has general)
+				". The water is blood red.";
+			".";
+	],
+	after
+	[;	SwitchOn:
+			print "You switch ", (the) noun, " full on";
+			if (k_tank has on)
+				". The water is blood red.";
+			".";
+	],
+has	scenery switchable metallic;
+
+Tap	k_kitchen_taps "mixer tap" k_kitchen
+with name "mixer" "hot" "cold" "chrome";
+
+Tap	hot_tap "hot tap" k_bathroom
+!	if SELF HAS GENERAL, there's no more hot water
+class adnc
+with name "hot" "red" "chrome",
+	adname 'bath',
+	before
+	[;	Examine:
+			if (plug in k_bathroom) {
+				print "Hooked around the tap is a light chain,
+					connected to the bath plug. (Incidentally,
+					the tap is turned o";
+				if (self has on) "n.)";
+				"ff.)";
+			}
+	],
+	after
+	[;	SwitchOn:
+			StartDaemon(bath);
+			move bathwater to k_bathroom;
+			if (self hasnt general)
+				starttimer(self, 3);
+			print "You switch ", (the) self, " full on";
+			if (k_tank has general) ". The water is blood red";
+			".";
+		SwitchOff:
+			stoptimer(self);
+	],
+	time_left 0,
+	time_out
+	[;	give self general;
+		if (location == k_bathroom)
+			"Out of curiosity, you stick your hand under the hot
+			tap. Nice one! You've run all the hot water off!";
+	];
+
+Object bathwater "water"	! if it HAS GENERAL, the bath has flooded
+with name "water" "bathwater",
+	describe
+	[;	if (self has general)
+			"There is water everywhere.";
+
+		rtrue;
+	],
+	before
+	[;	Examine:
+			if (self has general)
+				"The water is seeping through the carpet.";
+
+			"A clear, colourless liquid. You know.";
+
+		Take:
+			"At room temperature, water exits in a liquid form, so you have
+			great difficulty taking it.";
+
+		Drink:
+			if (self has general)
+				"Mmm. You could get on your knees and suck it out of the
+				carpet.";
+
+			"You're not thirsty enough to drink bathwater.";
+	];
+
+
+Object water_in_bucket "water"
+!	if it HAS GENERAL the plant food has been added
+class adnc
+with name "water",
+	adname 'in' 'bucket',
+	invent "water",
+	before
+	[;	Examine:
+			if (self has general)
+				"The water is a little cloudy.";
+			"You know: water. You've seen it before.";
+		Receive:
+			if (noun == plant_food) {
+				remove plant_food;
+				give self general;
+				"You pour the remaining plant food into
+				the water.";
+			}
+		Pour:	if (location hasnt outside)
+				"Not indoors!";
+			if (second == k_flower_bed) {
+				give self ~general;
+				remove self;
+				"Unfortunately, the water slops out of the bucket
+				far too fast and much too far, soaking the bottom
+				of the fence and seeping down into the soil.";
+			}
+		Drink:	if (self has general)
+				"It has plant food in remember.";
+			"You'd never finish it all.";
+	],
+	weight 7,
+has	container open;
+
+Object water_in_can "water"
+!	if it HAS GENERAL the plant food has been added
+class adnc
+with name "water",
+	adname 'in' 'can',
+	invent "water",
+	before
+	[;	Examine:
+			if (self has general)
+				"The water is a little cloudy.";
+			"You know: water: you've seen it before.";
+		Receive:
+			if (noun == plant_food) {
+				remove plant_food;
+				give self general;
+				"You pour the remaining plant food into the
+				water.";
+			}
+		Pour:	if (second == k_flower_bed) {
+				give self ~general;
+				remove self;
+				if (seeds has general) {
+					StartTimer(k_flower_bed,10);
+					"Wow! A bit of gardening.";
+				}
+				"You water the flower bed.";
+			}
+		Drink:	if (self has general)
+				"It has plant food in remember.";
+			"Better not. All manner of chemicals could have
+			swirled about in that can.";
+	],
+	weight 7,
+has	container open;
+
+
+
+
+
+Tap	cold_tap "cold tap" k_bathroom
+class adnc
+with name "cold" "blue",
+	adname 'bath',
+	after
+	[;	SwitchOn:
+			StartDaemon(bath);
+			move bathwater to k_bathroom;
+	],
+	size 0,
+	weight 0;
+
+Place k_airing "airing cupboard" k_bathroom
+with name "airing" "cupboard" "door",
+	inside_description
+	[;	if (self has open)
+			"Wedged between the boiler and a thin wall, you can see
+			about half of the bathroom.";
+		"It's too dark to make much out with the door closed.";
+	],
+	before
+	[;	Examine:
+			if (self hasnt open)
+				"The airing cupboard door is closed.";
+			"Inside the airing cupboard are the boiler and a low
+			shelf with linen on.";
+		Close:	if (player in k_air_shelf)
+				"You're hanging onto the door for dear life.
+				There's no way you could close it whilst you
+				are on the shelf.";
+			if (player in self) {
+				give self ~open;
+				"You pull the door closed.";
+			}
+		Search:
+			if (self has open) {
+				print "Inside", (the) self, " ";
+				WriteListFrom(child(self), ENGLISH_BIT
+				+ RECURSE_BIT + PARTINV_BIT +
+				TERSE_BIT + CONCEAL_BIT + ISARE_BIT);
+				".";
+			}
+	],
+	react_before
+	[;	if (player in self && parent(noun) == k_bathroom)
+			"Not from in here.";
+	],
+	after
+	[;	Open:	move k_air_shelf to k_bathroom;
+			move k_boiler to self;
+			if (lightswitch hasnt broken)
+				"When you open the door, it hits the lightswitch
+				cord, obscuring it from view. This is a design
+				fault shared by your own house.";
+		Close:	remove k_air_shelf;
+			remove k_boiler;
+		Enter:	"You wedge yourself in by the boiler, which, luckily,
+			is well insulated and not even very warm.";
+	],
+	article "an",
+	underfoot carpet,
+	overhead "You are wedged in under the linen shelf.",
+has	sav scenery openable container enterable upstairs;
+
+Object k_air_shelf "shelf"
+class adnc
+with name "shelf" "horizontal" "pieces" "of" "wood" "blocks",
+	adname 'airing' 'cupboard',
+	before
+	[;	Examine:
+			print "The shelf is made of thick pieces of wood
+				which rest on large blocks screwed into the
+				walls. It looks very sturdy.";
+			<<Search self>>;
+		Take:	if (player in self)
+				"That would violate Newton's second law.";
+			"It's fixed in place.";
+		Climb:	move player to self;
+			"You clamber onto the shelf. (Not easy given your
+			condition.) Holding onto the top of the open door
+			you are just able to maintain your balance. The
+			shelf seems to be holding your weight well enough.";
+	],
+	underfoot	"The shelf is (fortunately) made of fairly thick
+			bars of wood.",
+	overhead	"The ceiling in the airing cupboard has been poorly
+			painted. Brush strokes are clearly visible round the
+			edges and especially in the corners.",
+has	sav scenery supporter enterable;
+
+Object k_boiler "boiler"
+with name "boiler" "lagging" "insulation" "hard" "green" "polystyrene"
+		"substance",
+	description	"The boiler is insulated with a hard green polystyrene
+			like substance, unlike your own, which is lagged with
+			that awful fibreglass stuff.",
+has	sav scenery;
+
+Object cord "length of cord"  ! if it HAS GENERAL the pin's through it
+with name "length" "of" "cord" "string",
+	add_to_scope
+	[;	if (self has general)
+			AddToScope(pin);
+	],
+	invent
+	[;	print "a length of cord";
+		if (self has general)
+			print " (with a pin stuck through the end)";
+
+		rtrue;
+	],
+	description
+	[;	print "About three feet long. It is quite strong and made of a number
+		of tightly intertwined strands";
+
+		if (self has general)
+			print ". A ", (name) pin, " is stuck through one end";
+
+		".";
+	],
+	before
+	[;	TieRound:
+			switch(second) {
+			umbrella:
+				if (second has open)
+					"You could attatch it to the handle, but there doesn't seem
+					much point.";
+
+				print "You neatly tie the cord around the ribsof the closed
+				umbrella.";
+				remove self;
+				remove umbrella;
+				itobj = tied_umbrella;
+				move tied_umbrella to player;
+				give tied_umbrella ~open;
+
+			pin, stick:
+				<<TieTo self second>>;
+			}
+
+		TieTo:
+			switch(second) {
+			umbrella:
+				<<TieRound self umbrella>>;
+
+			stick:
+				print "You tie the cord to ", (the) second;
+				remove self;
+				remove stick;
+				move stick_cord to player;
+				if (Test_Rod() == 2) {
+					print ", resulting in a very makeshift little fishing
+					rod";
+					move rod to player;
+				}
+
+				".";
+
+			pin:
+				if (self has general)
+					"Given that the pin is presently stuck through the cord,
+					that's quite impossible. (And pointless.)";
+
+				print_ret (The) self, " is fairly thick, and ", (the) pin,
+				" is very thin. However tight you try to pull the knot, ",
+				(the) pin, " always slips out through it.";
+			}
+	],
+	size 1,
+	weight 1,
+has	flimsy stringy;
+
+Object k_linen "linen" k_air_shelf
+class adnc
+with name "linen" "clothes" "sheets" "bed",
+	adname 'on' 'shelf',
+	description	"You know, bed sheets, a few clothes, that kind
+			of thing.",
+	before
+	[;	"Leave it alone.";
+	],
+	article "some",
+has	sav scenery;
+
+Object k_toilet "toilet" k_bathroom
+with name "toilet" "bog" "crapper",
+	description "I'm sure you've seen one before. Basically pedestal,
+			seat and cistern.",
+	before
+	[;	Attack:
+			if (verb_word == 'hit')
+				"Uriah!";
+		Enter:	<<strong>>;
+		Receive:
+			"Don't put stuff down ", (the) self, ".";
+	],
+has	scenery;
+
+Object k_cistern "toilet cistern" k_bathroom
+class adnc
+with name "cistern" "lid",
+	adname 'toilet',
+	before
+	[;	Examine:
+			if (self has open)
+				"The lid has been removed.";
+			"Nothing very special.";
+		Receive:
+			"Don't put stuff in there.";
+	],
+has	openable scenery;
+
+Portal k_bathroom_door "bathroom door"
+with name "bathroom" "door",
+	InLoc k_bathroom, OutLoc k_landing,
+	InDir n_to, OutDir s_to,
+	before
+	[;	Close, Open:
+			if (player in k_airing or k_air_shelf)
+				"Not from here.";
+	],
+	found_in k_landing k_bathroom,
+has	sav lockable open;
+
+Object bath "bath" k_bathroom
+with name "bath",
+	state 1,
+	before
+	[;	Examine:
+			print "The bath ";
+			switch(self.state) {
+			1:	print "is currently empty, and shows a very
+					visible watermark. The chrome of the taps
+					and plug chain is dull and grimy.";
+			2:	print "has a bit of water in the bottom";
+			3:	print "is half full";
+			4:	print "is full almost to the top";
+				if (overflow hasnt general && (hot_tap has on ||
+				cold_tap has on))
+					print ". Water flows away through the
+						overflow and prevents the bath
+						flooding over";
+			5:	print "is host to a rampaging cataract which
+					breaks on the bathroom floor, covering it
+					with water at an alarming rate";
+			}
+			if (hot_tap has on && cold_tap has on)
+				". Both taps are on.";
+			if (cold_tap has on)
+				". The cold tap on.";
+			if (hot_tap has on)
+				". The hot tap is on.";
+			".";
+		Receive:
+			"The only things that belong in a bath are water,
+			bubble bath and perhaps a rubber duck.";
+		Enter:	if (self.state ~= 1)
+				"No chance. You'd be soaked.";
+		Empty:	if (self.state == 1)
+				"It's already empty.";
+			<<Remove plug>>;
+		Search:
+			if (self.state > 1)
+				"There's water in there.";
+	],
+	daemon
+	[;	if (cold_tap hasnt on && hot_tap hasnt on && plug in plughole)
+			rtrue;
+		if (plug in plughole) {
+			if (hot_tap has on && cold_tap has on) {
+				BathFill();
+				rtrue;
+			}
+			if (hot_tap has on || cold_tap has on) {
+				if (the_time%2 == 0) {
+					BathFill();
+					rtrue;
+				}
+			}
+		}
+		else {	if (hot_tap hasnt on && cold_tap hasnt on) {
+					BathEmpty();
+					rtrue;
+				}
+				else {	if (the_time%2 == 0)
+							BathEmpty();
+							rtrue;
+					}
+			}
+	],
+has	sav scenery open container;
+
+Object lightswitch "lightswitch" k_bathroom
+!	if it HAS BROKEN it's been cut
+!	if it HAS GENERAL it's been cut at the top
+with name "switch" "lightswitch",
+	parse_name
+	[ i j;
+		if (self has broken)
+			j = 'switch';
+		else j = 'cord';
+		while (NextWord() == 'light' or 'lightswitch' or j) i++;
+		return i;
+	],
+	before
+	[;	Examine:
+			if (self has broken)
+				"The cord has been hacked off near the top. This
+				would make it very hard to switch on and off.";
+			"To prevent the risk of electric shock, the bathroom
+			lightswitch is set in the ceiling and operated by a
+			cord.";
+		Cut:	if (second == scissors) {
+				if (self has broken)
+					"There isn't anything left to cut off.";
+				else {	move cord to player;
+						give self broken;
+						if (player in k_air_shelf) {
+							give self general;
+							print "Standing on the edge of
+								the shelf you are able to
+								cut the cord right at the
+								point where is disappears
+								into the switch,
+								rendering it useless.^";
+							Achieved(12);
+							rtrue;
+						}
+						"You stretch up on tiptoes and snip
+						the cord off as high as you can
+						reach.";
+					}
+			}
+		Take:	"The switch is fixed into the ceiling, well out of
+			reach.";
+		Cut:	if (scissors in player) {
+				print "(with the scissors)^";
+				<<cut self scissors>>;
+			}
+	],
+has	sav scenery;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_spare_room "Savage's Spare Room"
+with description "A rather small room with a single window which
+			overlooks the garden.
+			The room is being used as storage space.",
+	locname "Savage's spare room",
+	e_to k_spare_room_door,
+	cant_go "The only exit is east.",
+has	sav upstairs;
+
+Object k_spare_window "window" k_spare_room
+!	if it HAS BROKEN it's broken
+class adnc
+with name "window" "glass" "pane" "wood" "wooden" "frame",
+	adname 'bedroom' 'spare' 'room',
+	description
+	[;	if (self has broken)
+			"It's smashed. That's all you need to know.";
+		"A single glazed, wood framed window.";
+	],
+	before
+	[;	Enter:	if (self has broken)
+				"You'd cut yourself to ribbons trying it.";
+			"It's not big enough.";
+		Search:
+			"The view is of Savage's garden, although you can
+			also see into your own.";
+		Attack:
+			"Try and be a little more imaginative.";
+		Open:	if (self has broken)
+				"There doesn't seem much point.";
+			"It doesn't open.";
+	],
+has	scenery;
+
+Object chair "chair" k_spare_room
+with name "chair" "simple" "wooden" "chairs//p",
+	description "A simple wooden chair.",
+	before
+	[;	Climb:	if (self in player)
+				"Not while you're holding it I think.";
+			print "You step up onto the chair.^";
+			move player to self;
+			rtrue;
+		Enter:	if (verb_word == 'sit')
+				"The chair is very uncomfortable. You
+				stand up again.";
+		Push:	if (player in self) "Not whilst you're on it.";
+	],
+	size 20,
+	weight 8,
+	max_space 20,
+	max_weight 30,
+has	supporter;
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Place k_loft "Savage's Loft"
+with name "pipe" "couple" "of" "pipes" "strings" "wires",
+	locname "Savage's loft",
+	description	"The loft is long and fairly empty. Battings, the gaps
+			between them filled with rolls of fibreglass
+			insulation, run transversely, and you must be careful
+			to stand only on them. Nearby is a large tank which
+			holds the cold water that supplies the boiler. A couple
+			of battings away a television aerial hangs from the
+			roof.",
+	before
+	[;	Go:	if (player in k_batting && noun == d_obj) {
+				if (k_trap hasnt open)
+					"But the trapdoor is closed.";
+				if (k_ladder has general)
+					<<climb k_ladder>>;
+			}
+			if (player in k_ladder && noun == d_obj)
+				<<Climb k_ladder>>;
+	],
+	cant_go "You've got to be more careful up here.",
+	underfoot battings,
+	overhead k_loft_ceiling,
+has	sav scored upstairs;
+
+
+Object k_insulation "loft insulation" k_loft
+with name "loft" "insulation" "fibre" "glass" "rolls" "of" "roll",
+	description	"Horrible stuff. It cuts your hands like you wouldn't believe.",
+	article "several metres of",
+	before
+	[;	Enter, Climb:
+			"You have no desire to crash through the floor.";
+
+		Take:
+			if (gloves has worn)
+				"You don't want that stuff.";
+
+			"Too nasty on the poor old hands.";
+	],
+has	sav scenery;
+
+Object k_ladder_mechanism "ladder mechanism" k_loft
+class adnc
+with name "mechanism" "metal" "frame" "spring" "springs" "pivot"
+	"pivots",
+	adname 'ladder' 'aluminium' 'al',
+	description	"An aluminium frame connected to the folding ladder by a
+		mechanism of springs and pivots, it enables the ladder to be easily
+		folded back up from the corridor below.",
+has	scenery metallic;
+
+Floor battings "battings"
+with name "battings" "transverse",
+	description "Thick coarse wood running across the loft.",
+	article "other";
+
+Roof k_loft_ceiling "inside of the roof"
+with description "Bare beams.";
+
+Object k_tank "water tank" k_loft !	if it HAS GENERAL the water is red
+with name "cold" "water" "tank" "hole" "small" "anodized",
+	description	"A large square anodized tank. A couple of pipes run
+			into (or perhaps out of) it and a small hole is in the
+			top, otherwise it is quite featureless.",
+	before
+	[;	Receive:
+			if (noun == cordial) {
+				give self general;
+				remove cordial;
+				"You pour the contents of the bottle into the
+				tank.";
+			}
+			"That won't go in the hole.";
+	],
+has	metallic static;
+
+Object k_batting "batting near the cold water tank" k_loft
+with name "batting" "near" "tank" "water" "next" "to",
+	before
+	[;	Enter, Climb:
+			move player to self;
+			"You gingerly step onto the battings, balancing more
+			carefully than is probably necessary.";
+		GetOff, Exit:
+			"You'll have to be more specific about where you
+			want to go.";
+		Take:	<<Take aerial_batting>>;
+	],
+	underfoot battings,
+	overhead k_loft_ceiling,
+has	sav scenery supporter enterable;
+
+Object aerial_batting "batting under the television aerial" k_loft
+with name "batting" "under" "near" "by" "aerial" "tv" "television",
+	number 1,
+	before
+	[;	Examine:
+			switch(self.number) {
+				1:	"Just like all the others.";
+				2:	"The batting has been sawn in two.";
+				3:	"It is sawn into three sections.";
+			}
+		Cut:	if (player in self)
+				"Not while you're standing on it!";
+			if (self.number == 3)
+				"You've already cut it into three sections.";
+			else {	self.number++;
+					if (self.number == 2)
+						"You cut through the batting below
+						and to the far side of the television
+						aerial. With a quick blow you
+						disperse the sawdust which collected
+						on the surrounding insulation.";
+					if (self.number == 3)
+						"You make another cut, all the way
+						through, about two feet to the right
+						of the last, repeating the sawdust
+						removal process.";
+				}
+		Climb:	<<Enter self>>;
+		Enter:	move player to self;
+			switch(self.number) {
+				1:	"You move carefully over to the tv aerial.";
+				2:	"Momentarily, it seems as if the batting is
+					going to break in two: for that split second
+					your heart is in your mouth, but the beam
+					holds firm.";
+				3:	deadflag = 1;
+					"There is an almighty crash as the loose
+					section of beam (and yourself) crashes
+					through onto the landing. Your pelvis sears
+					with a white hot pain, but you can still
+					think clearly enough to wonder how on earth
+					you will explain this one to the doctors.";
+			}
+		GetOff, Exit:
+			"You'll have to be more specific about where you want
+			to go.";
+		Take:	"That's not really on is it?";
+	],
+	underfoot battings,
+	overhead k_loft_ceiling,
+has	sav concealed supporter enterable metallic;
+
+Object k_aerial "television aerial" k_loft
+!	if it HAS GENERAL it has been turned
+with parse_name
+	[ w1 w2;
+		w1 = NextWord(); w2 = NextWord();
+		if (w1 == 'tv' or 'television' && w2 == 'aerial')
+			return 2;
+		if (w1 == 'aerial')
+			return 1;
+		return 0;
+	],
+	before
+	[;	if (player notin aerial_batting)
+			"It's too far away.";
+		Turn, Push:
+			give self general;
+			"You give the aerial a twist, pointing it in a random
+			direction.";
+		Take:	"It is suspended from overhead beams by a rather
+			elaborate arrangement of string and wire from which you
+			cannot disconnect it.";
+		ThrownAt:
+			print_ret (The) noun, " falls short of ", (the) self,
+					". You are just able to retrieve it.";
+	],
+has	sav scenery metallic;
+
+object k_ladder "ladder" k_loft
+!	if it HAS GENERAL it is extended
+with name "ladder" "aluminium" "al",
+	describe
+	[;	if (self has general)
+			"Fastened to a spring-loaded mechanism is the top end
+			of the aluminium ladder you used to get up here.";
+		"All folded up in a metal frame is an extensible ladder.";
+	],
+	before
+	[;	Climb:	if (self has general) {
+				print "You climb down the ladder.^";
+				PlayerTo(k_landing, 2);
+				rtrue;
+			}
+			"In it's present condition, you cannot climb the
+			ladder.";
+		Push:	if (k_trap hasnt open)
+				"You'll have to open the trapdoor before you can
+				lower the ladder.";
+			if (self hasnt general) {
+				give self general;
+				move k_ladder_end to k_landing;
+				"You push the ladder and it extends down into the
+				corridor below.";
+			}
+		Pull:	if (self has general) {
+				if (player in aerial_batting)
+					"You can't reach it from here.";
+				if (player in k_ladder)
+					"But you are standing on the ladder!";
+				if (player in k_batting) {
+					give self ~general;
+					remove k_ladder_end;
+					"You pull the ladder and it smoothly folds
+					back up.";
+				}
+			}
+			"You tug at the ladder, but it is firmly attatched to
+			its mechanism.";
+		Enter:	if (self has general) {
+				move player to k_ladder;
+				"You awkwardly clamber back onto the ladder.";
+			}
+			"With the ladder all folded up, you can't really stand
+			on it.";
+		Getoff, Exit:
+			"You'll have to be more specific about where you want
+			to go.";
+		Open:	if (self has general)
+				"The ladder is already extended.";
+			<<Push self>>;
+		Close:	<<Pull self>>;
+	],
+	underfoot carpet,
+	overhead k_loft_ceiling,
+has	static supporter enterable metallic;
+
+
+Object k_ladder_end "ladder"
+with name "ladder" "rubber" "feet",
+	description "Made of shiny aluminium. It's black rubber feet
+			exactly correspond with the impressions in the
+			carpet.",
+	describe
+	[;	"A ladder disappears up through the ceiling."; ],
+	before
+	[;	Climb:	print "You climb up the ladder.^";
+			PlayerTo(k_ladder, 2);
+			rtrue;
+		Take:	"It seems to be fixed to something at the top.";
+		Push:	remove self;
+			give k_ladder ~general;
+			"With a lifting shove, the ladder smoothly folds back
+			up into the loft.";
+	],
+	underfoot carpet,
+	overhead k_loft_ceiling,
+has	sav static enterable supporter;
+

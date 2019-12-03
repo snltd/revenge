@@ -1,0 +1,255 @@
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+! Savage himself, along with routines he needs to work properly
+
+!=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Person  savage "Savage" k_drive with
+  name "kev" "kevin" "savage" "neighbour",
+  number 0,  ! counter for sav_#? routines
+  state 2,   ! 1 means he is home but doing nothing special
+             ! 2 means he is working on the car
+             ! 5 means he is asleep
+  description [;
+    "Savage is a heavily built, muscular man in his early thirties. He has
+    short hair and a thick neck.";
+  ],
+  whatsit "Kev Savage is your next door neighbour. The aim of this game is
+          to do him harm.",
+  walkdesc "lumbers off",
+  peekdesc [;
+    switch(self.state) {
+      2:
+        print "is working on his car";
+      5:
+        "is asleep";
+      default:
+        "slouches";
+    }
+  ],
+  before [;
+    Insult:
+      "He doesn't need much provocation to kick your teeth in. You'd better
+      get your revenge in more subtle ways.";
+  ],
+  life [;
+    WakeOther:
+      if (self.state == 5) {
+        "I don't think that's wise.";
+      }
+
+      "He looks as awake as he ever gets.";
+    Show:
+      if (self.state == 5) {
+        "I can't see there being much of a reaction.";
+      }
+
+      if (noun has sav) {
+        "~What the hell are you doing with that?~";
+      }
+    Kiss:
+      "I don't think he'd be up for that.";
+    Attack:
+      "He'd kill you.";
+    Ask:
+      switch(second) {
+        QBronson:
+          "~He's a little diamond.~";
+        QSimone:
+          "~That bitch?~";
+        QFrancis, QKen:
+          "~Nothin to do with me.~";
+        QWork:
+          "~What do you know about that?~";
+        QGun:
+          if (box has general) {
+            "Savage narrows his eyes and fixes you in a menacing stare full of
+            the threat of violence. He growls: ~I don't know what you're on
+            about.~";
+          }
+
+          "You've played this game before.";
+        QFootball:
+          "~Man U for ever.~ (Savage has probably never been anywhere near
+          Manchester.)";
+        QMusic:
+          "~Shut up.~";
+        default:
+          "Savage just ignores you.";
+      }
+    Tell:
+      if (self in escort) {
+        "Savage can't hear you in the car.";
+      }
+
+      switch(second) {
+        QPhone:
+          if (k_phone has general) {
+            "** Move savage to phone **";
+          }
+        default:
+          "Savage takes no notice.";
+      }
+    Answer:
+      if (self in escort) {
+        "Savage can't hear you in the car.";
+      }
+
+      if (noun == 'hello' or 'hi') {
+        "Savage just glares at you.";
+      }
+
+      if (noun == k_phone) {
+        <<Tell Savage QPhone>>;
+      }
+  ],
+  orders [;
+    default:
+      "Savage ignores you completely.";
+  ],
+  react_before [;
+    if (self.state == 5) {
+      rtrue;
+    }
+
+    Go:
+      if (parent(player).noun has sav) {
+        "Savage steps out in front of you. ~Where the hell do you
+        think you're going?~ he demands.";
+      }
+    Take, Push, Pull:
+      if (noun has sav) {
+        "Savage glares at you. You daren't touch ", (the) noun, ".";
+      }
+  ],
+  react_after [loc;
+    if (self.state == 5) {
+      rtrue;
+    }
+
+    loc = parent(player);
+
+    Go:
+      if (loc has sav) {
+        print "~What the hell are you doing here?~ roars Savage.  Roughly he
+              grabs your arm and drags you ";
+
+        if (loc has outside) {
+          print "through the garden and shoves you staggering to the
+                tarmac...^";
+        }
+        else {
+          if (loc == k_landing or k_bathroom or k_loft or k_spare_room or
+                   k_bedroom) {
+            if (loc ~= k_landing) {
+              print "out of the room, ";
+            }
+
+            print  "down the stairs and ";
+          }
+
+          print "through to the kitchen and shoves you through the back door.
+                You stagger, overbalance, and fall in a heap (skinning a palm
+                in the process)...
+                ^";
+        }
+        PlayerTo(k_drive, 2);
+      }
+  ],
+  each_turn [;
+    if (random(10) > 6) {
+      switch(self.state) {
+        1:
+          "Savage glares at you.";
+        2:
+          if (self notin escort) {
+            print (string) random("Savage kicks at a tyre.^",
+                                  "Savage examines the condition of the wiper
+                                  blades.^",
+                                  "~Are you just going to stand there all
+                                  day?~ sneers Savage.^");
+          }
+        4:
+          "From underneath the car, Savage curses.";
+        5:
+          print (string) random("Savage snore loudly.^",
+                                "Savage turns over in bed. Your heart leaps as
+                                you think he is waking up, but he just grunts
+                                and stays asleep.^",
+                                "In his sleep, Savage murmers something
+                                incomprehensible.^");
+      }
+    }
+  ],
+  daemon [;
+    self.number++;
+
+    if (parser_trace >= 2) {
+      print "^[ savage.number=", self.number, " ]^";
+    }
+
+    switch(self.state) {
+      2:
+        Sav_Motor();
+    }
+  ],
+  has transparent;
+
+[ Sav_Motor;
+  ! first, get Savage to open the door.
+
+  switch(savage.number) {
+    1:
+      if (savage notin k_drive)
+        "** ERROR: Savage in wrong location. [sav_motor] **";
+      give escort ~locked open;
+      if (player in k_drive) {
+        print "^Savage fumbles in his pocket for a key ring.  He unlocks the
+              car door and opens it. Reaching under the steering column, he
+              pops the car bonnet open, moves round to the front and begins
+              inspecting the engine.
+              ^";
+      }
+      rtrue;
+    2:
+      if (player in k_drive) {
+        print "^Savage pulls his key ring out of his pocket, gets into the
+              escort and starts it up. He revs the engine loudly.^";
+      }
+      move savage to escort;
+      move key_ring to escort;
+
+      if (parent(player) has outside && parent(player) ~= k_drive) {
+        "You hear a car engine briefly roar.";
+      }
+    3:
+      if (player in k_drive)
+        print "Savage gets out of the car, (leaving the engine running) and
+              walks round to inspect the engine, taking care to knock you with
+              his shoulder as he passes.
+              ^";
+      move savage to k_drive;
+    4 to 10:
+      if (player in k_drive)
+        print_ret (string) random(
+          "Savage bumps his head on the bonnet and curses.",
+          "Savage walks round to the open car door, reaches in a foot and
+          presses the accelerator. Shaking his head, he returns to the
+          engine.",
+          "The pitch of the engine changes as Savage makes some adjustment
+          under the bonnet.",
+          "Savage kneels down and examines the underside of his car.");
+    11:
+      give escort ~open ~on;
+      move key_ring to savage;
+      if (player in k_drive) {
+        "^Savage slams shut the car bonnet, switches off the engine then
+        closes and locks the door, pocketing the keys.";
+      }
+    12:
+      MoveActor(savage, w_obj);
+    13:
+      savage.state = 1;
+      savage.number = 0;
+    }
+];
